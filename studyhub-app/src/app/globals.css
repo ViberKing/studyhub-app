@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  The prototype's full CSS will be added here in Phase 2.
+  For now, this is just the Tailwind base + a placeholder style.
+*/
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
+  background: #FAF7F5;
+  color: #1A1416;
+}

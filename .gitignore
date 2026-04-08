@@ -1,0 +1,31 @@
+# Environment variables — NEVER commit secrets
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env
+
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel/
+
+# TypeScript
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
