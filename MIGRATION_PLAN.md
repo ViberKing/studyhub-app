@@ -1,15 +1,14 @@
 # StudyHub Migration Plan
 
 > **Phase 0 deliverable** — Read this fully before approving Phase 1.
-> Generated from `studyhub-complete (1).html` (5,481 lines).
+> Generated from `studyhub-complete (1).html` (5,481 lines, ~100 JS functions).
 
 ---
 
 ## 1. Complete Page Inventory
 
-The prototype is a single-page app with two "shells" (user app + admin console) and a login screen. Pages are toggled via `display:none/block`.
-
 ### Login Screen
+
 | Element | What it does |
 |---|---|
 | **Sign In tab** | Email + password login. Validates against localStorage accounts. |
@@ -18,44 +17,54 @@ The prototype is a single-page app with two "shells" (user app + admin console) 
 | **"View pricing" link** | Enters demo mode and navigates to the pricing page. |
 | **"Forgot password?" link** | Shows an `alert()` saying this would email a reset link in production. |
 
-### User App Pages (13 pages)
+### User App Pages (13 in prototype)
 
 | # | Page ID | Title | What it does |
 |---|---------|-------|--------------|
-| 1 | `dashboard` | Dashboard | Hero greeting (time-of-day aware), 4 bento stat tiles (assignments due, study minutes today, research projects, flashcard decks), upcoming deadlines list, mood tracker (5 buttons), quick action tiles linking to other pages. |
+| 1 | `dashboard` | Dashboard | Hero greeting (time-of-day aware), 4 bento stat tiles (assignments due, study minutes today, research projects, flashcard decks), upcoming deadlines list, mood tracker (5 buttons), quick action tiles. |
 | 2 | `analytics` | Analytics | 4 stat cards (total hours, sessions, assignments done, avg session), 7-day bar chart of study minutes, minutes-per-module progress bars, text insight. |
-| 3 | `research` | Research Assistant | Gated behind an academic integrity agreement modal (5 checkboxes). Step 1: essay brief (module + question). Step 2: add sources manually (or stub AI buttons). Step 3: process sources (hard summary, soft summary, flashcards, key pages — all return placeholder text). Save project button. List of saved projects. |
-| 4 | `essay` | Essay Structure Builder | Dropdown for essay type (7 templates: argumentative, lit review, compare & contrast, case study, reflective, research paper, general). Word count input. Renders sections with word allocations. "Drafted" checkboxes per section. Print and copy-to-clipboard buttons. |
-| 5 | `flashcards` | Flashcards | Create deck (name + module). Deck list with progress bars. **Deck detail view** with 5 mode tabs: **Flashcards** (3D flip card, shuffle, star, rate "still learning" / "got it"), **Learn** (adaptive MC then typed answer, feedback, progress stats), **Match** (timed tile-matching game, 4x grid), **Test** (mixed MC + written, auto-graded, score screen), **Cards** (list view, add/delete cards, bulk import modal). Star system, hint pills, `answerMatches` helper with typo tolerance. |
+| 3 | `research` | Research Assistant | Gated behind academic integrity agreement modal (5 checkboxes). Step 1: essay brief (module + question). Step 2: add sources manually (or stub AI buttons). Step 3: process sources (hard/soft summary, flashcards, key pages — all placeholder text). Save project. List saved projects. |
+| 4 | `essay` | Essay Structure Builder | 7 essay type templates. Word count input scales section allocations. "Drafted" checkboxes. Print + copy to clipboard. |
+| 5 | `flashcards` | Flashcards | Create deck. Deck list with progress bars. **Deck detail** with 5 mode tabs: **Flashcards** (3D flip card, shuffle, star, rate), **Learn** (adaptive MC→typed answer, feedback, progress), **Match** (timed tile-matching, 4×grid), **Test** (mixed MC + written, auto-graded, score screen), **Cards** (list view, add/delete, bulk import). Star system, hint pills, `answerMatches` with typo tolerance. |
 | 6 | `notes` | Notes | Add note (title, module, content). Filter by module. List with delete. |
-| 7 | `assignments` | Assignments | Add assignment (title, module, due date, type, priority, weight%). Filter: all/active/done. Status dropdown (Not Started / In Progress / Completed). Colour-coded urgency badges. Delete with confirm. |
-| 8 | `modules` | Modules | Add module (name, code, lecturer, credits). List with linked assignment count. Delete with confirm. Essential plan limited to 5 modules. |
-| 9 | `grades` | Grade Calculator | Add component (name, weight%, score 0-20 or blank). Target grade selector (First/2:1/2:2/Third). Calculates weighted average and required score on remaining work. St Andrews 20-point scale reference. |
-| 10 | `timer` | Study Timer | Pomodoro timer (25/50/90 min presets). Start/pause/reset. Module + notes fields. Stats: sessions today, minutes today, minutes this week. Session history list. Auto-logs on completion. |
-| 11 | `citations` | Citation Generator | Format selector (APA/MLA/Harvard). Source type (Book/Journal/Website) — fields change dynamically. Generate, copy, save. Saved citation library with delete. |
-| 12 | `settings` | Settings | Profile (name edit, email read-only). Plan & billing status (trial countdown, active plan display, change plan, cancel subscription). Security (change password). Data (export JSON, delete account). Hidden in demo mode. |
-| 13 | `pricing` | Pricing | Monthly/annual toggle. 3 tiers: Essential (£9.99/mo, £99/yr), Plus (£14.99/mo, £149/yr), Pro (£19.99/mo, £199/yr). Feature lists per tier. "Most popular" badge on Plus. "Start free trial" buttons. |
+| 7 | `assignments` | Assignments | Add assignment (title, module, due date, type, priority, weight%). Filter: all/active/done. Status dropdown. Colour-coded urgency badges. Delete with confirm. |
+| 8 | `modules` | Modules | Add module (name, code, lecturer, credits). Linked assignment count. Delete. Essential plan limited to 5 modules. |
+| 9 | `grades` | Grade Calculator | Add component (name, weight%, score 0–20 or blank). Target grade selector. Calculates weighted average and required remaining score. St Andrews 20-point scale. |
+| 10 | `timer` | Study Timer | Pomodoro (25/50/90 min presets). Start/pause/reset. Module + notes fields. Stats (today/week). Session history. Auto-logs on completion. |
+| 11 | `citations` | Citation Generator | Format (APA/MLA/Harvard). Source type (Book/Journal/Website) — fields change dynamically. Generate, copy, save. Citation library with delete. |
+| 12 | `settings` | Settings | Profile (name edit, email read-only). Plan & billing status. Security (change password). Data (export JSON, delete account). Hidden in demo mode. |
+| 13 | `pricing` | Pricing | Monthly/annual toggle. 3 tiers (Essential/Plus/Pro). Feature lists. "Most popular" badge on Plus. "Start free trial" buttons. |
 
-### Admin Console (5 pages — accessed by typing "admin" as email on login)
+### Community Pages (NEW — not in prototype)
+
+These pages are specified in the requirements but **do not exist in the prototype HTML/CSS**. They will need UI design during Phase 4.
 
 | # | Page ID | Title | What it does |
 |---|---------|-------|--------------|
-| 1 | `overview` | Overview | Bento stats (total users, MRR, active trials, churn rate). Recent signups list. Plan distribution chart. Revenue bar chart (last 6 months). |
-| 2 | `users` | Users | Search + filter (tier, status). Data table with avatar, name, email, tier pill, status pill, MRR, signup date, last active. |
-| 3 | `revenue` | Revenue | MRR, ARR, ARPU, trial-to-paid conversion rate. Revenue-by-tier table. |
-| 4 | `support` | Support Tickets | List of ticket cards with avatar, name, email, subject, preview, status pill. |
-| 5 | `activity` | Activity Feed | Chronological event list: signups, cancellations, churns, ticket openings. |
+| 14 | `feed` | Uni Feed | University-wide social feed for St Andrews students. Posts + replies. |
+| 15 | `groups` | Groups | Public/private study groups. Group chat. Members list. |
+| 16 | `messages` | Messages | Direct messages between users who share a group ("shared group required" gate). |
 
-> **Note:** The admin console uses randomly generated fake data (`generateAdminData()`). In production, this would query real Supabase data. We should discuss whether to build a real admin console in Phase 4 or defer it.
+### Calendar Page (NEW — not in prototype)
+
+| # | Page ID | Title | What it does |
+|---|---------|-------|--------------|
+| 17 | `calendar` | Calendar | Calendar view with events. Types include assignments, study sessions, custom events. |
+
+### Admin Console (5 pages — **REMOVED for v1**)
+
+Per requirements: "Admin console: removed for v1. Delete the `enterAdminMode` shortcut and the admin pages from the port."
+
+The prototype has 5 admin pages (Overview, Users, Revenue, Support, Activity) using randomly generated fake data. These will NOT be ported. The `enterAdminMode()` function, the "admin" email shortcut in `doSignIn()`, and all admin HTML/CSS will be deleted.
 
 ### Modals (4)
 
 | Modal | Trigger |
 |---|---|
-| **Academic Integrity Agreement** | Clicking Research in the sidebar (if not yet agreed). 5 checkboxes required. |
-| **Tutorial** | "How it works" button in header. Auto-playing step-by-step walkthrough per page. Progress bar segments, keyboard shortcuts (arrows, space, escape). |
-| **Confirm** | Delete actions throughout the app. Generic confirm with customisable message and button label. |
-| **Bulk Import** | "Bulk import" button in flashcard Cards tab. Textarea for pasting tab/comma/semicolon-separated term-definition pairs. |
+| **Academic Integrity Agreement** | Clicking Research in sidebar (if not yet agreed). 5 checkboxes required. |
+| **Tutorial** | "How it works" button in header. Auto-playing step-by-step walkthrough per page. |
+| **Confirm** | Delete actions throughout the app. Generic confirm with customisable message/button. |
+| **Bulk Import** | "Bulk import" button in flashcard Cards tab. Paste tab/comma/semicolon-separated pairs. |
 
 ---
 
@@ -63,63 +72,50 @@ The prototype is a single-page app with two "shells" (user app + admin console) 
 
 ### Current localStorage Shape
 
-The prototype stores two things in localStorage:
-
-**1. Accounts registry** (`studyhub-accounts` key):
+**Accounts registry** (`studyhub-accounts` key):
 ```json
 {
   "user@example.com": {
     "name": "string",
     "email": "string",
-    "passwordHash": "string (base64 obfuscation, not real crypto)",
-    "createdAt": "ISO date string",
+    "passwordHash": "string (base64 obfuscation)",
+    "createdAt": "ISO date",
     "plan": "trial | essential | plus | pro | cancelled",
-    "trialEndsAt": "ISO date string",
+    "trialEndsAt": "ISO date",
     "billing": "monthly | annual"
   }
 }
 ```
 
-**2. Per-user state** (`studyhub-{email}` key):
+**Per-user state** (`studyhub-{email}` key):
 ```json
 {
-  "assignments": [{ "id": number, "title": string, "module": string, "due": "YYYY-MM-DD", "type": string, "priority": string, "weight": number, "status": string, "done": boolean }],
-  "sessions": [{ "id": number, "min": number, "module": string, "notes": string, "at": "ISO string" }],
-  "decks": [{
-    "id": number,
-    "name": string,
-    "module": string,
-    "cards": [{
-      "id": number, "q": string, "a": string, "hint": string,
-      "starred": boolean, "status": "new | learning | known"
-    }]
-  }],
-  "grades": [{ "id": number, "name": string, "weight": number, "score": number | null }],
-  "citations": [{ "id": number, "text": string }],
-  "notes": [{ "id": number, "title": string, "content": string, "module": string, "at": "ISO string" }],
-  "modules": [{ "id": number, "name": string, "code": string, "lecturer": string, "credits": number }],
-  "projects": [{
-    "id": number, "module": string, "brief": string,
-    "sources": [{ "id": number, "title": string, "author": string, "results": { "hard"?: string, "soft"?: string, "cards"?: string, "pages"?: string } }],
-    "at": "ISO string"
-  }],
+  "assignments": [{ "id", "title", "module", "due", "type", "priority", "weight", "status", "done" }],
+  "sessions": [{ "id", "min", "module", "notes", "at" }],
+  "decks": [{ "id", "name", "module", "cards": [{ "id", "q", "a", "hint", "starred", "status" }] }],
+  "grades": [{ "id", "name", "weight", "score" }],
+  "citations": [{ "id", "text" }],
+  "notes": [{ "id", "title", "content", "module", "at" }],
+  "modules": [{ "id", "name", "code", "lecturer", "credits" }],
+  "projects": [{ "id", "module", "brief", "sources": [...], "at" }],
   "mood": "string | null",
   "integrityAgreed": boolean,
-  "sources": [same shape as projects[].sources],
+  "sources": [{ "id", "title", "author", "results": {} }],
   "essayChecks": { "templateName+index": boolean }
 }
 ```
 
-### Proposed Postgres Schema (Supabase)
+### Proposed Postgres Schema
 
 ```sql
--- Users table is handled by Supabase Auth (auth.users)
--- We add a profiles table for app-specific user data
-
+-- ============================================================
+-- PROFILES (extends Supabase Auth)
+-- ============================================================
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
+  university TEXT NOT NULL DEFAULT 'st-andrews',
   plan TEXT NOT NULL DEFAULT 'trial'
     CHECK (plan IN ('trial', 'essential', 'plus', 'pro', 'cancelled')),
   billing TEXT NOT NULL DEFAULT 'monthly'
@@ -133,6 +129,9 @@ CREATE TABLE profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- ============================================================
+-- CORE STUDY TABLES
+-- ============================================================
 CREATE TABLE modules (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -192,7 +191,7 @@ CREATE TABLE grades (
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   weight NUMERIC(5,2) NOT NULL,
-  score NUMERIC(4,1),  -- NULL means pending
+  score NUMERIC(4,1),  -- NULL = pending
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -231,37 +230,110 @@ CREATE TABLE research_sources (
   result_cards TEXT,
   result_pages TEXT,
   is_unsaved BOOLEAN NOT NULL DEFAULT FALSE,
-  -- is_unsaved = TRUE for sources in the "working" list (not yet saved to a project)
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE essay_checks (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  check_key TEXT NOT NULL,  -- e.g. "argumentative0", "litreview2"
+  check_key TEXT NOT NULL,
   checked BOOLEAN NOT NULL DEFAULT FALSE,
   UNIQUE(user_id, check_key)
 );
 
--- Row Level Security: every table gets a policy so users can only
--- read/write their own rows
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE modules ENABLE ROW LEVEL SECURITY;
-ALTER TABLE assignments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE study_sessions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE decks ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cards ENABLE ROW LEVEL SECURITY;
-ALTER TABLE grades ENABLE ROW LEVEL SECURITY;
-ALTER TABLE citations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE research_projects ENABLE ROW LEVEL SECURITY;
-ALTER TABLE research_sources ENABLE ROW LEVEL SECURITY;
-ALTER TABLE essay_checks ENABLE ROW LEVEL SECURITY;
+-- ============================================================
+-- CALENDAR (new feature — not in prototype)
+-- ============================================================
+CREATE TABLE calendar_events (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  event_type TEXT NOT NULL DEFAULT 'custom'
+    CHECK (event_type IN ('assignment', 'study', 'custom', 'exam', 'social')),
+  start_at TIMESTAMPTZ NOT NULL,
+  end_at TIMESTAMPTZ,
+  all_day BOOLEAN NOT NULL DEFAULT FALSE,
+  module TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
--- Example RLS policy (repeat pattern for all tables):
-CREATE POLICY "Users can manage their own profiles"
-  ON profiles FOR ALL
-  USING (id = auth.uid());
+-- ============================================================
+-- COMMUNITY (new feature — not in prototype)
+-- ============================================================
+CREATE TABLE groups (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  university TEXT NOT NULL DEFAULT 'st-andrews',
+  is_private BOOLEAN NOT NULL DEFAULT FALSE,
+  created_by UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE group_members (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  group_id BIGINT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  role TEXT NOT NULL DEFAULT 'member'
+    CHECK (role IN ('owner', 'admin', 'member')),
+  joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(group_id, user_id)
+);
+
+CREATE TABLE group_messages (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  group_id BIGINT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE direct_messages (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  sender_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  receiver_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  read BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE feed_posts (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  university TEXT NOT NULL DEFAULT 'st-andrews',
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE feed_replies (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  post_id BIGINT NOT NULL REFERENCES feed_posts(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE reports (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  reporter_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  reported_user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  content_type TEXT NOT NULL
+    CHECK (content_type IN ('post', 'reply', 'group_message', 'dm')),
+  content_id BIGINT NOT NULL,
+  reason TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'reviewed', 'actioned')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE blocked_users (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  blocker_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  blocked_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(blocker_id, blocked_id)
+);
 ```
 
 ### Key Mapping Notes
@@ -269,272 +341,288 @@ CREATE POLICY "Users can manage their own profiles"
 | Prototype field | Postgres column | Notes |
 |---|---|---|
 | `id: Date.now()` | `BIGINT GENERATED ALWAYS AS IDENTITY` | Auto-incrementing, no client-generated IDs |
-| `cards` nested inside `decks` | Separate `cards` table with `deck_id` FK | Normalised for efficiency |
+| `cards` nested in `decks` | Separate `cards` table with `deck_id` FK | Normalised |
 | `projects[].sources` | `research_sources` with `project_id` FK | Normalised |
-| `state.sources` (unsaved working list) | `research_sources` with `is_unsaved = TRUE, project_id = NULL` | Becomes part of a project on save |
-| `state.essayChecks` | `essay_checks` table with composite key | Simple key-value per user |
-| `passwordHash` (base64 obfuscation) | Supabase Auth handles this properly | bcrypt under the hood |
+| `state.sources` (unsaved) | `research_sources` with `is_unsaved = TRUE` | Links to project on save |
+| `state.essayChecks` | `essay_checks` with composite key | Simple key-value per user |
+| `passwordHash` (base64) | Supabase Auth bcrypt | Proper crypto |
 | `studyhub-current-user` | Supabase session cookie | Auto-managed |
 
 ---
 
-## 3. localStorage Function → Supabase Call Mapping
+## 3. Function → Supabase Call Mapping
 
 ### Auth Functions
 
-| Prototype Function | What it does now | Supabase replacement |
-|---|---|---|
-| `getAccounts()` | Reads `studyhub-accounts` from localStorage | Not needed — Supabase Auth manages users |
-| `saveAccounts(accounts)` | Writes accounts to localStorage | Not needed |
-| `hashPassword(p)` | Base64 obfuscation | Not needed — Supabase Auth uses bcrypt |
-| `doSignIn()` | Validates email/password against localStorage | `supabase.auth.signInWithPassword({ email, password })` |
-| `doCreateAccount()` | Creates account object in localStorage, sets trial | `supabase.auth.signUp({ email, password, options: { data: { name } } })` + insert into `profiles` table with trial dates |
-| `loginAsAccount(account)` | Sets `user` global, stores current email, calls `enterApp()` | `supabase.auth.getUser()` to populate user state, then `enterApp()` |
-| `forgotPassword()` | Shows an alert | `supabase.auth.resetPasswordForEmail(email)` — sends real email via Supabase |
-| `doSignOut()` | Clears localStorage current-user, resets state | `supabase.auth.signOut()` |
-| Auto-login on `DOMContentLoaded` | Reads `studyhub-current-user` from localStorage | `supabase.auth.getSession()` — Supabase persists the session automatically |
+| Prototype Function | Supabase Replacement |
+|---|---|
+| `getAccounts()` | Not needed — Supabase Auth manages users |
+| `saveAccounts(accounts)` | Not needed |
+| `hashPassword(p)` | Not needed — Supabase Auth uses bcrypt |
+| `doSignIn()` | `supabase.auth.signInWithPassword({ email, password })` + `.ac.uk` email validation |
+| `doCreateAccount()` | `supabase.auth.signUp({ email, password, options: { data: { name } } })` + insert `profiles` row + `.ac.uk` + `@st-andrews.ac.uk` checks |
+| `loginAsAccount(account)` | `supabase.auth.getUser()` → populate user state → `enterApp()` |
+| `forgotPassword()` | `supabase.auth.resetPasswordForEmail(email)` — sends real email |
+| `doSignOut()` | `supabase.auth.signOut()` |
+| `enterAdminMode()` | **DELETED** — no admin console in v1 |
+| Auto-login on `DOMContentLoaded` | `supabase.auth.getSession()` |
 
-### State Persistence Functions
+### State Persistence
 
-| Prototype Function | What it does now | Supabase replacement |
-|---|---|---|
-| `saveState()` | `localStorage.setItem(userKey(), JSON.stringify(state))` | Individual table writes (see below) |
-| `loadState()` | `localStorage.getItem(userKey())` and merge into `state` | Fetch all user data from Supabase tables on login |
+| Prototype Function | Supabase Replacement |
+|---|---|
+| `saveState()` | Individual table writes per mutation |
+| `loadState()` | Fetch all user data from Supabase tables on login |
 
-### Per-Feature CRUD Functions → Supabase Calls
+### Per-Feature CRUD
 
 **Assignments:**
+
 | Function | Supabase call |
 |---|---|
 | `addAssignment()` | `supabase.from('assignments').insert({...})` |
 | `updateStatus(id, status)` | `supabase.from('assignments').update({ status, done }).eq('id', id)` |
 | `delAssignment(id)` | `supabase.from('assignments').delete().eq('id', id)` |
+| `filterAssign(f)` | Client-side filter on fetched data (same as prototype) |
 
 **Study Sessions:**
+
 | Function | Supabase call |
 |---|---|
 | `logSession(min)` | `supabase.from('study_sessions').insert({...})` |
 
 **Flashcards:**
+
 | Function | Supabase call |
 |---|---|
-| `addDeck()` | `supabase.from('decks').insert({...})` — returns new deck ID |
+| `addDeck()` | `supabase.from('decks').insert({...})` |
 | `delDeck(id)` | `supabase.from('decks').delete().eq('id', id)` — cascades to cards |
 | `saveNewCard(deckId)` | `supabase.from('cards').insert({...})` |
 | `delCardById(deckId, cardId)` | `supabase.from('cards').delete().eq('id', cardId)` |
-| `doBulkImport()` | `supabase.from('cards').insert([...array of cards])` |
+| `doBulkImport()` | `supabase.from('cards').insert([...array])` |
 | `rateCard(id, ok)` | `supabase.from('cards').update({ status }).eq('id', cardId)` |
 | `toggleStar(deckId, cardId)` | `supabase.from('cards').update({ starred: !current }).eq('id', cardId)` |
 
+Note: `reviewState`, `learnState`, `matchState`, `testState`, `starredOnly` are **ephemeral client-side state only** — they are never persisted. They stay as React state (useState/useReducer). Only `card.status` and `card.starred` are persisted to Supabase.
+
 **Grades:**
+
 | Function | Supabase call |
 |---|---|
 | `addGrade()` | `supabase.from('grades').insert({...})` |
 | `delGrade(id)` | `supabase.from('grades').delete().eq('id', id)` |
 
 **Citations:**
+
 | Function | Supabase call |
 |---|---|
 | `saveCitation(c)` | `supabase.from('citations').insert({ text: c })` |
 | `delCit(id)` | `supabase.from('citations').delete().eq('id', id)` |
 
 **Notes:**
+
 | Function | Supabase call |
 |---|---|
 | `addNote()` | `supabase.from('notes').insert({...})` |
 | `delNote(id)` | `supabase.from('notes').delete().eq('id', id)` |
 
 **Modules:**
+
 | Function | Supabase call |
 |---|---|
-| `addModule()` | `supabase.from('modules').insert({...})` — check count first for Essential plan limit |
+| `addModule()` | `supabase.from('modules').insert({...})` — check count for Essential limit |
 | `delModule(id)` | `supabase.from('modules').delete().eq('id', id)` |
 
 **Research:**
+
 | Function | Supabase call |
 |---|---|
 | `addSourceManual()` | `supabase.from('research_sources').insert({ is_unsaved: true, ... })` |
 | `processSource(id, kind)` | `supabase.from('research_sources').update({ result_[kind]: placeholder })` |
 | `delSource(id)` | `supabase.from('research_sources').delete().eq('id', id)` |
-| `saveResearchProject()` | Insert into `research_projects`, then update all unsaved sources to link to the new project ID |
+| `saveResearchProject()` | Insert into `research_projects`, update sources to link to project |
 
 **Profile / Settings:**
+
 | Function | Supabase call |
 |---|---|
 | `saveProfile()` | `supabase.from('profiles').update({ name }).eq('id', userId)` |
 | `changePassword()` | `supabase.auth.updateUser({ password: newPwd })` |
-| `confirmDeleteAccount()` | `supabase.from('profiles').delete().eq('id', userId)` + `supabase.auth.admin.deleteUser(userId)` (or server-side function) |
+| `confirmDeleteAccount()` | Server-side function to delete user + cascade |
 | `cancelSubscription()` | Redirect to Stripe Customer Portal (Phase 5) |
 
-**Mood:**
-| Function | Supabase call |
-|---|---|
-| `setMood(m)` | `supabase.from('profiles').update({ mood: m }).eq('id', userId)` |
+**Mood / Integrity / Essay Checks:**
 
-**Integrity:**
 | Function | Supabase call |
 |---|---|
-| `agreeIntegrity()` | `supabase.from('profiles').update({ integrity_agreed: true }).eq('id', userId)` |
-
-**Essay Checks:**
-| Function | Supabase call |
-|---|---|
+| `setMood(m)` | `supabase.from('profiles').update({ mood: m })` |
+| `agreeIntegrity()` | `supabase.from('profiles').update({ integrity_agreed: true })` |
 | `toggleEssay(type, i)` | `supabase.from('essay_checks').upsert({ check_key, checked })` |
 
 **Pricing / Billing:**
+
 | Function | Supabase call |
 |---|---|
-| `startTrial(tier)` | Redirect to Stripe Checkout (Phase 5). On webhook, update `profiles.plan`. |
-| `setBilling(b)` | UI-only toggle — actual billing handled by Stripe |
+| `startTrial(tier)` | Redirect to Stripe Checkout (Phase 5) |
+| `setBilling(b)` | UI-only toggle — Stripe handles billing |
 
 **Export:**
+
 | Function | Supabase call |
 |---|---|
-| `exportData()` | Fetch all tables for user, assemble JSON client-side, trigger download |
+| `exportData()` | Fetch all user tables, assemble JSON, trigger download |
+
+**Pure client-side functions (no Supabase needed):**
+
+These are stateless helpers that port directly as TypeScript functions:
+- `answerMatches()`, `similarity()`, `editDistance()` — fuzzy matching
+- `esc()` — HTML escaping (React handles this via JSX)
+- `daysUntil()` — date helper
+- `essayTemplates` object — essay type definitions
+- `renderEssay()`, `calcGrades()`, `generateCitation()`, `renderCitationFields()` — pure computation
+- `formatMatchTime()` — timer formatting
+- All tutorial data (`tutorials` object) — static content
+- All admin functions — **DELETED**
 
 ---
 
-## 4. alert(), confirm(), and Stub Features
+## 4. Stub Features → TODO_REAL_AI.md
 
-### alert() Calls (24 occurrences)
-
-| Location | Message | Recommendation |
-|---|---|---|
-| `doSignIn()` | "Please enter your email and password." | Replace with inline error message below the form |
-| `doSignIn()` | "No account found with that email." | Inline error |
-| `doSignIn()` | "Incorrect password." | Inline error |
-| `doCreateAccount()` | "Please fill in all fields." | Inline error |
-| `doCreateAccount()` | "Please enter a valid email address." | Inline error |
-| `doCreateAccount()` | "Password must be at least 6 characters." | Inline error |
-| `doCreateAccount()` | "Passwords don't match." | Inline error |
-| `doCreateAccount()` | "An account with this email already exists." | Inline error |
-| `forgotPassword()` | "In a live version, this would email you a reset link..." | Replace with real Supabase password reset |
-| `goPage('settings')` in demo | "Settings is unavailable in demo mode." | Keep as alert or inline banner — **ask King** |
-| `agreeIntegrity()` | "Please tick all five boxes." | Inline error inside modal |
-| `addAssignment()` | "Title and due date required." | Inline error |
-| `addDeck()` | "Deck name required." | Inline error |
-| `saveNewCard()` | "Term and definition are required." | Inline error |
-| `doBulkImport()` | "Paste some content first." / "Could not parse any cards." | Inline error inside modal |
-| `doBulkImport()` | "Added N cards to your deck." | Replace with toast notification |
-| `addGrade()` | "Name and weight required." | Inline error |
-| `addNote()` | "Title and content required." | Inline error |
-| `addModule()` | "Name required." / "5-module limit" | Inline error |
-| `timer completion` | "Session complete. Great work!" | Replace with toast or in-page notification |
-| `saveResearchProject()` | "Enter module and brief first." / "Project saved." | Inline error / toast |
-| `saveProfile()` | "Name is required." / "Profile updated." | Inline error / toast |
-| `changePassword()` | Various validation messages | Inline errors |
-| `startTrial()` (demo mode) | "You're in demo mode..." | Keep as alert or banner |
-| `startTrial()` (success) | "You're now on StudyHub [tier]." | Toast |
-| `exportData()` (demo) | "Demo data can't be exported." | Inline message |
-| `cancelSubscription()` | "Subscription cancelled." | Toast |
-| `confirmDeleteAccount()` | "Your account has been deleted." | Redirect to login with message |
-| `submitLearnWritten()` | "Please type an answer." | Inline error |
-| `copyEssayStructure()` | "Copied!" | Toast |
-
-> **Decision needed:** Should I replace all `alert()` calls with styled inline error messages / toast notifications that match the existing UI? Or keep some as browser alerts for simplicity in v1? My recommendation: replace with inline errors for form validation and a simple toast component for success messages, styled to match the prototype's colour scheme.
-
-### confirm() / confirmAction() Calls
-
-The prototype uses a custom `confirmAction()` function that opens a styled modal — not the browser's native `confirm()`. This is already good UI. We'll keep this pattern and just port the modal to a React component.
-
-Used by: `delAssignment`, `delDeck`, `delCardById`, `delGrade`, `delCit`, `delNote`, `delModule`, `delSource`, `confirmDeleteAccount`, `cancelSubscription`, `startTrial`.
-
-### Stub / Fake Features
-
-| Feature | Where | What it does now | Recommendation |
+| Feature | Location | Current Behaviour | TODO |
 |---|---|---|---|
-| **AI Research Assistant — Google Scholar search** | Research page, "Search Google Scholar" button | Calls `aiNotice()` which shows an alert about needing the Anthropic API | Flag as `TODO_REAL_AI.md` — stub with same alert for now |
-| **AI Research Assistant — PDF upload** | Research page, "Upload PDF" button | Same `aiNotice()` alert | Flag as `TODO_REAL_AI.md` |
-| **AI Source Processing** (hard summary, soft summary, flashcards, key pages) | Research page, per-source buttons | Returns hardcoded placeholder text strings | Flag as `TODO_REAL_AI.md` — keep placeholder text |
-| **Admin Console** | Accessed via "admin" email | Uses randomly generated fake data, not real metrics | Keep as-is for v1. Build real admin in a future phase. Flag in `TODO_REAL_AI.md`. |
-| **Demo Mode** | Login screen "Try the live demo" button | Loads hardcoded sample data into state | Keep for marketing/onboarding. Data stays client-side. |
-| **Stripe Checkout** | `startTrial()` function | Uses `confirmAction()` to fake the upgrade | Replace with real Stripe Checkout in Phase 5 |
-| **Password reset** | `forgotPassword()` | Shows alert | Replace with Supabase `resetPasswordForEmail()` |
+| **Google Scholar search** | Research page, "Search Google Scholar" button | `aiNotice()` alert | Wire Anthropic API for academic search |
+| **PDF upload** | Research page, "Upload PDF" button | `aiNotice()` alert | File upload + Anthropic API extraction |
+| **Hard summary** | Research page, per-source button | Returns placeholder text | Anthropic API summarisation |
+| **Soft summary** | Research page, per-source button | Returns placeholder text | Anthropic API summarisation |
+| **Flashcard generation** | Research page, per-source button | Returns placeholder text | Anthropic API card generation |
+| **Key pages identification** | Research page, per-source button | Returns placeholder text | Anthropic API analysis |
+| **AI email drafter** | Not in prototype | Not implemented | "Can't attend" and "extension request" email templates via Anthropic API |
+| **Document reader** | Not in prototype | Not implemented | Upload + parse academic documents |
+| **.ics import** | Not in prototype | Not implemented | Calendar import from .ics files |
 
 ---
 
-## 5. External CDN Dependencies
-
-The prototype loads **zero** external resources. Everything is self-contained:
-
-- **No CDN links** — no external CSS frameworks, no icon libraries, no JS libraries
-- **Fonts**: Uses system font stacks only (`-apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif` for body; `'Iowan Old Style', 'Palatino', Georgia, serif` for headings)
-- **Icons**: All icons are inline SVGs embedded directly in the HTML
-- **No external JavaScript**: Everything is vanilla JS in a single `<script>` block
-
-This is actually great news for the port — there are no CDN dependencies to manage or replace. The only thing to note:
-
-- **`'Inter'` font**: Listed in the font stack but never loaded from a CDN. It's a fallback — if the user happens to have Inter installed locally, it'll be used; otherwise it falls through to `system-ui`. We should consider whether to load Inter from Google Fonts for consistency across devices. **Decision needed from King.**
-- **`'Iowan Old Style'` font**: This is an Apple-only font. On Windows/Android/Linux, it falls through to `Palatino` then `Georgia`. This is the intended behaviour — we should NOT change it.
-
----
-
-## 6. Risk List — Things That May Be Tricky
+## 5. Risk List
 
 ### HIGH RISK
 
-| # | Risk | Why it matters | Mitigation |
-|---|------|----------------|------------|
-| 1 | **Flashcard study modes are complex client-side state machines** | The Learn, Match, and Test modes maintain ephemeral state (`learnState`, `matchState`, `testState`) that drives multi-step interactive flows. This state is intentionally NOT persisted — it resets when you leave the deck. | Port these as client-side React state (useState/useReducer). Only persist card-level changes (starred, status) to Supabase. The ephemeral game state stays in React. |
-| 2 | **Match mode uses `setInterval` for a live timer** | The match timer runs at 250ms intervals and updates the DOM directly. React's rendering model could cause flicker or stale closures. | Use `useRef` for the interval and `requestAnimationFrame` or a custom hook. Test thoroughly. |
-| 3 | **3D card flip animation uses CSS `transform: rotateX(180deg)` with `backface-visibility`** | This is a subtle CSS animation that depends on exact structure (two `qz-face` elements inside a `qz-card` wrapper with `preserve-3d`). React re-renders could break the flip if the DOM structure changes. | Port the HTML structure exactly. Use React state for `flipped` class toggle. Avoid re-rendering the card DOM on flip — use `className` toggle only. |
-| 4 | **Tutorial auto-play uses `requestAnimationFrame` + CSS transitions for progress bars** | The tutorial progress bars animate via CSS `transition: width Xs linear`, kicked off by a reflow hack (`void active.offsetWidth`). React's virtual DOM may not trigger the reflow correctly. | Use `useEffect` with refs to manually trigger the reflow after render. Test across browsers. |
-| 5 | **`renderAll()` is called on every page change** | The prototype calls every render function on every navigation. In React, we'd use per-page components that only render when active. But we need to make sure dashboard stats, etc., stay in sync. | Use React Query or SWR to cache and invalidate data. Each page fetches its own data on mount. |
+| # | Risk | Mitigation |
+|---|------|------------|
+| 1 | **Flashcard study modes are complex client-side state machines** — `learnState`, `matchState`, `testState` maintain multi-step interactive flows with ephemeral state that resets on leaving the deck. | Port as client-side React state (useState/useReducer). Only persist `card.status` and `card.starred` to Supabase. The game state stays in React. |
+| 2 | **Match mode uses `setInterval` for a 250ms live timer** — React's rendering model causes stale closures and flicker with naive intervals. | Use `useRef` for the interval ID and a custom `useMatchTimer` hook. Store `startTime` in a ref, update display via `requestAnimationFrame` or `setInterval` with ref-based state reads. |
+| 3 | **3D card flip animation depends on exact DOM structure** — `preserve-3d`, `backface-visibility`, two `qz-face` elements inside a `qz-card` wrapper. React re-renders could break the flip. | Port HTML structure exactly. Toggle `flipped` class via React state. Use `key` prop carefully to avoid unnecessary DOM recreation. |
+| 4 | **Tutorial auto-play uses reflow hack** — `void active.offsetWidth` forces CSS transition restart. React's virtual DOM may not trigger reflows correctly. | Use `useEffect` + `useRef` to access the DOM element directly and force reflow after render. |
+| 5 | **Community pages have no prototype spec** — UI feed, groups, and messages are mentioned in requirements but don't exist in the HTML. | Need design decisions before building. See Open Questions below. |
+| 6 | **Supabase Realtime for community chat** — Group messages and DMs need real-time updates via Supabase Realtime subscriptions. | Use `supabase.channel().on('postgres_changes', ...)` for group_messages and direct_messages tables. Handle subscription cleanup on unmount. Test with two browser windows. |
+| 7 | **Calendar page has no prototype spec** — The calendar page is mentioned in requirements but doesn't exist in the HTML. | Need design decisions. See Open Questions. |
 
 ### MEDIUM RISK
 
-| # | Risk | Why it matters | Mitigation |
-|---|------|----------------|------------|
-| 6 | **Global `user` and `state` variables** | The entire prototype relies on two global vars. React needs to manage this as context or a store. | Use React Context for `user` (auth state) and per-page data fetching from Supabase. |
-| 7 | **Keyboard shortcuts are global** | Arrow keys for flashcard navigation, Space to flip, Escape to close modals. These are attached to `window.addEventListener('keydown')`. | Attach keyboard handlers via `useEffect` in the relevant components. Clean up on unmount. Make sure they don't fire when typing in inputs (the prototype already checks for this). |
-| 8 | **`innerHTML` assignments with template literals** | The prototype builds HTML strings with `innerHTML`. React uses JSX. Every `renderX()` function needs to be converted to a React component. | This is the bulk of the work but is straightforward — it's a mechanical translation. |
-| 9 | **Sidebar responsive breakpoint changes layout** | At 820px the sidebar collapses to icon-only (68px). At 600px tutorial trigger hides text. These are pure CSS. | Port the media queries as-is. No code changes needed. |
-| 10 | **`confirm()` modal uses global onclick handlers** | `confirmYes.onclick` and `confirmNo.onclick` are reassigned on every call. In React this would be done with state. | Create a `ConfirmModal` React component with callback props. |
-| 11 | **Essay builder `print()` opens a new window** | `printEssayStructure()` creates a new `window.open()` and writes HTML to it. This may be blocked by popup blockers. | Keep the same approach for now — it works in most browsers. Flag for potential improvement later. |
-| 12 | **Module limit (5 on Essential plan) is enforced client-side** | The prototype checks `state.modules.length >= 5` before allowing add. With Supabase, we should enforce this server-side too. | Add a Supabase RLS policy or database function that checks the count. Also keep the client-side check for UX. |
+| # | Risk | Mitigation |
+|---|------|------------|
+| 8 | **Global `user` and `state` variables** → React Context | Use an AuthContext for `user` and per-page data fetching from Supabase. |
+| 9 | **Keyboard shortcuts are global** | Attach via `useEffect` in relevant components. Clean up on unmount. Check for input focus (prototype already does this). |
+| 10 | **`innerHTML` with template literals** → JSX | Mechanical translation — every `renderX()` function becomes a React component. Bulk of Phase 4 work. |
+| 11 | **`confirmAction()` uses global onclick reassignment** | Create a `ConfirmModal` component with callback props. |
+| 12 | **Module limit (5 on Essential) is client-side only** | Keep client-side check. Also enforce via Supabase RLS or database function. |
+| 13 | **Pricing discrepancy** — Prototype says £9.99/£14.99/£19.99 but requirements say £7.99/£14.99/£19.99 for Essential. | Use the requirements prices (£7.99/£14.99/£19.99). Update the CSS/HTML during port. |
+| 14 | **DM "shared group required" gate** — DMs only allowed between users who share a group. | Enforce in RLS policy: a function checks `group_members` for both users sharing at least one group. |
 
 ### LOW RISK
 
-| # | Risk | Why it matters | Mitigation |
-|---|------|----------------|------------|
-| 13 | **Demo mode loads hardcoded data** | This doesn't touch the database — it's all in-memory. | Keep demo mode as client-side only. No Supabase calls in demo mode. |
-| 14 | **The admin console is entirely fake** | All admin data is generated client-side by `generateAdminData()`. | Keep as-is for v1. Mark for future real admin dashboard. |
-| 15 | **`answerMatches()` helper has complex fuzzy matching** | Uses Levenshtein distance, word overlap, and stop-word filtering. Pure JS. | Port as-is — it's a pure function with no DOM or storage dependencies. |
-| 16 | **Citation generator formats are hardcoded** | APA/MLA/Harvard templates are string interpolation. | Port as-is. These are pure functions. |
-| 17 | **St Andrews-specific content** | Grade calculator uses the 20-point scale, modules default to 30 credits, integrity modal references St Andrews policies. | Keep all of it. This is part of the brand. We can make it configurable later if we expand beyond St Andrews. |
+| # | Risk | Mitigation |
+|---|------|------------|
+| 15 | **Demo mode loads hardcoded data** | Keep as client-side only. No Supabase calls in demo mode. |
+| 16 | **`answerMatches()` fuzzy matching** | Port as-is — pure function, no DOM/storage deps. |
+| 17 | **Citation generator templates** | Port as-is — pure string interpolation. |
+| 18 | **St Andrews-specific content** | Keep. 20-point scale, 30-credit modules, integrity policy references. |
+| 19 | **Responsive breakpoints** (820px sidebar collapse, 600px tutorial text) | Port media queries verbatim. |
+| 20 | **Essay builder `print()` opens new window** | Keep — works in most browsers. |
 
 ---
 
-## 7. Phase Sequence Summary
+## 6. alert() → Inline Error / Toast Replacement Plan
+
+The prototype has ~24 `alert()` calls. These break into three categories:
+
+### Form validation → Inline error messages
+Show a red error message below the relevant form field, styled with the existing `--red` / `--rose-50` colours. Disappear on next valid submit.
+
+Affected: `doSignIn()` (3), `doCreateAccount()` (4), `agreeIntegrity()` (1), `addAssignment()` (1), `addDeck()` (1), `saveNewCard()` (1), `doBulkImport()` (1), `addGrade()` (1), `addNote()` (1), `addModule()` (2), `generateCitation()` (1), `saveProfile()` (1), `changePassword()` (3), `submitLearnWritten()` (1), `saveResearchProject()` (1)
+
+### Success / info → Toast notification
+A small, temporary toast component (bottom-right, auto-dismiss after 3s) with the prototype's gradient/rose styling.
+
+Affected: `doBulkImport()` success (1), timer completion (1), `saveResearchProject()` success (1), `saveProfile()` success (1), `changePassword()` success (1), `startTrial()` success (1), `cancelSubscription()` success (1), `copyEssayStructure()` (1), `confirmDeleteAccount()` (1)
+
+### Demo mode alerts → Keep as alerts or inline banners
+`goPage('settings')` in demo, `startTrial()` in demo, `exportData()` in demo — keep as styled inline banners.
+
+---
+
+## 7. Polish Fixes Applied During Port
+
+These are applied as each page is ported, not as a separate pass:
+
+| Fix | Details |
+|---|---|
+| **8 buttons: `btn` → `btn-grad`** | "Add assignment", "Create deck", "Add component", "Save note", "Add module", "Save changes", "Update password", + Research "Save research project" (already btn-grad, but verify all 8) |
+| **`:focus-visible` styles** | Global rule: `button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; border-radius: 4px; }` |
+| **Touch targets** | `.btn-sm` and `.icon-btn` → minimum 44px inside `@media (max-width: 600px)` |
+| **11 `aria-label` attributes** | All icon-only buttons (×, ★, ⚑) get descriptive labels |
+| **`essayWords` min/max bounds** | `min="500" max="20000"` |
+| **`mCredits` min/max bounds** | `min="0" max="120"` |
+| **10 textarea `maxlength`** | Match JS validation limits for each field |
+| **Emoji → SVG icons** | Calendar event types and dashboard quick actions: replace ●, ◷, ★, ▤, ✓ with stroked SVG icons for cross-platform consistency |
+| **Pricing: £9.99 → £7.99** | Essential monthly price updated per requirements. Annual: £99 → £79. |
+| **Annual savings text** | "Save up to £40" updated to match new pricing |
+
+---
+
+## 8. Phase Sequence Summary
 
 | Phase | What happens | Gate |
 |---|---|---|
-| **0 (this document)** | Audit + plan | King reviews and approves |
-| **1 — Skeleton** | Next.js 14 project, git, GitHub repo, Vercel deploy | King confirms URL works |
-| **2 — CSS port** | Global stylesheet, login screen render test | King does pixel-comparison |
-| **3 — Auth** | Supabase project, schema, auth flow | King tests cross-device login |
-| **4 — Pages** | One page at a time in order: Dashboard, Settings, Modules, Assignments, Grades, Flashcards, Notes, Citations, Timer, Analytics, Research, Essay, Pricing | King signs off each page |
-| **5 — Stripe** | Products, Checkout, webhooks, Customer Portal | King tests all scenarios in test mode |
-| **6 — Production** | Custom domain, legal pages, error logging, pre-launch checklist | King goes live when ready |
+| **0 (this document)** | Audit + plan | You review and approve |
+| **1 — Skeleton** | Next.js 14 + TypeScript, git, GitHub repo, Vercel deploy | You confirm URL works |
+| **2 — CSS port** | Global stylesheet from prototype, login screen render | You do pixel comparison |
+| **3 — Auth** | Supabase project, schema, RLS_POLICIES.sql review, auth flow with `.ac.uk` check | You test cross-device login |
+| **4 — Pages** | One at a time: Dashboard → Settings → Modules → Assignments → Grades → Flashcards → Notes → Citations → Timer → Analytics → Calendar → Research → Essay → Pricing → Community (Feed → Groups → Messages) | You sign off each page |
+| **5 — Stripe** | 3 products × 2 billing = 6 prices. Checkout, webhooks, Customer Portal | You test all scenarios |
+| **6 — Production** | Custom domain, ToS/Privacy placeholders, ICO reminder, Sentry, checklist | You go live |
 
 ---
 
-## 8. Open Questions for King
+## 9. Open Questions
 
-Before I start Phase 1, please tell me your thoughts on these:
+Before I start Phase 1, I need your input on these:
 
-1. **`alert()` replacement strategy**: Should I build a toast notification component matching the prototype's colour scheme? Or keep browser alerts for v1?
+### Must-answer before Phase 1
 
-2. **Inter font**: Should we load Inter from Google Fonts for cross-device consistency, or keep the current system-font fallback behaviour?
+1. **Community pages (Feed, Groups, Messages) have no prototype UI.** The prototype doesn't include these pages at all — no HTML, no CSS, no JavaScript. How should I handle them?
+   - **Option A:** I design a simple UI matching the prototype's existing design language (same cards, fonts, colours) during Phase 4.
+   - **Option B:** You provide mockups or a description of what you want.
+   - **Option C:** Defer community features to a later phase entirely.
 
-3. **Admin console**: Skip it entirely for v1 (just remove the admin login shortcut), or port it as-is with fake data? Building a real admin dashboard would be a significant Phase 7+ effort.
+2. **Calendar page has no prototype UI either.** Same question — should I design one in the prototype's style, or defer it?
 
-4. **Demo mode**: Keep it as a marketing tool? It currently loads fake data client-side, which is fine. But it means the pricing page "Start free trial" buttons in demo mode will need special handling.
+3. **Pricing discrepancy.** The prototype says Essential is £9.99/mo (£99/yr). Your requirements say £7.99/mo (£79/yr). Which is correct? I'll use **your requirements** (£7.99) unless you say otherwise.
 
-5. **Email provider**: The prompt mentions Resend for transactional emails. Supabase has built-in email for auth (password reset, email verification). Do you want Resend for those too, or just for future marketing/notification emails?
+### Nice-to-answer before Phase 1
 
-6. **Module limit enforcement**: Should we enforce the 5-module limit on the Essential plan via Supabase RLS (server-side), or is client-side checking sufficient for now?
+4. **`alert()` replacement.** I plan to replace form validation alerts with inline error messages and success alerts with a toast component, both styled to match the prototype. OK?
+
+5. **Inter font.** The prototype lists Inter in the font stack but never loads it. Should I add a Google Fonts import for cross-device consistency, or keep the system font fallback?
+
+6. **`.ac.uk` email validation on signup.** The requirements say `.ac.uk` required + St Andrews-specific check for `@st-andrews.ac.uk`. Should I:
+   - Block ALL non-`.ac.uk` emails at signup?
+   - Allow signup with any email but show a warning?
+   - Something else?
+
+7. **Module limit enforcement.** Client-side only (like prototype), or also enforce server-side via Supabase?
+
+8. **University dropdown on signup.** Do you want a university selector on the signup form (launch with only St Andrews active, others as "waitlist" placeholders)?
 
 ---
 
-**This document is the Phase 0 deliverable. I will not write any code until you've read it and given the go-ahead for Phase 1.**
+**This document is the Phase 0 deliverable. I will not write any code until you've read it and said "ok next phase".**
