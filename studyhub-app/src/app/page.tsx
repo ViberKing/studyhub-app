@@ -1,57 +1,15 @@
-export default function Home() {
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background:
-          "linear-gradient(135deg, #FFE4E6 0%, #FFF1F2 50%, #FEF3F2 100%)",
-        padding: "24px",
-      }}
-    >
-      <div
-        style={{
-          background: "#FFFFFF",
-          border: "1px solid #F0E9E5",
-          borderRadius: "20px",
-          boxShadow:
-            "0 12px 32px rgba(20, 14, 16, 0.08), 0 4px 8px rgba(20, 14, 16, 0.04)",
-          padding: "48px 44px",
-          maxWidth: "440px",
-          width: "100%",
-          textAlign: "center",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Top gradient bar — matches prototype */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: "5px",
-            background: "linear-gradient(135deg, #E11D48 0%, #FB7185 100%)",
-          }}
-        />
+"use client";
 
-        {/* Logo mark */}
-        <div
-          style={{
-            width: "72px",
-            height: "72px",
-            background: "linear-gradient(135deg, #E11D48 0%, #FB7185 100%)",
-            borderRadius: "20px",
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: "24px",
-            boxShadow: "0 10px 30px -8px rgba(225, 29, 72, 0.45)",
-          }}
-        >
+import { useState } from "react";
+
+export default function LoginPage() {
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+
+  return (
+    <div className="login-wrap">
+      <div className="login-card">
+        {/* Logo */}
+        <div className="login-logo">
           <svg
             width="32"
             height="32"
@@ -62,26 +20,16 @@ export default function Home() {
             strokeLinejoin="round"
             viewBox="0 0 24 24"
           >
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
         </div>
 
-        <h1
-          style={{
-            fontFamily: "'Iowan Old Style', Palatino, Georgia, serif",
-            fontSize: "32px",
-            fontWeight: 600,
-            letterSpacing: "-0.02em",
-            color: "#1A1416",
-            marginBottom: "8px",
-          }}
-        >
-          Study
+        <h1>
+          Welcome to Study
           <span
             style={{
-              background:
-                "linear-gradient(135deg, #E11D48 0%, #FB7185 100%)",
+              background: "var(--grad)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
@@ -90,38 +38,84 @@ export default function Home() {
             Hub
           </span>
         </h1>
+        <p className="sub">Your AI-powered academic companion</p>
+        <p className="tag">Designed by students, for students.</p>
 
-        <p
-          style={{
-            color: "#78716C",
-            fontSize: "15px",
-            marginBottom: "4px",
-          }}
-        >
-          Your AI-powered academic companion
-        </p>
+        {/* Auth tabs */}
+        <div className="auth-tabs">
+          <button
+            className={`auth-tab${authMode === "signin" ? " active" : ""}`}
+            onClick={() => setAuthMode("signin")}
+          >
+            Sign in
+          </button>
+          <button
+            className={`auth-tab${authMode === "signup" ? " active" : ""}`}
+            onClick={() => setAuthMode("signup")}
+          >
+            Create account
+          </button>
+        </div>
 
-        <p
-          style={{
-            color: "#E11D48",
-            fontSize: "12px",
-            fontStyle: "italic",
-            fontWeight: 500,
-            marginBottom: "32px",
-            letterSpacing: "0.01em",
-          }}
-        >
-          Designed by students, for students.
-        </p>
+        {/* Sign in form */}
+        {authMode === "signin" && (
+          <div>
+            <div className="field">
+              <label>Email address</label>
+              <input type="email" placeholder="you@example.com" />
+            </div>
+            <div className="field">
+              <label>Password</label>
+              <input type="password" placeholder="••••••••" />
+            </div>
+            <button type="button" className="btn btn-grad btn-block">
+              Sign in
+            </button>
+            <button type="button" className="login-link">
+              Forgot password?
+            </button>
+          </div>
+        )}
 
-        <p
-          style={{
-            color: "#78716C",
-            fontSize: "14px",
-            lineHeight: 1.6,
-          }}
-        >
-          Coming soon. This is a deployment test for Phase 1.
+        {/* Sign up form */}
+        {authMode === "signup" && (
+          <div>
+            <div className="field">
+              <label>Full name</label>
+              <input type="text" placeholder="Your name" />
+            </div>
+            <div className="field">
+              <label>Email address</label>
+              <input type="email" placeholder="you@example.com" />
+            </div>
+            <div className="field">
+              <label>Password</label>
+              <input type="password" placeholder="At least 6 characters" />
+            </div>
+            <div className="field">
+              <label>Confirm password</label>
+              <input type="password" placeholder="Re-enter password" />
+            </div>
+            <button type="button" className="btn btn-grad btn-block">
+              Start 7-day free trial
+            </button>
+          </div>
+        )}
+
+        <div className="login-divider">or</div>
+
+        <button type="button" className="demo-cool">
+          <span className="demo-sparkle">✦</span>
+          <span>Try the live demo</span>
+          <span className="demo-arrow">→</span>
+        </button>
+
+        <button type="button" className="login-link">
+          View pricing
+        </button>
+
+        <p className="small-print">
+          7-day free trial · No credit card required · Cancel anytime
         </p>
       </div>
     </div>
