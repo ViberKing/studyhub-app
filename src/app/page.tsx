@@ -60,10 +60,6 @@ export default function LoginPage() {
       setError("Please fill in all fields.");
       return;
     }
-    if (!signupEmail.endsWith(".ac.uk")) {
-      setError("Please use a .ac.uk university email address.");
-      return;
-    }
     if (signupPassword.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
@@ -173,7 +169,7 @@ export default function LoginPage() {
                 </div>
                 <div className="field">
                   <label>Email address</label>
-                  <input type="email" placeholder="you@st-andrews.ac.uk" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} />
+                  <input type="email" placeholder="you@example.com" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} />
                 </div>
                 <div className="field">
                   <label>Password</label>
