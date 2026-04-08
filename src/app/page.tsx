@@ -76,8 +76,7 @@ export default function LoginPage() {
     });
     setLoading(false);
     if (err) { setError(err.message); return; }
-    setAuthMode("signin");
-    alert("Account created! Check your email for a confirmation link, then sign in.");
+    router.replace("/dashboard");
   }
 
   async function handleForgotPassword() {
