@@ -114,6 +114,12 @@ Full schema: [`docs/SCHEMA.sql`](docs/SCHEMA.sql) | RLS policies: [`docs/RLS_POL
 
 ---
 
+## Live Demo
+
+**[studyhub-app-three.vercel.app](https://studyhub-app-three.vercel.app)**
+
+---
+
 ## Getting Started
 
 ### Prerequisites
