@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const navItems = [
   { section: "Overview" },
@@ -28,8 +28,10 @@ type NavItem = { section: string; page?: undefined; label?: undefined; icon?: un
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isDemo = searchParams.get("demo") === "true";
+  const demoSuffix = isDemo ? "?demo=true" : "";
 
-  // Extract current page from path like /dashboard, /assignments etc
   const currentPage = pathname.split("/").pop() || "dashboard";
 
   return (
@@ -53,7 +55,7 @@ export default function Sidebar() {
           <div
             key={item.page}
             className={`nav-item${active ? " active" : ""}`}
-            onClick={() => router.push(`/${item.page}`)}
+            onClick={() => router.push(`/${item.page}${demoSuffix}`)}
           >
             <span className="ico">{item.icon}</span>
             <span>{item.label}</span>
