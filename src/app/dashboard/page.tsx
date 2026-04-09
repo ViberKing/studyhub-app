@@ -189,19 +189,19 @@ function DashboardInner() {
         {/* Quick actions */}
         <h3 className="section-title">Quick actions</h3>
         <div className="action-grid">
-          <button className="action-tile" onClick={() => router.push("/timer")}>
+          <button className="action-tile" onClick={() => router.push(`/timer${isDemo ? "?demo=true" : ""}`)}>
             <div className="icon">◷</div>
             <div><div className="name">Start timer</div><div className="desc">Focus session</div></div>
           </button>
-          <button className="action-tile t-sky" onClick={() => router.push("/assignments")}>
+          <button className="action-tile t-sky" onClick={() => router.push(`/assignments${isDemo ? "?demo=true" : ""}`)}>
             <div className="icon">✓</div>
             <div><div className="name">Add assignment</div><div className="desc">Track a deadline</div></div>
           </button>
-          <button className="action-tile t-violet" onClick={() => router.push("/research")}>
+          <button className="action-tile t-violet" onClick={() => router.push(`/research${isDemo ? "?demo=true" : ""}`)}>
             <div className="icon">★</div>
             <div><div className="name">Research</div><div className="desc">Organise sources</div></div>
           </button>
-          <button className="action-tile t-amber" onClick={() => router.push("/flashcards")}>
+          <button className="action-tile t-amber" onClick={() => router.push(`/flashcards${isDemo ? "?demo=true" : ""}`)}>
             <div className="icon">▤</div>
             <div><div className="name">Flashcards</div><div className="desc">Review a deck</div></div>
           </button>

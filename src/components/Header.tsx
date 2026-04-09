@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { clearProfileCache } from "./AppShell";
 
 const pageTitles: Record<string, string> = {
   dashboard: "Dashboard", research: "Research", assignments: "Assignments",
@@ -20,6 +21,7 @@ export default function Header({ userName, isDemo }: { userName: string; isDemo:
   const initial = userName ? userName.charAt(0).toUpperCase() : "U";
 
   async function handleSignOut() {
+    clearProfileCache();
     if (isDemo) { router.replace("/"); return; }
     await supabase.auth.signOut();
     router.replace("/");
