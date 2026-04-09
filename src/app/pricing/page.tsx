@@ -32,9 +32,9 @@ function PricingInner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tier: tier.toLowerCase(), billing, userId: session.user.id, email: session.user.email }),
       });
-      const { url } = await res.json();
-      if (url) window.location.href = url;
-      else alert("Something went wrong. Please try again.");
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else alert("Error: " + (data.error || "Unknown error"));
     } catch {
       alert("Something went wrong. Please try again.");
     }
