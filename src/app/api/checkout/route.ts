@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: "2026-03-25.dahlia" });
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY not set");
+  return new Stripe(key);
 }
 
 const PRICE_IDS: Record<string, string | undefined> = {
@@ -20,10 +22,11 @@ export async function POST(req: NextRequest) {
   try {
     const stripe = getStripe();
     const { tier, billing, userId, email } = await req.json();
-    const priceId = PRICE_IDS[`${tier}_${billing}`];
+    const key = `${tier}_${billing}`;
+    const priceId = PRICE_IDS[key];
 
     if (!priceId) {
-      return NextResponse.json({ error: "Invalid plan — Stripe price IDs not configured yet" }, { status: 400 });
+      return NextResponse.json({ error: `No price ID for "${key}". Available: ${JSON.stringify(Object.keys(PRICE_IDS).filter(k => PRICE_IDS[k]))}` }, { status: 400 });
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -41,8 +44,9 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (err) {
-    console.error("Checkout error:", err);
-    return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("Checkout error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
