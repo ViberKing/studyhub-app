@@ -4,7 +4,7 @@
 
 StudyHub is a full-stack SaaS application that brings together everything students need to manage their academic life — assignment tracking, Pomodoro study timers, intelligent flashcards, grade calculators, citation generators, research tools, and a university-wide community — all in one platform.
 
-Built with Next.js 14, TypeScript, Supabase, and Stripe. Designed by a student, for students.
+Built with Next.js 14, TypeScript, Supabase, and Stripe. Helped designed by a university student, built for students.
 
 ---
 
