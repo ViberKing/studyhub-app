@@ -9,7 +9,7 @@ const pageTitles: Record<string, string> = {
   essay: "Essay builder", timer: "Study timer", flashcards: "Flashcards",
   grades: "Grades", citations: "Citations", notes: "Notes",
   modules: "Modules", analytics: "Analytics", pricing: "Pricing",
-  settings: "Settings",
+  settings: "Settings", feed: "Uni feed", groups: "Groups", messages: "Messages",
 };
 
 export default function Header({ userName, isDemo }: { userName: string; isDemo: boolean }) {
