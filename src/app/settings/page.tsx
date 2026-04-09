@@ -102,7 +102,7 @@ function SettingsInner() {
 
   const daysLeft = trialEndsAt ? Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000) : 0;
   const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
-  const prices: Record<string, number> = { essential: 7.99, plus: 14.99, pro: 19.99 };
+  const prices: Record<string, number> = { essential: 7.99, plus: 11.99, pro: 15.99 };
 
   return (
     <AppShell>
@@ -148,6 +148,14 @@ function SettingsInner() {
               <div className="badge badge-gray" style={{ marginBottom: 12 }}>Cancelled</div>
               <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 14 }}>Your subscription has been cancelled. Reactivate anytime.</p>
               <button className="btn btn-grad" onClick={() => router.push("/pricing")}>Reactivate</button>
+            </div>
+          ) : plan === "gifted" ? (
+            <div className="plan-status-card">
+              <div className="row" style={{ gap: 8, alignItems: "center", marginBottom: 14 }}>
+                <span className="tier-pill tier-pro">Pro</span>
+                <span className="badge badge-green">Gifted</span>
+              </div>
+              <p style={{ fontSize: 13, color: "var(--text-muted)" }}>You have full Pro access — no billing required. Enjoy StudyHub!</p>
             </div>
           ) : (
             <div className="plan-status-card">

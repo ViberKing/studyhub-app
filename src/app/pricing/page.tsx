@@ -1,19 +1,44 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
 
 const prices = {
-  monthly: { essential: "7.99", plus: "14.99", pro: "19.99", sub: "per month" },
-  annual: { essential: "79", plus: "149", pro: "199", sub: "per year (save up to £40)" },
+  monthly: { essential: "7.99", plus: "11.99", pro: "15.99", sub: "per month" },
+  annual: { essential: "79", plus: "119", pro: "159", sub: "per year (save up to £32)" },
 };
 
 function PricingInner() {
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const isDemo = searchParams.get("demo") === "true";
+  const supabase = createClient();
   const p = prices[billing];
 
-  function startTrial(tier: string) {
-    alert(`In production this redirects to Stripe Checkout for ${tier}. Stripe integration coming in Phase 5.`);
+  async function startTrial(tier: string) {
+    if (isDemo) {
+      alert("You're in demo mode. Sign up for a real account to subscribe.");
+      return;
+    }
+    setLoading(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setLoading(false); return; }
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier: tier.toLowerCase(), billing, userId: session.user.id, email: session.user.email }),
+      });
+      const { url } = await res.json();
+      if (url) window.location.href = url;
+      else alert("Something went wrong. Please try again.");
+    } catch {
+      alert("Something went wrong. Please try again.");
+    }
+    setLoading(false);
   }
 
   return (
