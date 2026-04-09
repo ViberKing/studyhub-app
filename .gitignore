@@ -33,3 +33,13 @@ next-env.d.ts
 # IDE
 .idea/
 .vscode/
+
+# Prototypes & build artifacts
+studyhub-app/
+*.html
+
+# Claude
+.claude/
+
+# Application materials (private)
+PALANTIR_APPLICATION_PROMPT.md

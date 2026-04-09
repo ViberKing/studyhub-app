@@ -1,7 +1,26 @@
 {
-  "name": "studyhub-app",
-  "version": "0.1.0",
-  "private": true,
+  "name": "studyhub",
+  "version": "1.0.0",
+  "description": "AI-powered academic companion platform for university students — assignment tracking, study timers, flashcards, grade calculators, and community features.",
+  "author": "Hayden King",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ViberKing/StudyHub"
+  },
+  "keywords": [
+    "education",
+    "saas",
+    "nextjs",
+    "typescript",
+    "supabase",
+    "stripe",
+    "ai",
+    "study",
+    "university",
+    "edtech"
+  ],
+  "private": false,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
