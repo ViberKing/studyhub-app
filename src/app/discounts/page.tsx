@@ -9,18 +9,18 @@ const discounts = [
   { brand: "Spotify", offer: "Free for 1 month, then \u00A35.99/mo", desc: "Spotify Premium Student includes Hulu and SHOWTIME.", category: "streaming", url: "https://www.spotify.com/uk/student/", color: "#1DB954" },
   { brand: "Apple Music", offer: "Free for 1 month, then \u00A35.99/mo", desc: "Apple Music student plan with Apple TV+ included.", category: "streaming", url: "https://music.apple.com/subscribe/student", color: "#fc3c44" },
   { brand: "ASOS", offer: "10% off everything", desc: "Verify via UniDays or Student Beans to unlock.", category: "fashion", url: "https://www.asos.com/student-discount/", color: "#2d2d2d" },
-  { brand: "McDonald's", offer: "Free medium meal upgrade", desc: "Student deals available in the McDonald\u2019s app.", category: "food", url: "https://www.mcdonalds.com/gb/en-gb/student.html", color: "#FFC72C" },
+  { brand: "McDonald's", offer: "Deals via the app", desc: "Download the McDonald\u2019s app for exclusive student meal deals.", category: "food", url: "https://www.mcdonalds.com/gb/en-gb/latest/offers.html", color: "#FFC72C" },
   { brand: "Nike", offer: "10% student discount", desc: "Verify through UniDays for 10% off online orders.", category: "fashion", url: "https://www.nike.com/gb/student-discount", color: "#111" },
   { brand: "16-25 Railcard", offer: "\u2153 off rail fares", desc: "Save a third on train tickets across Great Britain. \u00A330/year.", category: "transport", url: "https://www.16-25railcard.co.uk/", color: "#822380" },
   { brand: "Microsoft 365", offer: "Free with .ac.uk email", desc: "Word, Excel, PowerPoint, and 1TB OneDrive \u2014 completely free.", category: "tech", url: "https://www.microsoft.com/en-gb/education/products/office", color: "#0078D4" },
   { brand: "GitHub Student Pack", offer: "Free developer tools", desc: "Copilot, domains, cloud credits, and 100+ tools \u2014 all free.", category: "tech", url: "https://education.github.com/pack", color: "#24292e" },
-  { brand: "Domino's", offer: "35% off online orders", desc: "Student discount applied automatically with code.", category: "food", url: "https://www.dominos.co.uk/deals/student-deals", color: "#006491" },
+  { brand: "Domino's", offer: "35% off online orders", desc: "Student discount codes available via Student Beans.", category: "food", url: "https://www.dominos.co.uk/deals", color: "#006491" },
   { brand: "PureGym", offer: "Student memberships from \u00A318/mo", desc: "Discounted gym membership for students at most locations.", category: "health", url: "https://www.puregym.com/students/", color: "#FFD100" },
-  { brand: "Deliveroo", offer: "25% off first order", desc: "Plus ongoing student deals via Student Beans.", category: "food", url: "https://deliveroo.co.uk/student", color: "#00CCBC" },
+  { brand: "Deliveroo", offer: "25% off first order", desc: "Student deals available via Student Beans verification.", category: "food", url: "https://deliveroo.co.uk/", color: "#00CCBC" },
   { brand: "Dr. Martens", offer: "10% off", desc: "Student discount via Student Beans verification.", category: "fashion", url: "https://www.drmartens.com/uk/en_gb/student-discount", color: "#FFE800" },
-  { brand: "Three Mobile", offer: "Discounted SIM-only plans", desc: "Student-exclusive phone plans starting from \u00A310/mo.", category: "tech", url: "https://www.three.co.uk/store/student-deals", color: "#FF5A00" },
+  { brand: "Three Mobile", offer: "Discounted SIM-only plans", desc: "Student-exclusive phone plans — check Three for latest offers.", category: "tech", url: "https://www.three.co.uk/deals", color: "#FF5A00" },
   { brand: "Nando's", offer: "20% off with Student Beans", desc: "Show your Student Beans app to get 20% off.", category: "food", url: "https://www.nandos.co.uk/", color: "#C8102E" },
-  { brand: "NOW TV", offer: "Student plans from \u00A35.99/mo", desc: "Cinema, Entertainment, or Sports passes at student prices.", category: "streaming", url: "https://www.nowtv.com/students", color: "#16D6C0" },
+  { brand: "NOW", offer: "Student plans from \u00A35.99/mo", desc: "Cinema, Entertainment, or Sports passes at student prices.", category: "streaming", url: "https://www.nowtv.com/", color: "#16D6C0" },
 ];
 
 const platforms = [
