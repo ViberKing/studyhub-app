@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "StudyHub",
+  title: "Study-HQ",
   description:
     "Your AI-powered academic companion. Designed by students, for students.",
 };

@@ -47,7 +47,7 @@ export default function Sidebar() {
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
         </div>
-        <h2>StudyHub</h2>
+        <h2>Study-HQ</h2>
       </div>
 
       {(navItems as unknown as NavItem[]).map((item, i) => {
