@@ -4,8 +4,8 @@
   "description": "Your AI-powered academic companion. Designed by students, for students.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f1117",
-  "theme_color": "#6c5ce7",
+  "background_color": "#0f0a0d",
+  "theme_color": "#E11D48",
   "orientation": "any",
   "icons": [
     {

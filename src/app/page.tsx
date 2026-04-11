@@ -4,23 +4,37 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
+const features = [
+  { icon: "📅", title: "Smart Calendar", desc: "Track deadlines, exams & study sessions in one beautiful view" },
+  { icon: "🃏", title: "5 Flashcard Modes", desc: "Learn, match, test & review — powered by spaced repetition" },
+  { icon: "📝", title: "Essay Builder", desc: "Structure, write & polish your essays with built-in tools" },
+  { icon: "⏱", title: "Study Timer", desc: "Pomodoro-style focus sessions with session tracking" },
+  { icon: "📊", title: "Analytics", desc: "Visualise your study habits and track your progress" },
+  { icon: "🎉", title: "Events & Discounts", desc: "Find local events and save with student deals" },
+];
+
+const stats = [
+  { value: "15+", label: "Study tools" },
+  { value: "5", label: "Flashcard modes" },
+  { value: "Free", label: "7-day trial" },
+  { value: "∞", label: "Potential" },
+];
+
 export default function LoginPage() {
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [activeFeature, setActiveFeature] = useState(0);
 
-  // Sign in fields
   const [signinEmail, setSigninEmail] = useState("");
   const [signinPassword, setSigninPassword] = useState("");
 
-  // Sign up fields
   const [signupName, setSignupName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupConfirm, setSignupConfirm] = useState("");
 
-  // Forgot password
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotMsg, setForgotMsg] = useState("");
@@ -29,7 +43,6 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // Auto-redirect if already logged in
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) router.replace("/dashboard");
@@ -37,19 +50,21 @@ export default function LoginPage() {
     });
   }, []);
 
+  // Auto-rotate features
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveFeature((prev) => (prev + 1) % features.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (checkingSession) return null;
 
   async function handleSignIn() {
     setError("");
-    if (!signinEmail || !signinPassword) {
-      setError("Please enter your email and password.");
-      return;
-    }
+    if (!signinEmail || !signinPassword) { setError("Please enter your email and password."); return; }
     setLoading(true);
-    const { error: err } = await supabase.auth.signInWithPassword({
-      email: signinEmail,
-      password: signinPassword,
-    });
+    const { error: err } = await supabase.auth.signInWithPassword({ email: signinEmail, password: signinPassword });
     setLoading(false);
     if (err) { setError(err.message); return; }
     router.replace("/dashboard");
@@ -57,37 +72,20 @@ export default function LoginPage() {
 
   async function handleSignUp() {
     setError("");
-    if (!signupName || !signupEmail || !signupPassword) {
-      setError("Please fill in all fields.");
-      return;
-    }
-    if (signupPassword.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    if (signupPassword !== signupConfirm) {
-      setError("Passwords don't match.");
-      return;
-    }
+    if (!signupName || !signupEmail || !signupPassword) { setError("Please fill in all fields."); return; }
+    if (signupPassword.length < 6) { setError("Password must be at least 6 characters."); return; }
+    if (signupPassword !== signupConfirm) { setError("Passwords don't match."); return; }
     setLoading(true);
-    const { error: err } = await supabase.auth.signUp({
-      email: signupEmail,
-      password: signupPassword,
-      options: { data: { name: signupName } },
-    });
+    const { error: err } = await supabase.auth.signUp({ email: signupEmail, password: signupPassword, options: { data: { name: signupName } } });
     setLoading(false);
     if (err) { setError(err.message); return; }
     router.replace("/dashboard");
   }
 
   async function handleForgotPassword() {
-    setForgotMsg("");
-    setForgotSuccess(false);
+    setForgotMsg(""); setForgotSuccess(false);
     if (!forgotEmail) { setForgotMsg("Enter your email address."); return; }
-    const { error: err } = await supabase.auth.resetPasswordForEmail(
-      forgotEmail,
-      { redirectTo: `${window.location.origin}/reset-password` }
-    );
+    const { error: err } = await supabase.auth.resetPasswordForEmail(forgotEmail, { redirectTo: `${window.location.origin}/reset-password` });
     if (err) { setForgotMsg(err.message); return; }
     setForgotSuccess(true);
     setForgotMsg("Check your email for a password reset link.");
@@ -102,104 +100,156 @@ export default function LoginPage() {
     }
   }
 
-  function enterDemoMode() {
-    router.push("/dashboard?demo=true");
-  }
+  function enterDemoMode() { router.push("/dashboard?demo=true"); }
 
   return (
-    <div className="login-wrap">
-      <div className="login-card" onKeyDown={handleKeyDown}>
-        <div className="login-logo">
-          <svg width="32" height="32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-          </svg>
-        </div>
+    <div className="onboard-wrap">
+      {/* Left: Feature Showcase */}
+      <div className="onboard-left">
+        <div className="onboard-left-content">
+          {/* Floating orbs */}
+          <div className="onboard-orb onboard-orb-1" />
+          <div className="onboard-orb onboard-orb-2" />
+          <div className="onboard-orb onboard-orb-3" />
 
-        <h1>
-          Welcome to Study-
-          <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>HQ</span>
-        </h1>
-        <p className="sub">Your AI-powered academic companion</p>
-        <p className="tag">Designed by students, for students.</p>
-
-        {error && (
-          <p style={{ color: "var(--red)", fontSize: "13px", marginBottom: "14px", textAlign: "left" }}>{error}</p>
-        )}
-
-        {showForgot ? (
-          <div>
-            <div className="field">
-              <label>Email address</label>
-              <input type="email" placeholder="you@example.com" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} />
+          <div className="onboard-brand">
+            <div className="onboard-logo">
+              <svg width="28" height="28" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
             </div>
-            {forgotMsg && (
-              <p style={{ fontSize: "13px", marginBottom: "14px", color: forgotSuccess ? "var(--emerald)" : "var(--red)" }}>{forgotMsg}</p>
-            )}
-            <button type="button" className="btn btn-grad btn-block" onClick={handleForgotPassword}>Send reset link</button>
-            <button type="button" className="login-link" onClick={() => { setShowForgot(false); setForgotMsg(""); setForgotSuccess(false); }}>Back to sign in</button>
+            <span className="onboard-brand-text">Study-HQ</span>
           </div>
-        ) : (
-          <>
-            <div className="auth-tabs">
-              <button className={`auth-tab${authMode === "signin" ? " active" : ""}`} onClick={() => { setAuthMode("signin"); setError(""); }}>Sign in</button>
-              <button className={`auth-tab${authMode === "signup" ? " active" : ""}`} onClick={() => { setAuthMode("signup"); setError(""); }}>Create account</button>
+
+          <h1 className="onboard-headline">
+            Everything you need to <span className="onboard-gradient-text">ace university</span>
+          </h1>
+          <p className="onboard-tagline">
+            The all-in-one academic platform designed by students, for students.
+          </p>
+
+          {/* Feature carousel */}
+          <div className="onboard-features">
+            {features.map((f, i) => (
+              <div
+                key={i}
+                className={`onboard-feature-card${i === activeFeature ? " active" : ""}`}
+                onClick={() => setActiveFeature(i)}
+              >
+                <span className="onboard-feature-icon">{f.icon}</span>
+                <div>
+                  <div className="onboard-feature-title">{f.title}</div>
+                  <div className="onboard-feature-desc">{f.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats bar */}
+          <div className="onboard-stats">
+            {stats.map((s, i) => (
+              <div key={i} className="onboard-stat">
+                <div className="onboard-stat-value">{s.value}</div>
+                <div className="onboard-stat-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right: Auth Form */}
+      <div className="onboard-right">
+        <div className="onboard-form-wrap" onKeyDown={handleKeyDown}>
+          <div className="onboard-form-header">
+            <h2>{showForgot ? "Reset password" : authMode === "signin" ? "Welcome back" : "Get started free"}</h2>
+            <p>{showForgot ? "We'll send you a reset link" : authMode === "signin" ? "Sign in to your Study-HQ account" : "Start your 7-day free trial today"}</p>
+          </div>
+
+          {error && (
+            <div className="onboard-error">
+              <span>!</span> {error}
             </div>
+          )}
 
-            {authMode === "signin" && (
-              <div>
-                <div className="field">
-                  <label>Email address</label>
-                  <input type="email" placeholder="you@example.com" value={signinEmail} onChange={(e) => setSigninEmail(e.target.value)} />
-                </div>
-                <div className="field">
-                  <label>Password</label>
-                  <input type="password" placeholder="••••••••" value={signinPassword} onChange={(e) => setSigninPassword(e.target.value)} />
-                </div>
-                <button type="button" className="btn btn-grad btn-block" onClick={handleSignIn} disabled={loading}>
-                  {loading ? "Signing in…" : "Sign in"}
-                </button>
-                <button type="button" className="login-link" onClick={() => setShowForgot(true)}>Forgot password?</button>
+          {showForgot ? (
+            <div className="onboard-form-fields">
+              <div className="onboard-field">
+                <label>Email address</label>
+                <input type="email" placeholder="you@example.com" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} />
               </div>
-            )}
-
-            {authMode === "signup" && (
-              <div>
-                <div className="field">
-                  <label>Full name</label>
-                  <input type="text" placeholder="Your name" value={signupName} onChange={(e) => setSignupName(e.target.value)} />
-                </div>
-                <div className="field">
-                  <label>Email address</label>
-                  <input type="email" placeholder="you@example.com" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} />
-                </div>
-                <div className="field">
-                  <label>Password</label>
-                  <input type="password" placeholder="At least 6 characters" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} />
-                </div>
-                <div className="field">
-                  <label>Confirm password</label>
-                  <input type="password" placeholder="Re-enter password" value={signupConfirm} onChange={(e) => setSignupConfirm(e.target.value)} />
-                </div>
-                <button type="button" className="btn btn-grad btn-block" onClick={handleSignUp} disabled={loading}>
-                  {loading ? "Creating account…" : "Start 7-day free trial"}
-                </button>
+              {forgotMsg && (
+                <p className={`onboard-msg ${forgotSuccess ? "success" : "error"}`}>{forgotMsg}</p>
+              )}
+              <button type="button" className="onboard-btn-primary" onClick={handleForgotPassword}>Send reset link</button>
+              <button type="button" className="onboard-btn-link" onClick={() => { setShowForgot(false); setForgotMsg(""); setForgotSuccess(false); }}>
+                Back to sign in
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="onboard-tabs">
+                <button className={`onboard-tab${authMode === "signin" ? " active" : ""}`} onClick={() => { setAuthMode("signin"); setError(""); }}>Sign in</button>
+                <button className={`onboard-tab${authMode === "signup" ? " active" : ""}`} onClick={() => { setAuthMode("signup"); setError(""); }}>Create account</button>
               </div>
-            )}
 
-            <div className="login-divider">or</div>
+              <div className="onboard-form-fields">
+                {authMode === "signin" ? (
+                  <>
+                    <div className="onboard-field">
+                      <label>Email address</label>
+                      <input type="email" placeholder="you@example.com" value={signinEmail} onChange={(e) => setSigninEmail(e.target.value)} />
+                    </div>
+                    <div className="onboard-field">
+                      <label>Password</label>
+                      <input type="password" placeholder="Enter your password" value={signinPassword} onChange={(e) => setSigninPassword(e.target.value)} />
+                    </div>
+                    <div style={{ textAlign: "right", marginTop: -4, marginBottom: 4 }}>
+                      <button type="button" className="onboard-btn-link" style={{ marginTop: 0, fontSize: 12 }} onClick={() => setShowForgot(true)}>Forgot password?</button>
+                    </div>
+                    <button type="button" className="onboard-btn-primary" onClick={handleSignIn} disabled={loading}>
+                      {loading ? "Signing in..." : "Sign in"}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="onboard-field">
+                      <label>Full name</label>
+                      <input type="text" placeholder="Your name" value={signupName} onChange={(e) => setSignupName(e.target.value)} />
+                    </div>
+                    <div className="onboard-field">
+                      <label>Email address</label>
+                      <input type="email" placeholder="you@example.com" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} />
+                    </div>
+                    <div className="onboard-field">
+                      <label>Password</label>
+                      <input type="password" placeholder="At least 6 characters" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} />
+                    </div>
+                    <div className="onboard-field">
+                      <label>Confirm password</label>
+                      <input type="password" placeholder="Re-enter password" value={signupConfirm} onChange={(e) => setSignupConfirm(e.target.value)} />
+                    </div>
+                    <button type="button" className="onboard-btn-primary" onClick={handleSignUp} disabled={loading}>
+                      {loading ? "Creating account..." : "Start 7-day free trial"}
+                    </button>
+                  </>
+                )}
+              </div>
 
-            <button type="button" className="demo-cool" onClick={enterDemoMode}>
-              <span className="demo-sparkle">✦</span>
-              <span>Try the live demo</span>
-              <span className="demo-arrow">→</span>
-            </button>
+              <div className="onboard-divider"><span>or</span></div>
 
-            <button type="button" className="login-link" onClick={enterDemoMode}>View pricing</button>
+              <button type="button" className="onboard-demo-btn" onClick={enterDemoMode}>
+                <span className="demo-sparkle">&#x2726;</span>
+                <span>Explore the live demo</span>
+                <span className="demo-arrow">&rarr;</span>
+              </button>
 
-            <p className="small-print">7-day free trial · No credit card required · Cancel anytime</p>
-          </>
-        )}
+              <p className="onboard-footer-text">
+                7-day free trial &middot; No credit card required &middot; Cancel anytime
+              </p>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
