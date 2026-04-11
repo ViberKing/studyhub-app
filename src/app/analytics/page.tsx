@@ -3,12 +3,14 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
 
 function AnalyticsInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [sessions, setSessions] = useState<{ minutes: number; module: string; recorded_at: string }[]>([]);
   const [doneCount, setDoneCount] = useState(0);

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase";
 import AppShell, { useAppContext } from "@/components/AppShell";
 import UniSelector from "@/components/UniSelector";
 import { getUniversity, getGradingConfig, type University } from "@/lib/universities";
+import { useGate } from "@/components/GateModal";
 
 interface Grade { id: number; name: string; weight: number; score: number | null; }
 
@@ -21,6 +22,7 @@ function GradesInner() {
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
   const { profile } = useAppContext();
+  const { gate } = useGate();
 
   const profileUni = profile?.university || "st-andrews";
   const [selectedUni, setSelectedUni] = useState(profileUni);
@@ -53,6 +55,7 @@ function GradesInner() {
   }, [selectedUni]);
 
   async function addGrade() {
+    if (!gate("core")) return;
     setError("");
     if (!gName.trim() || !gWeight) { setError("Name and weight required."); return; }
     const scoreVal = gScore === "" ? null : parseFloat(gScore);
@@ -69,6 +72,7 @@ function GradesInner() {
   }
 
   async function delGrade(id: number) {
+    if (!gate("core")) return;
     if (!confirm("Delete this grade component?")) return;
     if (isDemo) { setGrades(grades.filter(g => g.id !== id)); return; }
     await supabase.from("grades").delete().eq("id", id);

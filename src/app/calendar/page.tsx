@@ -8,6 +8,7 @@ import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import AppShell, { useAppContext } from "@/components/AppShell";
+import { useGate } from "@/components/GateModal";
 import { createClient } from "@/lib/supabase";
 
 /* ── date-fns localizer ── */
@@ -189,6 +190,7 @@ function CalendarInner() {
   const isDemo = searchParams.get("demo") === "true";
   const { userId } = useAppContext();
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -313,6 +315,7 @@ function CalendarInner() {
 
   /* ── Save event ── */
   const handleSave = useCallback(async (data: { title: string; type: EventType; start: Date; end: Date; allDay: boolean; module: string }) => {
+    if (!gate("core")) return;
     if (isDemo) {
       // In demo, just add locally
       if (modalEvent) {
@@ -367,6 +370,7 @@ function CalendarInner() {
 
   /* ── Delete event ── */
   const handleDelete = useCallback(async () => {
+    if (!gate("core")) return;
     if (!modalEvent) return;
     if (isDemo) {
       setEvents((prev) => prev.filter((e) => e.id !== modalEvent.id));

@@ -6,12 +6,14 @@ import { createClient } from "@/lib/supabase";
 import AppShell, { clearProfileCache } from "@/components/AppShell";
 import UniSelector from "@/components/UniSelector";
 import { universities, type University } from "@/lib/universities";
+import { useGate } from "@/components/GateModal";
 
 function SettingsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -147,6 +149,7 @@ function SettingsInner() {
   }
 
   async function handleExport() {
+    if (!gate("export")) return;
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;

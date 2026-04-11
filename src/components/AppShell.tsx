@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import { GateProvider } from "./GateModal";
 
 interface Profile {
   name: string;
@@ -141,15 +142,17 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
 
   return (
     <AppContext.Provider value={{ profile, userId, isDemo }}>
-      <div className={`app active${isDemo ? " demo-mode" : ""}`}>
-        <Sidebar />
-        <div className="main-col">
-          <Header userName={profile?.name || "User"} isDemo={isDemo} avatarUrl={profile?.avatar_url || null} />
-          <main className="main">
-            {children}
-          </main>
+      <GateProvider>
+        <div className={`app active${isDemo ? " demo-mode" : ""}`}>
+          <Sidebar />
+          <div className="main-col">
+            <Header userName={profile?.name || "User"} isDemo={isDemo} avatarUrl={profile?.avatar_url || null} />
+            <main className="main">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
+      </GateProvider>
     </AppContext.Provider>
   );
 }

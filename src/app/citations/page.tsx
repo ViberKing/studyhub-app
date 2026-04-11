@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
+import { useGate } from "@/components/GateModal";
 
 interface Citation { id: number; text: string; }
 
@@ -13,6 +14,7 @@ function CitationsInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [citations, setCitations] = useState<Citation[]>([]);
   const [format, setFormat] = useState("APA");
@@ -40,6 +42,7 @@ function CitationsInner() {
   useEffect(() => { fetchCitations(); }, [fetchCitations]);
 
   function generateCitation() {
+    if (!gate("core")) return;
     const a = val("cAuthor"), y = val("cYear"), t = val("cTitle");
     if (!a || !y || !t) { setOutput(""); setCopied(false); setFormError("Author, year, and title are required."); return; }
     let cite = "";
@@ -64,6 +67,7 @@ function CitationsInner() {
   }
 
   async function saveCitation(text: string) {
+    if (!gate("core")) return;
     if (isDemo) { setCitations([{ id: Date.now(), text }, ...citations]); return; }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
@@ -72,6 +76,7 @@ function CitationsInner() {
   }
 
   async function delCitation(id: number) {
+    if (!gate("core")) return;
     if (!confirm("Delete this saved citation?")) return;
     if (isDemo) { setCitations(citations.filter(c => c.id !== id)); return; }
     await supabase.from("citations").delete().eq("id", id);

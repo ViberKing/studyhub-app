@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
+import { useGate } from "@/components/GateModal";
 
 interface Thread {
   partnerId: string;
@@ -38,6 +39,7 @@ function MessagesInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeThread, setActiveThread] = useState<Thread | null>(null);
@@ -121,6 +123,7 @@ function MessagesInner() {
   }, [isDemo, activeThread, userId]);
 
   async function sendMessage() {
+    if (!gate("groups")) return;
     if (!newMsg.trim() || !activeThread) return;
     if (!userId) return;
     if (isDemo) {
