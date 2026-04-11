@@ -40,7 +40,7 @@ function ModulesInner() {
   async function addModule() {
     setError("");
     if (!mName.trim()) { setError("Name required."); return; }
-    if (isDemo) { setModules([...modules, { id: Date.now(), name: mName, code: mCode, lecturer: mLect, credits: parseInt(mCredits) || 30 }]); setMName(""); setMCode(""); setMLect(""); return; }
+    if (isDemo) { setModules([...modules, { id: Date.now(), name: mName, code: mCode, lecturer: mLect, credits: parseInt(mCredits) || 30 }]); setMName(""); setMCode(""); setMLect(""); setMCredits(""); return; }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     const { error: err } = await supabase.from("modules").insert({ user_id: session.user.id, name: mName.trim(), code: mCode.trim(), lecturer: mLect.trim(), credits: parseInt(mCredits) || 30 });

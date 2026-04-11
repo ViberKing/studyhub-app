@@ -93,7 +93,8 @@ function DashboardInner() {
       setLoading(false);
     }
     load();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDemo]);
 
   const setMood = useCallback(async (m: string) => {
     setMoodState(m);

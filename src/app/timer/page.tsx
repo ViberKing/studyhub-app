@@ -73,6 +73,7 @@ function TimerInner() {
   }
 
   async function logSession() {
+    if (total <= 0) return;
     const min = total / 60;
     if (isDemo) {
       setSessions(prev => [{ id: Date.now(), minutes: min, module: tModule || "General", notes: tNotes, recorded_at: new Date().toISOString() }, ...prev]);

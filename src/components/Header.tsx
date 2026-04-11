@@ -5,11 +5,12 @@ import { createClient } from "@/lib/supabase";
 import { clearProfileCache } from "./AppShell";
 
 const pageTitles: Record<string, string> = {
-  dashboard: "Dashboard", research: "Research", assignments: "Assignments",
+  dashboard: "Dashboard", calendar: "Calendar", research: "Research", assignments: "Assignments",
   essay: "Essay builder", timer: "Study timer", flashcards: "Flashcards",
   grades: "Grades", citations: "Citations", notes: "Notes",
   modules: "Modules", analytics: "Analytics", pricing: "Pricing",
   settings: "Settings", feed: "Uni feed", groups: "Groups", messages: "Messages",
+  events: "Events", discounts: "Discounts",
 };
 
 export default function Header({ userName, isDemo }: { userName: string; isDemo: boolean }) {
@@ -23,7 +24,7 @@ export default function Header({ userName, isDemo }: { userName: string; isDemo:
   async function handleSignOut() {
     clearProfileCache();
     if (isDemo) { router.replace("/"); return; }
-    await supabase.auth.signOut();
+    try { await supabase.auth.signOut(); } catch {}
     router.replace("/");
   }
 

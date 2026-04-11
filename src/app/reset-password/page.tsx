@@ -14,11 +14,12 @@ export default function ResetPasswordPage() {
 
   // Supabase sends the user here with a session already set via the URL hash
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         // User arrived via reset link — they can now set a new password
       }
     });
+    return () => subscription.unsubscribe();
   }, []);
 
   async function handleReset() {

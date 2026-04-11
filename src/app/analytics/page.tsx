@@ -45,7 +45,8 @@ function AnalyticsInner() {
       setLoading(false);
     }
     load();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDemo]);
 
   if (loading) return null;
 

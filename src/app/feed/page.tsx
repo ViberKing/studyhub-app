@@ -57,7 +57,7 @@ function FeedInner() {
   const fetchPosts = useCallback(async () => {
     if (isDemo) { setPosts(demoPosts); setUserId("demo-self"); setUserName("Demo Student"); setLoading(false); return; }
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) { setLoading(false); return; }
     setUserId(session.user.id);
     // Get user name
     const { data: profile } = await supabase.from("profiles").select("name").eq("id", session.user.id).single();
@@ -90,6 +90,7 @@ function FeedInner() {
 
   async function submitPost() {
     if (!newPost.trim()) return;
+    if (!userId) return;
     if (isDemo) {
       setPosts([{ id: Date.now(), content: newPost, created_at: new Date().toISOString(), user_id: "demo-self", profiles: { name: "Demo Student" }, replies: [] }, ...posts]);
       setNewPost(""); return;

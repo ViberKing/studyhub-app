@@ -7,7 +7,7 @@ import AppShell from "@/components/AppShell";
 
 interface Citation { id: number; text: string; }
 
-function val(id: string) { return (document.getElementById(id) as HTMLInputElement)?.value.trim() || ""; }
+function val(id: string) { return (document.getElementById(id) as HTMLInputElement)?.value?.trim() ?? ""; }
 
 function CitationsInner() {
   const searchParams = useSearchParams();

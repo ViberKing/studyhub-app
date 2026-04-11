@@ -24,6 +24,7 @@ export default function LoginPage() {
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotMsg, setForgotMsg] = useState("");
+  const [forgotSuccess, setForgotSuccess] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
@@ -81,12 +82,14 @@ export default function LoginPage() {
 
   async function handleForgotPassword() {
     setForgotMsg("");
+    setForgotSuccess(false);
     if (!forgotEmail) { setForgotMsg("Enter your email address."); return; }
     const { error: err } = await supabase.auth.resetPasswordForEmail(
       forgotEmail,
       { redirectTo: `${window.location.origin}/reset-password` }
     );
     if (err) { setForgotMsg(err.message); return; }
+    setForgotSuccess(true);
     setForgotMsg("Check your email for a password reset link.");
   }
 
@@ -131,10 +134,10 @@ export default function LoginPage() {
               <input type="email" placeholder="you@example.com" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} />
             </div>
             {forgotMsg && (
-              <p style={{ fontSize: "13px", marginBottom: "14px", color: forgotMsg.includes("Check") ? "var(--emerald)" : "var(--red)" }}>{forgotMsg}</p>
+              <p style={{ fontSize: "13px", marginBottom: "14px", color: forgotSuccess ? "var(--emerald)" : "var(--red)" }}>{forgotMsg}</p>
             )}
             <button type="button" className="btn btn-grad btn-block" onClick={handleForgotPassword}>Send reset link</button>
-            <button type="button" className="login-link" onClick={() => { setShowForgot(false); setForgotMsg(""); }}>Back to sign in</button>
+            <button type="button" className="login-link" onClick={() => { setShowForgot(false); setForgotMsg(""); setForgotSuccess(false); }}>Back to sign in</button>
           </div>
         ) : (
           <>

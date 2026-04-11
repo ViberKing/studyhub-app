@@ -51,7 +51,7 @@ function MessagesInner() {
   const fetchThreads = useCallback(async () => {
     if (isDemo) { setThreads(demoThreads); setUserId("demo-self"); setUserName("Demo Student"); setLoading(false); return; }
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) { setLoading(false); return; }
     setUserId(session.user.id);
     const { data: profile } = await supabase.from("profiles").select("name").eq("id", session.user.id).single();
     if (profile) setUserName(profile.name);
@@ -122,6 +122,7 @@ function MessagesInner() {
 
   async function sendMessage() {
     if (!newMsg.trim() || !activeThread) return;
+    if (!userId) return;
     if (isDemo) {
       setMessages([...messages, { id: Date.now(), sender_id: "demo-self", receiver_id: activeThread.partnerId, content: newMsg, read: false, created_at: new Date().toISOString(), senderName: "Demo Student" }]);
       setNewMsg(""); return;

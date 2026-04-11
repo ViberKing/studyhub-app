@@ -134,6 +134,7 @@ function FlashcardsInner() {
   const [learnOptions, setLearnOptions] = useState<string[]>([]);
   const [learnAnswer, setLearnAnswer] = useState("");
   const [learnFeedback, setLearnFeedback] = useState<null | { correct: boolean; answer: string }>(null);
+  const [learnSelected, setLearnSelected] = useState<string | null>(null);
   const [learnDone, setLearnDone] = useState(false);
 
   /* match */
@@ -307,6 +308,7 @@ function FlashcardsInner() {
     setLearnQueue(shuffle(pool));
     setLearnPhase("mc");
     setLearnFeedback(null);
+    setLearnSelected(null);
     setLearnAnswer("");
     setLearnDone(false);
     generateMcOptions(pool[0], deckCards);
@@ -324,6 +326,7 @@ function FlashcardsInner() {
 
   const learnSelect = (answer: string) => {
     if (learnFeedback) return;
+    setLearnSelected(answer);
     const card = learnQueue[0];
     const correct = answer === card.definition;
     setLearnFeedback({ correct, answer: card.definition });
@@ -342,6 +345,7 @@ function FlashcardsInner() {
     const card = learnQueue[0];
     const wasCorrect = learnFeedback?.correct;
     setLearnFeedback(null);
+    setLearnSelected(null);
     setLearnAnswer("");
 
     if (learnPhase === "mc" && wasCorrect) {
@@ -413,7 +417,8 @@ function FlashcardsInner() {
       return;
     }
 
-    const first = matchTiles.find((t) => t.id === matchFirst)!;
+    const first = matchTiles.find((t) => t.id === matchFirst);
+    if (!first) return;
     if (first.cardId === tile.cardId && first.type !== tile.type) {
       // match!
       const updated = matchTiles.map((t) =>
@@ -620,7 +625,7 @@ function FlashcardsInner() {
                   {learnOptions.map((opt, i) => (
                     <button
                       key={i}
-                      className={`learn-option${learnFeedback && opt === learnQueue[0].definition ? " correct" : ""}${learnFeedback && opt !== learnQueue[0].definition && opt === (learnFeedback ? testAnswers[-1] : "") ? " wrong" : ""}`}
+                      className={`learn-option${learnFeedback && opt === learnQueue[0].definition ? " correct" : ""}${learnFeedback && opt !== learnQueue[0].definition && opt === learnSelected ? " wrong" : ""}`}
                       onClick={() => learnSelect(opt)}
                       disabled={!!learnFeedback}
                     >
