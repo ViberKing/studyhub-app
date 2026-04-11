@@ -7,10 +7,11 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+type BannerMode = "native" | "ios" | "mac-safari" | null;
+
 export default function PWARegister() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showBanner, setShowBanner] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+  const [mode, setMode] = useState<BannerMode>(null);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
@@ -19,26 +20,34 @@ export default function PWARegister() {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
 
-    // Check if already installed
+    // Check if already installed (standalone mode)
     if (window.matchMedia("(display-mode: standalone)").matches) return;
 
     // Check if user previously dismissed
     if (localStorage.getItem("pwa-install-dismissed")) return;
 
-    // Detect iOS (no beforeinstallprompt on Safari)
     const ua = navigator.userAgent;
+
+    // Detect iOS (iPhone, iPad, iPod)
     const isiOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     if (isiOS) {
-      setIsIOS(true);
-      setShowBanner(true);
+      setMode("ios");
       return;
     }
 
-    // Listen for the install prompt event (Chrome, Edge, Samsung, etc.)
+    // Detect macOS Safari (Safari but NOT Chrome/Firefox/Edge on Mac)
+    const isSafari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|Edg/.test(ua);
+    const isMac = /Macintosh|MacIntel/.test(ua);
+    if (isSafari && isMac) {
+      setMode("mac-safari");
+      return;
+    }
+
+    // For Chrome, Edge, Samsung etc. — listen for the native install prompt
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowBanner(true);
+      setMode("native");
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -50,19 +59,26 @@ export default function PWARegister() {
       await deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === "accepted") {
-        setShowBanner(false);
+        setMode(null);
       }
       setDeferredPrompt(null);
     }
   }
 
   function handleDismiss() {
-    setShowBanner(false);
+    setMode(null);
     setDismissed(true);
     localStorage.setItem("pwa-install-dismissed", "1");
   }
 
-  if (!showBanner || dismissed) return null;
+  if (!mode || dismissed) return null;
+
+  /* Share icon for iOS */
+  const shareIcon = (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline", verticalAlign: "-2px", margin: "0 2px" }}>
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+    </svg>
+  );
 
   return (
     <div className="pwa-install-banner">
@@ -74,14 +90,18 @@ export default function PWARegister() {
       </div>
       <div className="pwa-install-text">
         <strong>Install Study-HQ</strong>
-        {isIOS ? (
-          <span>Tap <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline", verticalAlign: "-2px", margin: "0 2px" }}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> then <strong>&quot;Add to Home Screen&quot;</strong></span>
-        ) : (
+        {mode === "ios" && (
+          <span>Tap {shareIcon} then <strong>&quot;Add to Home Screen&quot;</strong></span>
+        )}
+        {mode === "mac-safari" && (
+          <span>Click <strong>File → Add to Dock</strong> to install</span>
+        )}
+        {mode === "native" && (
           <span>Add to your home screen for the best experience</span>
         )}
       </div>
       <div className="pwa-install-actions">
-        {!isIOS && (
+        {mode === "native" && (
           <button className="pwa-install-btn" onClick={handleInstall}>
             Install
           </button>
