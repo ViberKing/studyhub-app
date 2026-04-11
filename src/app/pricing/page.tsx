@@ -94,7 +94,7 @@ function PricingInner() {
         <div className="card">
           <h3>All plans include</h3>
           <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.7 }}>
-            ✓ 7-day free trial · ✓ Cancel anytime · ✓ Student-friendly pricing · ✓ Used by students at St Andrews and beyond.<br />
+            ✓ 7-day free trial · ✓ Cancel anytime · ✓ Student-friendly pricing · ✓ Used by students at universities across the UK.<br />
             Built by students who actually use it themselves.
           </p>
         </div>

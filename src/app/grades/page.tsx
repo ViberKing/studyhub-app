@@ -3,7 +3,9 @@
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
-import AppShell from "@/components/AppShell";
+import AppShell, { useAppContext } from "@/components/AppShell";
+import UniSelector from "@/components/UniSelector";
+import { getUniversity, getGradingConfig, type University } from "@/lib/universities";
 
 interface Grade { id: number; name: string; weight: number; score: number | null; }
 
@@ -18,9 +20,16 @@ function GradesInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { profile } = useAppContext();
+
+  const profileUni = profile?.university || "st-andrews";
+  const [selectedUni, setSelectedUni] = useState(profileUni);
+
+  const uni = getUniversity(selectedUni);
+  const gradingConfig = getGradingConfig(uni?.gradingSystem || "percentage");
 
   const [grades, setGrades] = useState<Grade[]>([]);
-  const [target, setTarget] = useState("16.5");
+  const [target, setTarget] = useState(gradingConfig.targets[0].value);
   const [gName, setGName] = useState("");
   const [gWeight, setGWeight] = useState("");
   const [gScore, setGScore] = useState("");
@@ -38,10 +47,19 @@ function GradesInner() {
 
   useEffect(() => { fetchGrades(); }, [fetchGrades]);
 
+  // Reset target when grading system changes
+  useEffect(() => {
+    setTarget(gradingConfig.targets[0].value);
+  }, [selectedUni]);
+
   async function addGrade() {
     setError("");
     if (!gName.trim() || !gWeight) { setError("Name and weight required."); return; }
     const scoreVal = gScore === "" ? null : parseFloat(gScore);
+    if (scoreVal !== null && (scoreVal < 0 || scoreVal > gradingConfig.maxScore)) {
+      setError(`Score must be between 0 and ${gradingConfig.maxScore}.`);
+      return;
+    }
     if (isDemo) { setGrades([...grades, { id: Date.now(), name: gName, weight: parseFloat(gWeight), score: scoreVal }]); setGName(""); setGWeight(""); setGScore(""); return; }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
@@ -60,32 +78,43 @@ function GradesInner() {
   if (loading) return null;
 
   // Calculate
+  const max = gradingConfig.maxScore;
   const done = grades.filter(g => g.score !== null);
   const pending = grades.filter(g => g.score === null);
   const doneWeight = done.reduce((s, g) => s + g.weight, 0);
   const pendingWeight = pending.reduce((s, g) => s + g.weight, 0);
   const earned = done.reduce((s, g) => s + (g.score || 0) * g.weight, 0);
-  const current = doneWeight ? (earned / doneWeight).toFixed(1) + "/20" : "no scores yet";
+  const current = doneWeight ? (earned / doneWeight).toFixed(1) + `/${max}` : "no scores yet";
   const targetNum = parseFloat(target);
-  let needed = "—";
+  let needed = "\u2014";
   if (pendingWeight > 0) {
     const n = ((targetNum * (doneWeight + pendingWeight) - earned) / pendingWeight);
-    if (n < 0) needed = "Already secured ✓";
-    else if (n > 20) needed = "Not mathematically possible";
-    else needed = n.toFixed(1) + "/20";
+    if (n < 0) needed = "Already secured \u2713";
+    else if (n > max) needed = "Not mathematically possible";
+    else needed = n.toFixed(1) + `/${max}`;
   } else if (done.length > 0) needed = "No pending components";
 
   return (
     <AppShell>
       <div className="page active">
         <h1 className="page-title">Grade calculator</h1>
-        <p className="page-sub">St Andrews 20-point scale.</p>
+        <p className="page-sub">{uni?.name || "University"} \u2014 {gradingConfig.scaleLabel}.</p>
+
+        {/* University selector */}
+        <div style={{ marginBottom: 20 }}>
+          <UniSelector
+            value={selectedUni}
+            onChange={(u: University) => setSelectedUni(u.id)}
+            compact
+          />
+        </div>
+
         <div className="card mb">
           <h3>Add component</h3>
           <div className="grid grid-3">
             <div className="field"><label>Name</label><input value={gName} onChange={e => setGName(e.target.value)} placeholder="e.g. Mid-term essay" /></div>
             <div className="field"><label>Weight (%)</label><input type="number" value={gWeight} onChange={e => setGWeight(e.target.value)} min={0} max={100} /></div>
-            <div className="field"><label>Score (0–20, blank if pending)</label><input type="number" value={gScore} onChange={e => setGScore(e.target.value)} min={0} max={20} step={0.1} /></div>
+            <div className="field"><label>Score (0\u2013{max}, blank if pending)</label><input type="number" value={gScore} onChange={e => setGScore(e.target.value)} min={0} max={max} step={0.1} /></div>
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13, marginBottom: 12 }}>{error}</p>}
           <button className="btn btn-grad" onClick={addGrade}>Add component</button>
@@ -94,31 +123,30 @@ function GradesInner() {
           <div className="field" style={{ marginBottom: 12 }}>
             <label>Target grade</label>
             <select value={target} onChange={e => setTarget(e.target.value)}>
-              <option value="16.5">First (16.5+)</option>
-              <option value="13.5">2:1 (13.5–16.4)</option>
-              <option value="11">2:2 (11–13.4)</option>
-              <option value="7">Third (7–10.9)</option>
+              {gradingConfig.targets.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
             </select>
           </div>
           {grades.length > 0 && (
             <div>
               <p style={{ fontSize: 13 }}><b>Current weighted average:</b> {current}</p>
-              <p style={{ fontSize: 13 }}><b>Required on remaining:</b> <span style={{ color: needed.includes("✓") ? "var(--emerald)" : needed.includes("Not") ? "var(--red)" : "inherit" }}>{needed}</span></p>
+              <p style={{ fontSize: 13 }}><b>Required on remaining:</b> <span style={{ color: needed.includes("\u2713") ? "var(--emerald)" : needed.includes("Not") ? "var(--red)" : "inherit" }}>{needed}</span></p>
             </div>
           )}
         </div>
         {grades.map(g => (
           <div key={g.id} className="card mb">
             <div className="row between">
-              <div><b>{g.name}</b><br /><small>{g.weight}% · {g.score === null ? "pending" : `score ${g.score}`}</small></div>
+              <div><b>{g.name}</b><br /><small>{g.weight}% \u00B7 {g.score === null ? "pending" : `score ${g.score}`}</small></div>
               <button className="btn btn-danger btn-sm" onClick={() => delGrade(g.id)}>Delete</button>
             </div>
           </div>
         ))}
         {grades.length === 0 && <div className="empty">No components added.</div>}
         <div className="card mt">
-          <h3>St Andrews 20-point scale</h3>
-          <small>16.5+ = First · 13.5–16.4 = 2:1 · 11–13.4 = 2:2 · 7–10.9 = Third · &lt;7 = Fail</small>
+          <h3>{gradingConfig.scaleLabel}</h3>
+          <small>{gradingConfig.scaleSummary}</small>
         </div>
       </div>
     </AppShell>
