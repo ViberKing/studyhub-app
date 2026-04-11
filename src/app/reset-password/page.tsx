@@ -35,22 +35,29 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="login-wrap">
-      <div className="login-card">
-        <h1 style={{ fontSize: 24, marginBottom: 8 }}>Reset password</h1>
-        <p className="sub" style={{ marginBottom: 24 }}>Enter your new password below.</p>
-        {msg && <p style={{ color: "var(--red)", fontSize: 13, marginBottom: 14 }}>{msg}</p>}
-        <div className="field">
-          <label>New password</label>
-          <input type="password" placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} />
+    <div className="onboard-wrap" style={{ justifyContent: "center" }}>
+      <div className="onboard-right">
+        <div className="onboard-form-wrap">
+          <div className="onboard-form-header">
+            <h1>Reset password</h1>
+            <p>Enter your new password below.</p>
+          </div>
+          {msg && <p className={`onboard-msg error`}>{msg}</p>}
+          <div className="onboard-field">
+            <label>New password</label>
+            <input type="password" placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} />
+          </div>
+          <div className="onboard-field">
+            <label>Confirm password</label>
+            <input type="password" placeholder="Re-enter password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          </div>
+          <button type="button" className="onboard-btn-primary" onClick={handleReset} disabled={loading}>
+            {loading ? "Updating…" : "Update password"}
+          </button>
+          <button type="button" className="onboard-btn-link" onClick={() => router.push("/")}>
+            Back to sign in
+          </button>
         </div>
-        <div className="field">
-          <label>Confirm password</label>
-          <input type="password" placeholder="Re-enter password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
-        </div>
-        <button type="button" className="btn btn-grad btn-block" onClick={handleReset} disabled={loading}>
-          {loading ? "Updating…" : "Update password"}
-        </button>
       </div>
     </div>
   );

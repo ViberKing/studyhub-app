@@ -31,9 +31,9 @@ interface CalEvent {
 const TYPE_COLORS: Record<EventType, string> = {
   assignment: "#f59e0b",
   exam: "#ef4444",
-  study: "#6c5ce7",
+  study: "#E11D48",
   social: "#10b981",
-  custom: "#6366f1",
+  custom: "#8b5cf6",
 };
 
 /* ── Demo data ── */
@@ -94,30 +94,33 @@ function EventModal({
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal card" style={{ maxWidth: 440, width: "100%" }} onClick={(e) => e.stopPropagation()}>
+    <div className="modal-bg open" onClick={onClose}>
+      <div className="modal" style={{ maxWidth: 440, width: "100%" }} onClick={(e) => e.stopPropagation()}>
         <h3 style={{ marginBottom: 16 }}>{editing ? "Edit event" : "New event"}</h3>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div>
             <label style={{ fontSize: 12, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Title</label>
-            <input
-              className="input"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Event title"
-              autoFocus
-              required
-            />
+            <div className="field" style={{ marginBottom: 0 }}>
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Event title"
+                autoFocus
+                required
+              />
+            </div>
           </div>
 
           <div>
             <label style={{ fontSize: 12, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Type</label>
-            <select className="input" value={type} onChange={(e) => setType(e.target.value as EventType)}>
+            <div className="field" style={{ marginBottom: 0 }}>
+            <select value={type} onChange={(e) => setType(e.target.value as EventType)}>
               <option value="custom">Custom</option>
               <option value="exam">Exam</option>
               <option value="study">Study</option>
               <option value="social">Social</option>
             </select>
+            </div>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -126,7 +129,7 @@ function EventModal({
               id="allday"
               checked={allDay}
               onChange={(e) => setAllDay(e.target.checked)}
-              style={{ accentColor: "#6c5ce7" }}
+              style={{ accentColor: "var(--red, #E11D48)" }}
             />
             <label htmlFor="allday" style={{ fontSize: 13 }}>All day</label>
           </div>
@@ -134,42 +137,45 @@ function EventModal({
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
               <label style={{ fontSize: 12, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Start</label>
-              <input
-                className="input"
-                type={allDay ? "date" : "datetime-local"}
-                value={allDay ? startStr.slice(0, 10) : startStr}
-                onChange={(e) => setStartStr(allDay ? e.target.value + "T00:00" : e.target.value)}
-              />
+              <div className="field" style={{ marginBottom: 0 }}>
+                <input
+                  type={allDay ? "date" : "datetime-local"}
+                  value={allDay ? startStr.slice(0, 10) : startStr}
+                  onChange={(e) => setStartStr(allDay ? e.target.value + "T00:00" : e.target.value)}
+                />
+              </div>
             </div>
             <div>
               <label style={{ fontSize: 12, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>End</label>
-              <input
-                className="input"
-                type={allDay ? "date" : "datetime-local"}
-                value={allDay ? endStr.slice(0, 10) : endStr}
-                onChange={(e) => setEndStr(allDay ? e.target.value + "T23:59" : e.target.value)}
-              />
+              <div className="field" style={{ marginBottom: 0 }}>
+                <input
+                  type={allDay ? "date" : "datetime-local"}
+                  value={allDay ? endStr.slice(0, 10) : endStr}
+                  onChange={(e) => setEndStr(allDay ? e.target.value + "T23:59" : e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
           <div>
             <label style={{ fontSize: 12, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Module (optional)</label>
-            <input
-              className="input"
-              value={module}
-              onChange={(e) => setModule(e.target.value)}
-              placeholder="e.g. PH1011"
-            />
+            <div className="field" style={{ marginBottom: 0 }}>
+              <input
+                value={module}
+                onChange={(e) => setModule(e.target.value)}
+                placeholder="e.g. PH1011"
+              />
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: 8, marginTop: 8, justifyContent: "flex-end" }}>
             {editing && onDelete && (
-              <button type="button" className="btn btn-outline" style={{ marginRight: "auto", color: "#ef4444", borderColor: "rgba(239,68,68,.3)" }} onClick={onDelete}>
+              <button type="button" className="btn btn-danger" style={{ marginRight: "auto" }} onClick={onDelete}>
                 Delete
               </button>
             )}
-            <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary">{editing ? "Save" : "Create"}</button>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-grad">{editing ? "Save" : "Create"}</button>
           </div>
         </form>
       </div>
@@ -398,7 +404,7 @@ function CalendarInner() {
             </p>
           </div>
           <button
-            className="btn btn-primary"
+            className="btn btn-grad"
             onClick={() => {
               setModalEvent(null);
               setModalSlot({ start: new Date(), end: addHours(new Date(), 1) });

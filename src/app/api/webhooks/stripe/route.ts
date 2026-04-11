@@ -26,7 +26,6 @@ export async function POST(req: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err) {
-    console.error("Webhook signature verification failed:", err);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -79,14 +78,12 @@ export async function POST(req: NextRequest) {
         // Find user by stripe customer ID and flag
         const { data } = await supabase.from("profiles").select("id").eq("stripe_customer_id", customerId).single();
         if (data) {
-          console.log(`Payment failed for user ${data.id}`);
           // Could send notification email here in future
         }
         break;
       }
     }
   } catch (err) {
-    console.error("Webhook handler error:", err);
     return NextResponse.json({ error: "Handler failed" }, { status: 500 });
   }
 

@@ -27,6 +27,9 @@ function ResearchInner() {
   const [resModule, setResModule] = useState("");
   const [resBrief, setResBrief] = useState("");
   const [loading, setLoading] = useState(true);
+  const [savedMsg, setSavedMsg] = useState("");
+  const [integrityError, setIntegrityError] = useState("");
+  const [briefError, setBriefError] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -52,7 +55,8 @@ function ResearchInner() {
 
   async function agreeIntegrity() {
     const checks = Array.from(document.querySelectorAll<HTMLInputElement>(".agreeChk"));
-    if (!checks.every(c => c.checked)) { alert("Please tick all five boxes."); return; }
+    if (!checks.every(c => c.checked)) { setIntegrityError("Please tick all five boxes."); return; }
+    setIntegrityError("");
     setIntegrityAgreed(true);
     setShowModal(false);
     if (!isDemo) {
@@ -85,11 +89,13 @@ function ResearchInner() {
   }
 
   async function saveProject() {
-    if (!resModule.trim() || !resBrief.trim()) { alert("Enter module and brief first."); return; }
+    if (!resModule.trim() || !resBrief.trim()) { setBriefError("Enter module and brief first."); return; }
+    setBriefError("");
     setProjects([{ id: Date.now(), module: resModule, brief: resBrief, sources: [...sources], created_at: new Date().toISOString() }, ...projects]);
     setSources([]);
     setResModule(""); setResBrief("");
-    alert("Project saved.");
+    setSavedMsg("Project saved!");
+    setTimeout(() => setSavedMsg(""), 3000);
   }
 
   if (loading) return null;
@@ -128,6 +134,7 @@ function ResearchInner() {
             <div className="check-row"><input type="checkbox" className="agreeChk" /> All submitted work will be my own original writing.</div>
             <div className="check-row"><input type="checkbox" className="agreeChk" /> I will properly cite all sources in my essays.</div>
             <div className="check-row"><input type="checkbox" className="agreeChk" /> I will read the actual sources, not rely on summaries alone.</div>
+            {integrityError && <p style={{ fontSize: 13, color: "var(--red)", marginBottom: 8 }}>{integrityError}</p>}
             <button className="btn btn-grad btn-block mt" onClick={agreeIntegrity}>I agree — continue to Research Assistant</button>
           </div>
         </div>
@@ -150,8 +157,8 @@ function ResearchInner() {
           <p style={{ color: "var(--text-muted)", fontSize: 13, marginBottom: 14 }}>Add sources you&apos;ve been assigned, or have AI help find relevant articles.</p>
           <div className="row">
             <button className="btn" onClick={addSourceManual}>Add source manually</button>
-            <button className="btn btn-ghost" onClick={() => alert("Google Scholar search requires the Anthropic API.")}>Search Google Scholar</button>
-            <button className="btn btn-ghost" onClick={() => alert("PDF upload requires the Anthropic API.")}>Upload PDF</button>
+            <button className="btn btn-ghost" disabled title="Coming soon" style={{ opacity: 0.5, cursor: "not-allowed" }}>Search Google Scholar</button>
+            <button className="btn btn-ghost" disabled title="Coming soon" style={{ opacity: 0.5, cursor: "not-allowed" }}>Upload PDF</button>
           </div>
         </div>
         <div className="card mb">
@@ -174,7 +181,9 @@ function ResearchInner() {
             </div>
           )) : <div className="empty">No sources yet. Add one above.</div>}
         </div>
+        {briefError && <p style={{ fontSize: 13, color: "var(--red)", marginBottom: 8 }}>{briefError}</p>}
         <button className="btn btn-grad" onClick={saveProject}>Save research project</button>
+        {savedMsg && <span style={{ marginLeft: 12, fontSize: 13, color: "var(--emerald)", fontWeight: 500 }}>{savedMsg}</span>}
         <h3 className="section-title">Saved projects</h3>
         {projects.length ? projects.map(p => (
           <div key={p.id} className="card mb">

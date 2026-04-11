@@ -19,6 +19,7 @@ function TimerInner() {
   const [tNotes, setTNotes] = useState("");
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sessionComplete, setSessionComplete] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchSessions = useCallback(async () => {
@@ -54,7 +55,8 @@ function TimerInner() {
           intervalRef.current = null;
           setRunning(false);
           logSession();
-          alert("Session complete. Great work!");
+          setSessionComplete(true);
+          setTimeout(() => setSessionComplete(false), 5000);
           return total;
         }
         return prev - 1;
@@ -113,6 +115,7 @@ function TimerInner() {
             <button className="btn-ghost btn" onClick={reset}>Reset</button>
           </div>
         </div>
+        {sessionComplete && <div className="card mb" style={{ background: "var(--emerald)", color: "#fff", textAlign: "center", fontWeight: 600, padding: "14px 20px", borderRadius: 10 }}>Session complete! Great work!</div>}
         <div className="card mb">
           <div className="grid grid-2">
             <div className="field" style={{ marginBottom: 0 }}><label>Module</label><input value={tModule} onChange={e => setTModule(e.target.value)} placeholder="What are you studying?" /></div>

@@ -18,6 +18,8 @@ function CitationsInner() {
   const [format, setFormat] = useState("APA");
   const [sourceType, setSourceType] = useState("Book");
   const [output, setOutput] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(true);
 
   const fetchCitations = useCallback(async () => {
@@ -39,7 +41,7 @@ function CitationsInner() {
 
   function generateCitation() {
     const a = val("cAuthor"), y = val("cYear"), t = val("cTitle");
-    if (!a || !y || !t) { alert("Author, year, and title are required."); return; }
+    if (!a || !y || !t) { setOutput(""); setCopied(false); setFormError("Author, year, and title are required."); return; }
     let cite = "";
     if (sourceType === "Book") {
       const p = val("cPub");
@@ -57,6 +59,7 @@ function CitationsInner() {
       else if (format === "MLA") cite = `${a}. "${t}." Web, ${y}, ${u}.`;
       else cite = `${a} (${y}) ${t}. Available at: ${u}`;
     }
+    setFormError("");
     setOutput(cite);
   }
 
@@ -99,13 +102,15 @@ function CitationsInner() {
           {sourceType === "Book" && f("Publisher", "cPub")}
           {sourceType === "Journal" && <>{f("Journal", "cJournal")}{f("Volume", "cVol")}{f("Pages", "cPages")}</>}
           {sourceType === "Website" && f("URL", "cUrl")}
+          {formError && <p style={{ fontSize: 13, color: "var(--red)", marginBottom: 8 }}>{formError}</p>}
           <button className="btn" onClick={generateCitation}>Generate citation</button>
         </div>
         {output && (
           <div className="card">
             <p style={{ fontSize: 13 }}>{output}</p>
             <div className="row mt">
-              <button className="btn btn-sm" onClick={() => { navigator.clipboard.writeText(output); alert("Copied"); }}>Copy</button>
+              <button className="btn btn-sm" onClick={() => { navigator.clipboard.writeText(output); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>Copy</button>
+              {copied && <span style={{ fontSize: 13, color: "var(--emerald)", fontWeight: 500 }}>Copied!</span>}
               <button className="btn btn-ghost btn-sm" onClick={() => saveCitation(output)}>Save</button>
             </div>
           </div>
