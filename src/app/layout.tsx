@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     "Your AI-powered academic companion. Designed by students, for students.",
   manifest: "/manifest.json",
-  themeColor: "#6c5ce7",
+  themeColor: "#E11D48",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
