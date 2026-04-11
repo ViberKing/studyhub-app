@@ -140,7 +140,7 @@ a { color: var(--red); text-decoration: none; }
 .onboard-logo {
   width: 48px; height: 48px;
   background: var(--grad);
-  border-radius: 14px;
+  border-radius: 13px;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 8px 24px -6px rgba(225, 29, 72, 0.5);
 }
