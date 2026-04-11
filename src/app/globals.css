@@ -585,6 +585,23 @@ a { color: var(--red); text-decoration: none; }
   letter-spacing: 0.08em;
   margin: 16px 10px 6px;
 }
+.sidebar-spacer {
+  flex: 1;
+  min-height: 12px;
+}
+.nav-toggle {
+  position: relative;
+}
+.nav-toggle .nav-chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+}
+.nav-toggle.open .nav-chevron {
+  transform: rotate(180deg);
+}
 .nav-item {
   display: flex;
   align-items: center;
