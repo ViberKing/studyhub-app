@@ -114,8 +114,8 @@ export default function LoginPage() {
         </div>
 
         <h1>
-          Welcome to Study
-          <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Hub</span>
+          Welcome to Study-
+          <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>HQ</span>
         </h1>
         <p className="sub">Your AI-powered academic companion</p>
         <p className="tag">Designed by students, for students.</p>

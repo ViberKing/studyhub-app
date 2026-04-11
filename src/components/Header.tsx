@@ -17,7 +17,7 @@ export default function Header({ userName, isDemo }: { userName: string; isDemo:
   const router = useRouter();
   const supabase = createClient();
   const currentPage = pathname.split("/").pop() || "dashboard";
-  const title = pageTitles[currentPage] || "StudyHub";
+  const title = pageTitles[currentPage] || "Study-HQ";
   const initial = userName ? userName.charAt(0).toUpperCase() : "U";
 
   async function handleSignOut() {

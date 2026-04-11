@@ -91,7 +91,7 @@ function SettingsInner() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `studyhub-export-${new Date().toISOString().split("T")[0]}.json`;
+    link.download = `study-hq-export-${new Date().toISOString().split("T")[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -112,7 +112,7 @@ function SettingsInner() {
 
         <div className="setting-card">
           <h3>Profile</h3>
-          <p className="setting-desc">Your name as it appears throughout StudyHub.</p>
+          <p className="setting-desc">Your name as it appears throughout Study-HQ.</p>
           <div className="field"><label>Full name</label><input type="text" value={name} onChange={e => setName(e.target.value)} /></div>
           <div className="field"><label>Email address</label><input type="email" value={email} disabled style={{ opacity: 0.6, cursor: "not-allowed" }} /><small>Email cannot be changed.</small></div>
           {msg && <p style={{ fontSize: 13, color: msg.includes("updated") ? "var(--emerald)" : "var(--red)", marginBottom: 12 }}>{msg}</p>}
@@ -121,7 +121,7 @@ function SettingsInner() {
 
         <div className="setting-card">
           <h3>Plan &amp; billing</h3>
-          <p className="setting-desc">Your current StudyHub subscription.</p>
+          <p className="setting-desc">Your current Study-HQ subscription.</p>
           {plan === "trial" ? (
             <div className="plan-status-card">
               {daysLeft > 0 ? (
@@ -130,7 +130,7 @@ function SettingsInner() {
                     <div className="trial-days-big">{daysLeft}</div>
                     <div>
                       <div style={{ fontWeight: 600, fontSize: 15 }}>days left in your free trial</div>
-                      <small>Choose a plan to keep using StudyHub after your trial ends.</small>
+                      <small>Choose a plan to keep using Study-HQ after your trial ends.</small>
                     </div>
                   </div>
                   <button className="btn btn-grad" onClick={() => router.push("/pricing")}>Choose a plan</button>
@@ -155,7 +155,7 @@ function SettingsInner() {
                 <span className="tier-pill tier-pro">Pro</span>
                 <span className="badge badge-green">Gifted</span>
               </div>
-              <p style={{ fontSize: 13, color: "var(--text-muted)" }}>You have full Pro access — no billing required. Enjoy StudyHub!</p>
+              <p style={{ fontSize: 13, color: "var(--text-muted)" }}>You have full Pro access — no billing required. Enjoy Study-HQ!</p>
             </div>
           ) : (
             <div className="plan-status-card">
