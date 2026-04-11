@@ -16,7 +16,6 @@ function SettingsInner() {
   const [plan, setPlan] = useState("trial");
   const [billing, setBilling] = useState("monthly");
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
-  const [currentPwd, setCurrentPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
   const [msg, setMsg] = useState("");
   const [pwdMsg, setPwdMsg] = useState("");
@@ -42,7 +41,8 @@ function SettingsInner() {
       setLoading(false);
     }
     load();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDemo]);
 
   async function saveProfile() {
     setMsg("");
@@ -59,7 +59,7 @@ function SettingsInner() {
     if (newPwd.length < 6) { setPwdMsg("New password must be at least 6 characters."); return; }
     const { error } = await supabase.auth.updateUser({ password: newPwd });
     if (error) { setPwdMsg(error.message); return; }
-    setCurrentPwd(""); setNewPwd("");
+    setNewPwd("");
     setPwdMsg("Password updated successfully.");
   }
 
@@ -67,35 +67,39 @@ function SettingsInner() {
     if (!confirm("Permanently delete your account and all your data? This cannot be undone.")) return;
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    // Delete profile (cascades to all user data)
-    await supabase.from("profiles").delete().eq("id", session.user.id);
+    const { error } = await supabase.from("profiles").delete().eq("id", session.user.id);
+    if (error) { alert("Failed to delete account. Please try again."); return; }
     await supabase.auth.signOut();
     router.replace("/");
   }
 
   async function handleExport() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    const uid = session.user.id;
-    const [a, s, d, g, c, n, m, p] = await Promise.all([
-      supabase.from("assignments").select("*").eq("user_id", uid),
-      supabase.from("study_sessions").select("*").eq("user_id", uid),
-      supabase.from("decks").select("*").eq("user_id", uid),
-      supabase.from("grades").select("*").eq("user_id", uid),
-      supabase.from("citations").select("*").eq("user_id", uid),
-      supabase.from("notes").select("*").eq("user_id", uid),
-      supabase.from("modules").select("*").eq("user_id", uid),
-      supabase.from("research_projects").select("*").eq("user_id", uid),
-    ]);
-    const blob = new Blob([JSON.stringify({ assignments: a.data, sessions: s.data, decks: d.data, grades: g.data, citations: c.data, notes: n.data, modules: m.data, projects: p.data }, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `study-hq-export-${new Date().toISOString().split("T")[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const uid = session.user.id;
+      const [a, s, d, g, c, n, m, p] = await Promise.all([
+        supabase.from("assignments").select("*").eq("user_id", uid),
+        supabase.from("study_sessions").select("*").eq("user_id", uid),
+        supabase.from("decks").select("*").eq("user_id", uid),
+        supabase.from("grades").select("*").eq("user_id", uid),
+        supabase.from("citations").select("*").eq("user_id", uid),
+        supabase.from("notes").select("*").eq("user_id", uid),
+        supabase.from("modules").select("*").eq("user_id", uid),
+        supabase.from("research_projects").select("*").eq("user_id", uid),
+      ]);
+      const blob = new Blob([JSON.stringify({ assignments: a.data, sessions: s.data, decks: d.data, grades: g.data, citations: c.data, notes: n.data, modules: m.data, projects: p.data }, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `study-hq-export-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Export failed. Please try again.");
+    }
   }
 
   if (loading) return null;
@@ -179,7 +183,6 @@ function SettingsInner() {
         <div className="setting-card">
           <h3>Security</h3>
           <p className="setting-desc">Change your password to keep your account secure.</p>
-          <div className="field"><label>Current password</label><input type="password" value={currentPwd} onChange={e => setCurrentPwd(e.target.value)} /></div>
           <div className="field"><label>New password</label><input type="password" placeholder="At least 6 characters" value={newPwd} onChange={e => setNewPwd(e.target.value)} /></div>
           {pwdMsg && <p style={{ fontSize: 13, color: pwdMsg.includes("success") ? "var(--emerald)" : "var(--red)", marginBottom: 12 }}>{pwdMsg}</p>}
           <button className="btn btn-grad" onClick={changePassword}>Update password</button>

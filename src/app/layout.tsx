@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
   title: "Study-HQ",
   description:
     "Your AI-powered academic companion. Designed by students, for students.",
+  manifest: "/manifest.json",
+  themeColor: "#6c5ce7",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Study-HQ",
+  },
 };
 
 export default function RootLayout({
@@ -14,7 +22,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <head>
+        <link rel="apple-touch-icon" href="/icons/icon.svg" />
+      </head>
+      <body>
+        {children}
+        <PWARegister />
+      </body>
     </html>
   );
 }

@@ -44,7 +44,7 @@ function GroupsInner() {
   const fetchGroups = useCallback(async () => {
     if (isDemo) { setGroups(demoGroups); setUserId("demo-self"); setUserName("Demo Student"); setLoading(false); return; }
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) { setLoading(false); return; }
     setUserId(session.user.id);
     const { data: profile } = await supabase.from("profiles").select("name").eq("id", session.user.id).single();
     if (profile) setUserName(profile.name);
@@ -101,6 +101,7 @@ function GroupsInner() {
 
   async function sendMessage() {
     if (!newMsg.trim() || !activeGroup) return;
+    if (!userId) return;
     if (isDemo) {
       setMessages([...messages, { id: Date.now(), content: newMsg, created_at: new Date().toISOString(), user_id: "demo-self", profiles: { name: "Demo Student" } }]);
       setNewMsg(""); return;
@@ -111,6 +112,7 @@ function GroupsInner() {
 
   async function joinGroup() {
     if (!activeGroup || isDemo) { setIsMember(true); return; }
+    if (!userId) return;
     await supabase.from("group_members").insert({ group_id: activeGroup.id, user_id: userId, role: "member" });
     setIsMember(true);
     openGroup(activeGroup);
@@ -119,6 +121,7 @@ function GroupsInner() {
   async function leaveGroup() {
     if (!activeGroup || !confirm("Leave this group?")) return;
     if (isDemo) { setIsMember(false); return; }
+    if (!userId) return;
     await supabase.from("group_members").delete().eq("group_id", activeGroup.id).eq("user_id", userId);
     setIsMember(false);
     setActiveGroup(null);

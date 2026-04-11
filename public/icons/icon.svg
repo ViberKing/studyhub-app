@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#0f1117"/>
+  <g transform="translate(256,256)">
+    <!-- Left page -->
+    <path d="M-20,-80 Q-20,-100 -40,-100 L-120,-100 Q-140,-100 -140,-80 L-140,80 Q-140,100 -120,100 L-40,100 Q-20,100 -20,80 Z" fill="#6c5ce7" opacity="0.85"/>
+    <!-- Right page -->
+    <path d="M20,-80 Q20,-100 40,-100 L120,-100 Q140,-100 140,-80 L140,80 Q140,100 120,100 L40,100 Q20,100 20,80 Z" fill="#6c5ce7"/>
+    <!-- Spine -->
+    <rect x="-6" y="-100" width="12" height="200" rx="4" fill="#a29bfe"/>
+    <!-- Left page lines -->
+    <line x1="-110" y1="-60" x2="-40" y2="-60" stroke="#a29bfe" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-110" y1="-30" x2="-50" y2="-30" stroke="#a29bfe" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-110" y1="0" x2="-45" y2="0" stroke="#a29bfe" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-110" y1="30" x2="-55" y2="30" stroke="#a29bfe" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-110" y1="60" x2="-50" y2="60" stroke="#a29bfe" stroke-width="5" stroke-linecap="round"/>
+    <!-- Right page lines -->
+    <line x1="40" y1="-60" x2="110" y2="-60" stroke="#ddd" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="-30" x2="110" y2="-30" stroke="#ddd" stroke-width="5" stroke-linecap="round"/>
+    <line x1="45" y1="0" x2="110" y2="0" stroke="#ddd" stroke-width="5" stroke-linecap="round"/>
+    <line x1="55" y1="30" x2="110" y2="30" stroke="#ddd" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="60" x2="110" y2="60" stroke="#ddd" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>
