@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
 
 const essayTemplates: Record<string, [string, number, string][]> = {
@@ -14,6 +15,7 @@ const essayTemplates: Record<string, [string, number, string][]> = {
 };
 
 function EssayInner() {
+  const { gate } = useGate();
   const [essayType, setEssayType] = useState("argumentative");
   const [wordCount, setWordCount] = useState(2000);
   const [checks, setChecks] = useState<Record<string, boolean>>({});
@@ -24,12 +26,14 @@ function EssayInner() {
   }
 
   function copyStructure() {
+    if (!gate("essay")) return;
     const tpl = essayTemplates[essayType];
     const text = tpl.map(s => `${s[0]} (~${Math.round(wordCount * s[1])} words)\n${s[2]}\n`).join("\n");
     navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   }
 
   function printStructure() {
+    if (!gate("essay")) return;
     const tpl = essayTemplates[essayType];
     const sections = tpl.map(s => `<div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #ddd;"><h3 style="margin:0 0 4px;">${s[0]}</h3><p style="margin:0 0 6px;color:#666;font-size:13px;">~${Math.round(wordCount * s[1])} words</p><p style="margin:0;">${s[2]}</p></div>`).join("");
     const w = window.open("", "_blank");

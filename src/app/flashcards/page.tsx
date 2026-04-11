@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
 
 /* ─── types ─── */
@@ -106,6 +107,7 @@ function FlashcardsInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   /* ─── global state ─── */
   const [decks, setDecks] = useState<Deck[]>([]);
@@ -209,49 +211,42 @@ function FlashcardsInner() {
 
   /* ─── deck CRUD ─── */
   const createDeck = async () => {
+    if (!gate("core")) return;
     if (!newDeckName.trim()) return;
-    if (isDemo) {
-      const id = Date.now();
-      setDecks((prev) => [...prev, { id, name: newDeckName, module: newDeckModule }]);
-    } else {
-      const { data } = await supabase.from("decks").insert({ user_id: userId, name: newDeckName, module: newDeckModule }).select().single();
-      if (data) setDecks((prev) => [...prev, data]);
-    }
+    const { data } = await supabase.from("decks").insert({ user_id: userId, name: newDeckName, module: newDeckModule }).select().single();
+    if (data) setDecks((prev) => [...prev, data]);
     setNewDeckName("");
     setNewDeckModule("");
   };
 
   const deleteDeck = async (id: number) => {
+    if (!gate("core")) return;
     if (!confirm("Delete this deck and all its cards?")) return;
     setDecks((prev) => prev.filter((d) => d.id !== id));
     setCards((prev) => prev.filter((c) => c.deck_id !== id));
-    if (!isDemo) {
-      await supabase.from("cards").delete().eq("deck_id", id);
-      await supabase.from("decks").delete().eq("id", id);
-    }
+    await supabase.from("cards").delete().eq("deck_id", id);
+    await supabase.from("decks").delete().eq("id", id);
   };
 
   /* ─── card CRUD ─── */
   const addCard = async () => {
+    if (!gate("core")) return;
     if (!newTerm.trim() || !newDef.trim() || !openDeckId) return;
-    const card: Card = { id: isDemo ? Date.now() : 0, deck_id: openDeckId, term: newTerm, definition: newDef, hint: newHint, starred: false, status: "new" };
-    if (isDemo) {
-      setCards((prev) => [...prev, card]);
-    } else {
-      const { data } = await supabase.from("cards").insert({ deck_id: openDeckId, user_id: userId, term: newTerm, definition: newDef, hint: newHint, starred: false, status: "new" }).select().single();
-      if (data) setCards((prev) => [...prev, data]);
-    }
+    const { data } = await supabase.from("cards").insert({ deck_id: openDeckId, user_id: userId, term: newTerm, definition: newDef, hint: newHint, starred: false, status: "new" }).select().single();
+    if (data) setCards((prev) => [...prev, data]);
     setNewTerm("");
     setNewDef("");
     setNewHint("");
   };
 
   const deleteCard = async (id: number) => {
+    if (!gate("core")) return;
     setCards((prev) => prev.filter((c) => c.id !== id));
-    if (!isDemo) await supabase.from("cards").delete().eq("id", id);
+    await supabase.from("cards").delete().eq("id", id);
   };
 
   const bulkImport = async () => {
+    if (!gate("core")) return;
     const text = prompt("Paste cards (one per line). Separate term and definition with tab, comma, semicolon, or \" - \".");
     if (!text || !openDeckId) return;
     const lines = text.split("\n").filter((l) => l.trim());
@@ -267,12 +262,8 @@ function FlashcardsInner() {
       }
     }
     if (newCards.length === 0) return;
-    if (isDemo) {
-      setCards((prev) => [...prev, ...newCards.map((c, i) => ({ ...c, id: Date.now() + i } as Card))]);
-    } else {
-      const { data } = await supabase.from("cards").insert(newCards).select();
-      if (data) setCards((prev) => [...prev, ...data]);
-    }
+    const { data } = await supabase.from("cards").insert(newCards).select();
+    if (data) setCards((prev) => [...prev, ...data]);
   };
 
   /* ─── Flashcard mode keyboard ─── */

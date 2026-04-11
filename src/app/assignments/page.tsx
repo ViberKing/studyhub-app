@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
+import { useGate } from "@/components/GateModal";
 
 interface Assignment { id: number; title: string; module: string; due: string; type: string; priority: string; weight: number; status: string; done: boolean; }
 
@@ -23,6 +24,7 @@ function AssignmentsInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [filter, setFilter] = useState("all");
@@ -48,12 +50,8 @@ function AssignmentsInner() {
 
   async function addAssignment() {
     setError("");
+    if (!gate("core")) return;
     if (!aTitle.trim() || !aDue) { setError("Title and due date required."); return; }
-    if (isDemo) {
-      setAssignments([...assignments, { id: Date.now(), title: aTitle, module: aModule, due: aDue, type: aType, priority: aPriority, weight: parseFloat(aWeight) || 0, status: "Not Started", done: false }]);
-      setATitle(""); setAModule(""); setADue(""); setAWeight("");
-      return;
-    }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     await supabase.from("assignments").insert({ user_id: session.user.id, title: aTitle.trim(), module: aModule.trim(), due: aDue, type: aType, priority: aPriority, weight: parseFloat(aWeight) || 0 });
@@ -62,15 +60,15 @@ function AssignmentsInner() {
   }
 
   async function updateStatus(id: number, status: string) {
+    if (!gate("core")) return;
     const done = status === "Completed";
-    if (isDemo) { setAssignments(assignments.map(a => a.id === id ? { ...a, status, done } : a)); return; }
     await supabase.from("assignments").update({ status, done }).eq("id", id);
     fetchAssignments();
   }
 
   async function delAssignment(id: number) {
+    if (!gate("core")) return;
     if (!confirm("Delete this assignment?")) return;
-    if (isDemo) { setAssignments(assignments.filter(a => a.id !== id)); return; }
     await supabase.from("assignments").delete().eq("id", id);
     fetchAssignments();
   }

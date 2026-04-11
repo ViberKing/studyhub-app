@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
+import { useGate } from "@/components/GateModal";
 
 interface Session { id: number; minutes: number; module: string; notes: string; recorded_at: string; }
 
@@ -11,6 +12,7 @@ function TimerInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [remaining, setRemaining] = useState(25 * 60);
   const [total, setTotal] = useState(25 * 60);
@@ -46,6 +48,7 @@ function TimerInner() {
   }
 
   function start() {
+    if (!gate("core")) return;
     if (running) return;
     setRunning(true);
     intervalRef.current = setInterval(() => {
@@ -75,12 +78,9 @@ function TimerInner() {
   }
 
   async function logSession() {
+    if (!gate("core")) return;
     if (total <= 0) return;
     const min = total / 60;
-    if (isDemo) {
-      setSessions(prev => [{ id: Date.now(), minutes: min, module: tModule || "General", notes: tNotes, recorded_at: new Date().toISOString() }, ...prev]);
-      return;
-    }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     await supabase.from("study_sessions").insert({ user_id: session.user.id, minutes: min, module: tModule.trim() || "General", notes: tNotes.trim() });

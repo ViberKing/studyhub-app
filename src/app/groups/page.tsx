@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
+import { useGate } from "@/components/GateModal";
 
 interface Group { id: number; name: string; description: string; is_private: boolean; created_by: string; member_count?: number; }
 interface Member { id: number; user_id: string; role: string; profiles?: { name: string }; }
@@ -25,6 +26,7 @@ function GroupsInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [groups, setGroups] = useState<Group[]>([]);
   const [activeGroup, setActiveGroup] = useState<Group | null>(null);
@@ -100,18 +102,16 @@ function GroupsInner() {
   }, [isDemo, activeGroup]);
 
   async function sendMessage() {
+    if (!gate("groups")) return;
     if (!newMsg.trim() || !activeGroup) return;
     if (!userId) return;
-    if (isDemo) {
-      setMessages([...messages, { id: Date.now(), content: newMsg, created_at: new Date().toISOString(), user_id: "demo-self", profiles: { name: "Demo Student" } }]);
-      setNewMsg(""); return;
-    }
     await supabase.from("group_messages").insert({ group_id: activeGroup.id, user_id: userId, content: newMsg.trim() });
     setNewMsg("");
   }
 
   async function joinGroup() {
-    if (!activeGroup || isDemo) { setIsMember(true); return; }
+    if (!gate("groups")) return;
+    if (!activeGroup) return;
     if (!userId) return;
     await supabase.from("group_members").insert({ group_id: activeGroup.id, user_id: userId, role: "member" });
     setIsMember(true);
@@ -129,11 +129,8 @@ function GroupsInner() {
   }
 
   async function createGroup() {
+    if (!gate("groups")) return;
     if (!gName.trim()) return;
-    if (isDemo) {
-      setGroups([{ id: Date.now(), name: gName, description: gDesc, is_private: gPrivate, created_by: "demo-self", member_count: 1 }, ...groups]);
-      setGName(""); setGDesc(""); setGPrivate(false); setShowCreate(false); return;
-    }
     const { data } = await supabase.from("groups").insert({ name: gName.trim(), description: gDesc.trim(), is_private: gPrivate, created_by: userId }).select().single();
     if (data) {
       await supabase.from("group_members").insert({ group_id: data.id, user_id: userId, role: "owner" });

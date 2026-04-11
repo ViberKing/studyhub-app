@@ -7,22 +7,21 @@ import AppShell from "@/components/AppShell";
 
 const prices = {
   monthly: { essential: "7.99", plus: "11.99", pro: "15.99", sub: "per month" },
-  annual: { essential: "79", plus: "119", pro: "159", sub: "per year (save up to £32)" },
+  annual: { essential: "79", plus: "119", pro: "159", sub: "per year (save up to £33)" },
 };
 
 function PricingInner() {
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [loading, setLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
   const p = prices[billing];
 
   async function startTrial(tier: string) {
-    if (isDemo) {
-      alert("You're in demo mode. Sign up for a real account to subscribe.");
-      return;
-    }
+    if (isDemo) return;
+    setCheckoutError("");
     setLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setLoading(false); return; }
@@ -34,9 +33,9 @@ function PricingInner() {
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
-      else alert("Error: " + (data.error || "Unknown error"));
+      else setCheckoutError(data.error || "Something went wrong. Please try again.");
     } catch {
-      alert("Something went wrong. Please try again.");
+      setCheckoutError("Something went wrong. Please try again.");
     }
     setLoading(false);
   }
@@ -49,8 +48,10 @@ function PricingInner() {
 
         <div className="billing-toggle">
           <button className={billing === "monthly" ? "active" : ""} onClick={() => setBilling("monthly")}>Monthly</button>
-          <button className={billing === "annual" ? "active" : ""} onClick={() => setBilling("annual")}>Annual <span className="save-tag">Save up to £40</span></button>
+          <button className={billing === "annual" ? "active" : ""} onClick={() => setBilling("annual")}>Annual <span className="save-tag">Save up to £33</span></button>
         </div>
+
+        {checkoutError && <p style={{ color: "var(--red)", fontSize: 13, textAlign: "center", marginBottom: 12 }}>{checkoutError}</p>}
 
         <div className="pricing-grid">
           <div className="tier">
@@ -94,7 +95,7 @@ function PricingInner() {
         <div className="card">
           <h3>All plans include</h3>
           <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.7 }}>
-            ✓ 7-day free trial · ✓ Cancel anytime · ✓ Student-friendly pricing · ✓ Used by students at St Andrews and beyond.<br />
+            ✓ 7-day free trial · ✓ Cancel anytime · ✓ Student-friendly pricing · ✓ Used by students at universities across the UK.<br />
             Built by students who actually use it themselves.
           </p>
         </div>

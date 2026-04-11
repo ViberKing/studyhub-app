@@ -9,7 +9,6 @@ function AnalyticsInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
-
   const [sessions, setSessions] = useState<{ minutes: number; module: string; recorded_at: string }[]>([]);
   const [doneCount, setDoneCount] = useState(0);
   const [loading, setLoading] = useState(true);

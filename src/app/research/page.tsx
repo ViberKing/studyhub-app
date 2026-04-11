@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
 
 interface Source { id: number; title: string; author: string; results: Record<string, string>; }
@@ -19,6 +20,7 @@ function ResearchInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [integrityAgreed, setIntegrityAgreed] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -66,6 +68,7 @@ function ResearchInner() {
   }
 
   function addSourceManual() {
+    if (!gate("research")) return;
     const title = prompt("Source title:");
     if (!title) return;
     const author = prompt("Author(s):") || "";
@@ -79,16 +82,19 @@ function ResearchInner() {
   }
 
   function processSource(id: number, kind: string) {
+    if (!gate("research")) return;
     setSources(sources.map(s => s.id === id ? { ...s, results: { ...s.results, [kind]: placeholders[kind] } } : s));
   }
 
   function delSource(id: number) {
+    if (!gate("research")) return;
     if (!confirm("Remove this source?")) return;
     setSources(sources.filter(s => s.id !== id));
     if (!isDemo) supabase.from("research_sources").delete().eq("id", id);
   }
 
   async function saveProject() {
+    if (!gate("research")) return;
     if (!resModule.trim() || !resBrief.trim()) { setBriefError("Enter module and brief first."); return; }
     setBriefError("");
     setProjects([{ id: Date.now(), module: resModule, brief: resBrief, sources: [...sources], created_at: new Date().toISOString() }, ...projects]);

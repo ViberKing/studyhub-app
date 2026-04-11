@@ -8,6 +8,7 @@ export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [msg, setMsg] = useState("");
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -30,8 +31,7 @@ export default function ResetPasswordPage() {
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) { setMsg(error.message); return; }
-    alert("Password updated! You can now sign in.");
-    router.replace("/");
+    setSuccess(true);
   }
 
   return (
@@ -40,23 +40,34 @@ export default function ResetPasswordPage() {
         <div className="onboard-form-wrap">
           <div className="onboard-form-header">
             <h1>Reset password</h1>
-            <p>Enter your new password below.</p>
+            <p>{success ? "Your password has been updated." : "Enter your new password below."}</p>
           </div>
-          {msg && <p className={`onboard-msg error`}>{msg}</p>}
-          <div className="onboard-field">
-            <label>New password</label>
-            <input type="password" placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-          <div className="onboard-field">
-            <label>Confirm password</label>
-            <input type="password" placeholder="Re-enter password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
-          </div>
-          <button type="button" className="onboard-btn-primary" onClick={handleReset} disabled={loading}>
-            {loading ? "Updating…" : "Update password"}
-          </button>
-          <button type="button" className="onboard-btn-link" onClick={() => router.push("/")}>
-            Back to sign in
-          </button>
+          {success ? (
+            <>
+              <p className="onboard-msg" style={{ color: "var(--emerald)" }}>Password updated! You can now sign in.</p>
+              <button type="button" className="onboard-btn-primary" onClick={() => router.replace("/")}>
+                Back to sign in
+              </button>
+            </>
+          ) : (
+            <>
+              {msg && <p className={`onboard-msg error`}>{msg}</p>}
+              <div className="onboard-field">
+                <label>New password</label>
+                <input type="password" placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} />
+              </div>
+              <div className="onboard-field">
+                <label>Confirm password</label>
+                <input type="password" placeholder="Re-enter password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+              </div>
+              <button type="button" className="onboard-btn-primary" onClick={handleReset} disabled={loading}>
+                {loading ? "Updating..." : "Update password"}
+              </button>
+              <button type="button" className="onboard-btn-link" onClick={() => router.push("/")}>
+                Back to sign in
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

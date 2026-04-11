@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
 
 // Demo data matching prototype
@@ -35,6 +36,7 @@ function DashboardInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [profile, setProfile] = useState<{ name: string; mood: string | null } | null>(null);
   const [assignments, setAssignments] = useState<{ id: number; title: string; module: string; due: string; done: boolean }[]>([]);
@@ -97,6 +99,7 @@ function DashboardInner() {
   }, [isDemo]);
 
   const setMood = useCallback(async (m: string) => {
+    if (!gate("core")) return;
     setMoodState(m);
     if (isDemo) return;
     const { data: { session } } = await supabase.auth.getSession();

@@ -13,7 +13,7 @@ const pageTitles: Record<string, string> = {
   events: "Events", discounts: "Discounts",
 };
 
-export default function Header({ userName, isDemo }: { userName: string; isDemo: boolean }) {
+export default function Header({ userName, isDemo, avatarUrl }: { userName: string; isDemo: boolean; avatarUrl?: string | null }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -32,7 +32,7 @@ export default function Header({ userName, isDemo }: { userName: string; isDemo:
     <>
       {isDemo && (
         <div className="top-banner demo" style={{ display: "flex" }}>
-          <div>👋 You&apos;re in demo mode with sample data. Sign out to start a 7-day free trial with your own account.</div>
+          <div>You&apos;re in demo mode with sample data. Sign out to start a 7-day free trial with your own account.</div>
           <button onClick={() => router.replace("/")}>Exit demo</button>
         </div>
       )}
@@ -42,7 +42,11 @@ export default function Header({ userName, isDemo }: { userName: string; isDemo:
         </div>
         <div className="header-user">
           <div className="user-chip">
-            <div className="avatar">{initial}</div>
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={userName} className="avatar avatar-img" />
+            ) : (
+              <div className="avatar">{initial}</div>
+            )}
             <span className="user-chip-name">{userName}</span>
           </div>
           <button className="signout-btn" type="button" onClick={handleSignOut}>Sign out</button>

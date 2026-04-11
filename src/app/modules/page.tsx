@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
+import { useGate } from "@/components/GateModal";
 
 interface Module { id: number; name: string; code: string; lecturer: string; credits: number; }
 
@@ -17,6 +18,7 @@ function ModulesInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { gate } = useGate();
 
   const [modules, setModules] = useState<Module[]>([]);
   const [mName, setMName] = useState("");
@@ -38,9 +40,9 @@ function ModulesInner() {
   useEffect(() => { fetchModules(); }, [fetchModules]);
 
   async function addModule() {
+    if (!gate("core")) return;
     setError("");
     if (!mName.trim()) { setError("Name required."); return; }
-    if (isDemo) { setModules([...modules, { id: Date.now(), name: mName, code: mCode, lecturer: mLect, credits: parseInt(mCredits) || 30 }]); setMName(""); setMCode(""); setMLect(""); setMCredits(""); return; }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     const { error: err } = await supabase.from("modules").insert({ user_id: session.user.id, name: mName.trim(), code: mCode.trim(), lecturer: mLect.trim(), credits: parseInt(mCredits) || 30 });
@@ -50,8 +52,8 @@ function ModulesInner() {
   }
 
   async function delModule(id: number) {
+    if (!gate("core")) return;
     if (!confirm("Delete this module?")) return;
-    if (isDemo) { setModules(modules.filter(m => m.id !== id)); return; }
     await supabase.from("modules").delete().eq("id", id);
     fetchModules();
   }

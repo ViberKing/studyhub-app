@@ -3,7 +3,9 @@
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
-import AppShell from "@/components/AppShell";
+import AppShell, { useAppContext } from "@/components/AppShell";
+import { getUniversity } from "@/lib/universities";
+import { useGate } from "@/components/GateModal";
 
 interface Post {
   id: number;
@@ -45,6 +47,10 @@ function FeedInner() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const supabase = createClient();
+  const { profile } = useAppContext();
+  const { gate } = useGate();
+  const userUni = profile?.university || "st-andrews";
+  const uni = getUniversity(userUni);
 
   const [posts, setPosts] = useState<(Post & { replies: Reply[] })[]>([]);
   const [newPost, setNewPost] = useState("");
@@ -89,31 +95,25 @@ function FeedInner() {
   }, [isDemo, fetchPosts]);
 
   async function submitPost() {
+    if (!gate("community")) return;
     if (!newPost.trim()) return;
     if (!userId) return;
-    if (isDemo) {
-      setPosts([{ id: Date.now(), content: newPost, created_at: new Date().toISOString(), user_id: "demo-self", profiles: { name: "Demo Student" }, replies: [] }, ...posts]);
-      setNewPost(""); return;
-    }
-    await supabase.from("feed_posts").insert({ user_id: userId, content: newPost.trim(), university: "st-andrews" });
+    await supabase.from("feed_posts").insert({ user_id: userId, content: newPost.trim(), university: userUni });
     setNewPost("");
     fetchPosts();
   }
 
   async function submitReply(postId: number) {
+    if (!gate("community")) return;
     if (!replyText.trim()) return;
-    if (isDemo) {
-      setPosts(posts.map(p => p.id === postId ? { ...p, replies: [...p.replies, { id: Date.now(), content: replyText, created_at: new Date().toISOString(), user_id: "demo-self", profiles: { name: "Demo Student" } }] } : p));
-      setReplyText(""); setReplyTo(null); return;
-    }
     await supabase.from("feed_replies").insert({ post_id: postId, user_id: userId, content: replyText.trim() });
     setReplyText(""); setReplyTo(null);
     fetchPosts();
   }
 
   async function deletePost(postId: number) {
+    if (!gate("community")) return;
     if (!confirm("Delete this post?")) return;
-    if (isDemo) { setPosts(posts.filter(p => p.id !== postId)); return; }
     await supabase.from("feed_posts").delete().eq("id", postId);
     fetchPosts();
   }
@@ -136,7 +136,7 @@ function FeedInner() {
     <AppShell>
       <div className="page active">
         <h1 className="page-title">Uni feed</h1>
-        <p className="page-sub">What&apos;s happening at your university.</p>
+        <p className="page-sub">What&apos;s happening at {uni?.name || "your university"}.</p>
 
         {/* New post */}
         <div className="card mb">
