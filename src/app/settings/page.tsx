@@ -19,11 +19,12 @@ function SettingsInner() {
   const [newPwd, setNewPwd] = useState("");
   const [msg, setMsg] = useState("");
   const [pwdMsg, setPwdMsg] = useState("");
+  const [exportMsg, setExportMsg] = useState("");
+  const [deleteMsg, setDeleteMsg] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (isDemo) {
-      alert("Settings is unavailable in demo mode. Sign up for a free account to manage your profile and billing.");
       router.push("/dashboard?demo=true");
       return;
     }
@@ -68,7 +69,7 @@ function SettingsInner() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     const { error } = await supabase.from("profiles").delete().eq("id", session.user.id);
-    if (error) { alert("Failed to delete account. Please try again."); return; }
+    if (error) { setDeleteMsg("Failed to delete account. Please try again."); return; }
     await supabase.auth.signOut();
     router.replace("/");
   }
@@ -98,7 +99,7 @@ function SettingsInner() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch {
-      alert("Export failed. Please try again.");
+      setExportMsg("Export failed. Please try again.");
     }
   }
 
@@ -174,7 +175,7 @@ function SettingsInner() {
               </div>
               <div className="row">
                 <button className="btn btn-ghost" onClick={() => router.push("/pricing")}>Change plan</button>
-                <button className="btn btn-danger" onClick={() => alert("In production this redirects to Stripe Customer Portal.")}>Cancel subscription</button>
+                <button className="btn btn-danger" onClick={() => alert("Subscription management coming soon.")}>Cancel subscription</button>
               </div>
             </div>
           )}
@@ -191,6 +192,7 @@ function SettingsInner() {
         <div className="setting-card">
           <h3>Your data</h3>
           <p className="setting-desc">Export everything as JSON or permanently delete your account.</p>
+          {(exportMsg || deleteMsg) && <p style={{ fontSize: 13, color: "var(--red)", marginBottom: 12 }}>{exportMsg || deleteMsg}</p>}
           <div className="row">
             <button className="btn btn-ghost" onClick={handleExport}>Download my data</button>
             <button className="btn btn-danger" onClick={handleDeleteAccount}>Delete account</button>

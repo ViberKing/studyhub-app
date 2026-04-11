@@ -17,6 +17,7 @@ function EssayInner() {
   const [essayType, setEssayType] = useState("argumentative");
   const [wordCount, setWordCount] = useState(2000);
   const [checks, setChecks] = useState<Record<string, boolean>>({});
+  const [copied, setCopied] = useState(false);
 
   function toggleCheck(key: string) {
     setChecks({ ...checks, [key]: !checks[key] });
@@ -25,7 +26,7 @@ function EssayInner() {
   function copyStructure() {
     const tpl = essayTemplates[essayType];
     const text = tpl.map(s => `${s[0]} (~${Math.round(wordCount * s[1])} words)\n${s[2]}\n`).join("\n");
-    navigator.clipboard.writeText(text).then(() => alert("Copied!"));
+    navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   }
 
   function printStructure() {
@@ -77,6 +78,7 @@ function EssayInner() {
         <div className="mt row">
           <button className="btn btn-ghost" onClick={printStructure}>Print structure</button>
           <button className="btn btn-ghost" onClick={copyStructure}>Copy to clipboard</button>
+          {copied && <span style={{ fontSize: 13, color: "var(--emerald)", fontWeight: 500 }}>Copied!</span>}
         </div>
       </div>
     </AppShell>
