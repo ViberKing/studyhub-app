@@ -105,17 +105,13 @@ function GroupsInner() {
     if (!gate("groups")) return;
     if (!newMsg.trim() || !activeGroup) return;
     if (!userId) return;
-    if (isDemo) {
-      setMessages([...messages, { id: Date.now(), content: newMsg, created_at: new Date().toISOString(), user_id: "demo-self", profiles: { name: "Demo Student" } }]);
-      setNewMsg(""); return;
-    }
     await supabase.from("group_messages").insert({ group_id: activeGroup.id, user_id: userId, content: newMsg.trim() });
     setNewMsg("");
   }
 
   async function joinGroup() {
     if (!gate("groups")) return;
-    if (!activeGroup || isDemo) { setIsMember(true); return; }
+    if (!activeGroup) return;
     if (!userId) return;
     await supabase.from("group_members").insert({ group_id: activeGroup.id, user_id: userId, role: "member" });
     setIsMember(true);
@@ -135,10 +131,6 @@ function GroupsInner() {
   async function createGroup() {
     if (!gate("groups")) return;
     if (!gName.trim()) return;
-    if (isDemo) {
-      setGroups([{ id: Date.now(), name: gName, description: gDesc, is_private: gPrivate, created_by: "demo-self", member_count: 1 }, ...groups]);
-      setGName(""); setGDesc(""); setGPrivate(false); setShowCreate(false); return;
-    }
     const { data } = await supabase.from("groups").insert({ name: gName.trim(), description: gDesc.trim(), is_private: gPrivate, created_by: userId }).select().single();
     if (data) {
       await supabase.from("group_members").insert({ group_id: data.id, user_id: userId, role: "owner" });

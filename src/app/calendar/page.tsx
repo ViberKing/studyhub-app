@@ -316,27 +316,6 @@ function CalendarInner() {
   /* ── Save event ── */
   const handleSave = useCallback(async (data: { title: string; type: EventType; start: Date; end: Date; allDay: boolean; module: string }) => {
     if (!gate("core")) return;
-    if (isDemo) {
-      // In demo, just add locally
-      if (modalEvent) {
-        setEvents((prev) => prev.map((e) => (e.id === modalEvent.id ? { ...e, title: data.title, type: data.type, start: data.start, end: data.end, allDay: data.allDay, resource: data.module } : e)));
-      } else {
-        const newEv: CalEvent = {
-          id: `demo-${Date.now()}`,
-          title: data.title,
-          start: data.start,
-          end: data.end,
-          allDay: data.allDay,
-          type: data.type,
-          editable: true,
-          resource: data.module,
-        };
-        setEvents((prev) => [...prev, newEv]);
-      }
-      setModalSlot(null);
-      setModalEvent(null);
-      return;
-    }
 
     if (!userId) return;
 
@@ -372,11 +351,6 @@ function CalendarInner() {
   const handleDelete = useCallback(async () => {
     if (!gate("core")) return;
     if (!modalEvent) return;
-    if (isDemo) {
-      setEvents((prev) => prev.filter((e) => e.id !== modalEvent.id));
-      setModalEvent(null);
-      return;
-    }
     if (!userId) return;
     const realId = modalEvent.id.replace("cal-", "");
     await supabase.from("calendar_events").delete().eq("id", realId).eq("user_id", userId);

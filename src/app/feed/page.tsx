@@ -98,10 +98,6 @@ function FeedInner() {
     if (!gate("community")) return;
     if (!newPost.trim()) return;
     if (!userId) return;
-    if (isDemo) {
-      setPosts([{ id: Date.now(), content: newPost, created_at: new Date().toISOString(), user_id: "demo-self", profiles: { name: "Demo Student" }, replies: [] }, ...posts]);
-      setNewPost(""); return;
-    }
     await supabase.from("feed_posts").insert({ user_id: userId, content: newPost.trim(), university: userUni });
     setNewPost("");
     fetchPosts();
@@ -110,10 +106,6 @@ function FeedInner() {
   async function submitReply(postId: number) {
     if (!gate("community")) return;
     if (!replyText.trim()) return;
-    if (isDemo) {
-      setPosts(posts.map(p => p.id === postId ? { ...p, replies: [...p.replies, { id: Date.now(), content: replyText, created_at: new Date().toISOString(), user_id: "demo-self", profiles: { name: "Demo Student" } }] } : p));
-      setReplyText(""); setReplyTo(null); return;
-    }
     await supabase.from("feed_replies").insert({ post_id: postId, user_id: userId, content: replyText.trim() });
     setReplyText(""); setReplyTo(null);
     fetchPosts();
@@ -122,7 +114,6 @@ function FeedInner() {
   async function deletePost(postId: number) {
     if (!gate("community")) return;
     if (!confirm("Delete this post?")) return;
-    if (isDemo) { setPosts(posts.filter(p => p.id !== postId)); return; }
     await supabase.from("feed_posts").delete().eq("id", postId);
     fetchPosts();
   }

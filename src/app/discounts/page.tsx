@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 
 const discounts = [
@@ -33,10 +32,6 @@ const categories = ["all", "food", "tech", "fashion", "streaming", "transport", 
 const categoryLabels: Record<string, string> = { all: "All", food: "Food & Drink", tech: "Tech", fashion: "Fashion", streaming: "Streaming", transport: "Transport", health: "Health", other: "Other" };
 
 function DiscountsInner() {
-  const searchParams = useSearchParams();
-  const isDemo = searchParams.get("demo") === "true";
-  void isDemo; // Discounts are public \u2014 same data in demo and regular mode
-
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const filtered = activeCategory === "all" ? discounts : discounts.filter(d => d.category === activeCategory);

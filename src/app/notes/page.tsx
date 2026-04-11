@@ -43,7 +43,6 @@ function NotesInner() {
     if (!gate("core")) return;
     setError("");
     if (!nTitle.trim() || !nContent.trim()) { setError("Title and content required."); return; }
-    if (isDemo) { setNotes([{ id: Date.now(), title: nTitle, content: nContent, module: nModule, created_at: new Date().toISOString() }, ...notes]); setNTitle(""); setNModule(""); setNContent(""); return; }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     await supabase.from("notes").insert({ user_id: session.user.id, title: nTitle.trim(), content: nContent.trim(), module: nModule.trim() });
@@ -54,7 +53,6 @@ function NotesInner() {
   async function delNote(id: number) {
     if (!gate("core")) return;
     if (!confirm("Delete this note?")) return;
-    if (isDemo) { setNotes(notes.filter(n => n.id !== id)); return; }
     await supabase.from("notes").delete().eq("id", id);
     fetchNotes();
   }

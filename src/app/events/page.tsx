@@ -1,10 +1,9 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import AppShell, { useAppContext } from "@/components/AppShell";
 import UniSelector from "@/components/UniSelector";
-import { universities, getUniversity, type University } from "@/lib/universities";
+import { getUniversity, type University } from "@/lib/universities";
 
 /* ── Per-university curated events ── */
 interface EventItem {
@@ -47,8 +46,6 @@ const categories = ["all", "nightlife", "society", "sports", "arts", "other"] as
 const categoryLabels: Record<string, string> = { all: "All", nightlife: "Nightlife", society: "Society", sports: "Sports", arts: "Arts", other: "Other" };
 
 function EventsInner() {
-  const searchParams = useSearchParams();
-  const isDemo = searchParams.get("demo") === "true";
   const { profile } = useAppContext();
 
   const profileUni = profile?.university || "st-andrews";

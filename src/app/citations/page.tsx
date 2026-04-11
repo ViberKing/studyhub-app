@@ -68,7 +68,6 @@ function CitationsInner() {
 
   async function saveCitation(text: string) {
     if (!gate("core")) return;
-    if (isDemo) { setCitations([{ id: Date.now(), text }, ...citations]); return; }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     await supabase.from("citations").insert({ user_id: session.user.id, text });
@@ -78,7 +77,6 @@ function CitationsInner() {
   async function delCitation(id: number) {
     if (!gate("core")) return;
     if (!confirm("Delete this saved citation?")) return;
-    if (isDemo) { setCitations(citations.filter(c => c.id !== id)); return; }
     await supabase.from("citations").delete().eq("id", id);
     fetchCitations();
   }

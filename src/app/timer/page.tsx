@@ -81,10 +81,6 @@ function TimerInner() {
     if (!gate("core")) return;
     if (total <= 0) return;
     const min = total / 60;
-    if (isDemo) {
-      setSessions(prev => [{ id: Date.now(), minutes: min, module: tModule || "General", notes: tNotes, recorded_at: new Date().toISOString() }, ...prev]);
-      return;
-    }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     await supabase.from("study_sessions").insert({ user_id: session.user.id, minutes: min, module: tModule.trim() || "General", notes: tNotes.trim() });

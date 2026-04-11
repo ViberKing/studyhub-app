@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell, { clearProfileCache } from "@/components/AppShell";
 import UniSelector from "@/components/UniSelector";
-import { universities, type University } from "@/lib/universities";
+import { type University } from "@/lib/universities";
 import { useGate } from "@/components/GateModal";
 
 function SettingsInner() {
@@ -313,7 +313,7 @@ function SettingsInner() {
               </div>
               <div className="row">
                 <button className="btn btn-ghost" onClick={() => router.push("/pricing")}>Change plan</button>
-                <button className="btn btn-danger" onClick={() => alert("Subscription management coming soon.")}>Cancel subscription</button>
+                <button className="btn btn-danger" disabled title="Subscription management coming soon" style={{ opacity: 0.5, cursor: "not-allowed" }}>Cancel subscription</button>
               </div>
             </div>
           )}
