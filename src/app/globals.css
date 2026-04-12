@@ -3052,6 +3052,10 @@ textarea:focus-visible {
   .hero h1 {
     font-size: 22px;
   }
+  .hero-meta {
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
 
   /* Page title */
   .page-title {
@@ -3059,6 +3063,12 @@ textarea:focus-visible {
   }
   .page-sub {
     font-size: 13px;
+  }
+
+  /* Billing toggle */
+  .billing-toggle {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   /* Tier cards on pricing */
@@ -3134,6 +3144,11 @@ textarea:focus-visible {
     margin-bottom: 16px;
   }
 
+  /* Billing toggle: hide save tag on tiny screens */
+  .save-tag {
+    display: none;
+  }
+
   /* Timer: further reduce */
   .timer-display {
     font-size: 48px;
@@ -3141,6 +3156,15 @@ textarea:focus-visible {
   }
   .timer-card {
     padding: 24px 16px;
+    overflow: visible;
+  }
+  .timer-row {
+    gap: 6px;
+  }
+  .timer-row .btn,
+  .timer-row .btn-ghost {
+    padding: 8px 12px;
+    font-size: 12px;
   }
 
   /* Setting cards */

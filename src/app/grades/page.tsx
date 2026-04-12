@@ -100,7 +100,7 @@ function GradesInner() {
     <AppShell>
       <div className="page active">
         <h1 className="page-title">Grade calculator</h1>
-        <p className="page-sub">{uni?.name || "University"} \u2014 {gradingConfig.scaleLabel}.</p>
+        <p className="page-sub">{uni?.name || "University"} &mdash; {gradingConfig.scaleLabel}.</p>
 
         {/* University selector */}
         <div style={{ marginBottom: 20 }}>
