@@ -6,7 +6,7 @@ import { useAppContext } from "./AppShell";
 
 /* ─── Tier hierarchy ─── */
 const TIER_LEVEL: Record<string, number> = {
-  trial: 1, essential: 1, plus: 2, pro: 3, gifted: 3,
+  trial: 0, essential: 1, plus: 2, pro: 3, gifted: 3,
 };
 
 /* ─── Feature → minimum tier ─── */

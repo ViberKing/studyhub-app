@@ -44,7 +44,7 @@ function PricingInner() {
     <AppShell>
       <div className="page active">
         <h1 className="page-title">Choose your plan</h1>
-        <p className="page-sub">Start with a 7-day free trial. No credit card required.</p>
+        <p className="page-sub">Start with a 7-day free trial. Cancel anytime.</p>
 
         <div className="billing-toggle">
           <button className={billing === "monthly" ? "active" : ""} onClick={() => setBilling("monthly")}>Monthly</button>

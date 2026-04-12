@@ -43,25 +43,49 @@ function CitationsInner() {
 
   function generateCitation() {
     if (!gate("core")) return;
-    const a = val("cAuthor"), y = val("cYear"), t = val("cTitle");
-    if (!a || !y || !t) { setOutput(""); setCopied(false); setFormError("Author, year, and title are required."); return; }
+    const a = val("cAuthor") || val("cDirector") || val("cOrg"), y = val("cYear"), t = val("cTitle");
+    if (!a || !y || !t) { setOutput(""); setCopied(false); setFormError("Author/director, year, and title are required."); return; }
     let cite = "";
+
     if (sourceType === "Book") {
       const p = val("cPub");
-      if (format === "APA") cite = `${a} (${y}). ${t}. ${p}.`;
-      else if (format === "MLA") cite = `${a}. ${t}. ${p}, ${y}.`;
-      else cite = `${a} (${y}) ${t}. ${p}.`;
+      if (format === "APA") cite = `${a} (${y}). *${t}*. ${p}.`;
+      else if (format === "MLA") cite = `${a}. *${t}*. ${p}, ${y}.`;
+      else cite = `${a} (${y}) *${t}*. ${p}.`;
+
+    } else if (sourceType === "Book chapter") {
+      const ch = val("cChapter"), ed = val("cEditor"), p = val("cPub"), pg = val("cPages");
+      if (format === "APA") cite = `${a} (${y}). ${ch}. In ${ed ? ed + " (Ed.), " : ""}*${t}* (pp. ${pg || "n.p."}). ${p}.`;
+      else if (format === "MLA") cite = `${a}. "${ch}." *${t}*, edited by ${ed || "n.a."}, ${p}, ${y}, pp. ${pg || "n.p."}.`;
+      else cite = `${a} (${y}) '${ch}', in ${ed ? ed + " (ed.) " : ""}*${t}*. ${p}, pp. ${pg || "n.p."}.`;
+
     } else if (sourceType === "Journal") {
-      const j = val("cJournal"), v = val("cVol"), pg = val("cPages");
-      if (format === "APA") cite = `${a} (${y}). ${t}. ${j}, ${v}, ${pg}.`;
-      else if (format === "MLA") cite = `${a}. "${t}." ${j} ${v} (${y}): ${pg}.`;
-      else cite = `${a} (${y}) '${t}', ${j}, ${v}, pp. ${pg}.`;
-    } else {
-      const u = val("cUrl");
+      const j = val("cJournal"), v = val("cVol"), pg = val("cPages"), doi = val("cDoi");
+      if (format === "APA") cite = `${a} (${y}). ${t}. *${j}*, ${v}, ${pg}.${doi ? ` https://doi.org/${doi}` : ""}`;
+      else if (format === "MLA") cite = `${a}. "${t}." *${j}* ${v} (${y}): ${pg}.${doi ? ` doi:${doi}` : ""}`;
+      else cite = `${a} (${y}) '${t}', *${j}*, ${v}, pp. ${pg}.${doi ? ` doi:${doi}` : ""}`;
+
+    } else if (sourceType === "Website") {
+      const u = val("cUrl"), acc = val("cAccessed");
       if (format === "APA") cite = `${a} (${y}). ${t}. ${u}`;
-      else if (format === "MLA") cite = `${a}. "${t}." Web, ${y}, ${u}.`;
-      else cite = `${a} (${y}) ${t}. Available at: ${u}`;
+      else if (format === "MLA") cite = `${a}. "${t}." Web, ${y}, ${u}.${acc ? ` Accessed ${acc}.` : ""}`;
+      else cite = `${a} (${y}) ${t}. Available at: ${u}${acc ? ` (Accessed: ${acc})` : ""}`;
+
+    } else if (sourceType === "Film/documentary") {
+      const dir = val("cDirector"), prod = val("cProduction");
+      if (format === "APA") cite = `${dir || a} (Director). (${y}). *${t}* [Film]. ${prod}.`;
+      else if (format === "MLA") cite = `*${t}*. Directed by ${dir || a}, ${prod}, ${y}.`;
+      else cite = `${dir || a} (${y}) *${t}* [Film]. ${prod}.`;
+
+    } else if (sourceType === "Report") {
+      const org = val("cOrg"), rn = val("cReportNum"), u = val("cUrl");
+      if (format === "APA") cite = `${a || org} (${y}). *${t}*${rn ? ` (Report No. ${rn})` : ""}. ${org !== a ? org + ". " : ""}${u || ""}`;
+      else if (format === "MLA") cite = `${a || org}. *${t}*. ${org !== a ? org + ", " : ""}${y}.${u ? ` ${u}` : ""}`;
+      else cite = `${a || org} (${y}) *${t}*${rn ? ` (Report No. ${rn})` : ""}. ${org !== a ? org + ". " : ""}${u ? `Available at: ${u}` : ""}`;
     }
+
+    // Clean up double spaces and trailing dots
+    cite = cite.replace(/\s{2,}/g, " ").replace(/\.\./g, ".").trim();
     setFormError("");
     setOutput(cite);
   }
@@ -91,20 +115,71 @@ function CitationsInner() {
     <AppShell>
       <div className="page active">
         <h1 className="page-title">Citation generator</h1>
-        <p className="page-sub">APA, MLA and Harvard formats.</p>
+        <p className="page-sub">APA, MLA and Harvard formats. Books, journals, websites, films, reports and more.</p>
         <div className="card mb">
           <div className="grid grid-2">
             <div className="field"><label>Format</label>
               <select value={format} onChange={e => setFormat(e.target.value)}><option>APA</option><option>MLA</option><option>Harvard</option></select>
             </div>
             <div className="field"><label>Source type</label>
-              <select value={sourceType} onChange={e => setSourceType(e.target.value)}><option>Book</option><option>Journal</option><option>Website</option></select>
+              <select value={sourceType} onChange={e => setSourceType(e.target.value)}>
+                <option>Book</option>
+                <option>Book chapter</option>
+                <option>Journal</option>
+                <option>Website</option>
+                <option>Film/documentary</option>
+                <option>Report</option>
+              </select>
             </div>
           </div>
-          {f("Author", "cAuthor")}{f("Year", "cYear")}{f("Title", "cTitle")}
+
+          {sourceType === "Film/documentary" ? (
+            <>
+              {f("Director", "cDirector")}
+              {f("Year", "cYear")}
+              {f("Title", "cTitle")}
+              {f("Production company", "cProduction")}
+            </>
+          ) : sourceType === "Report" ? (
+            <>
+              {f("Author (or organisation)", "cAuthor")}
+              {f("Year", "cYear")}
+              {f("Title", "cTitle")}
+              {f("Organisation", "cOrg")}
+              {f("Report number (optional)", "cReportNum")}
+              {f("URL (optional)", "cUrl")}
+            </>
+          ) : (
+            <>
+              {f("Author", "cAuthor")}
+              {f("Year", "cYear")}
+              {f("Title", "cTitle")}
+            </>
+          )}
+
           {sourceType === "Book" && f("Publisher", "cPub")}
-          {sourceType === "Journal" && <>{f("Journal", "cJournal")}{f("Volume", "cVol")}{f("Pages", "cPages")}</>}
-          {sourceType === "Website" && f("URL", "cUrl")}
+          {sourceType === "Book chapter" && (
+            <>
+              {f("Chapter title", "cChapter")}
+              {f("Editor(s)", "cEditor")}
+              {f("Publisher", "cPub")}
+              {f("Pages", "cPages")}
+            </>
+          )}
+          {sourceType === "Journal" && (
+            <>
+              {f("Journal name", "cJournal")}
+              {f("Volume", "cVol")}
+              {f("Pages", "cPages")}
+              {f("DOI (optional)", "cDoi")}
+            </>
+          )}
+          {sourceType === "Website" && (
+            <>
+              {f("URL", "cUrl")}
+              {f("Date accessed (optional)", "cAccessed")}
+            </>
+          )}
           {formError && <p style={{ fontSize: 13, color: "var(--red)", marginBottom: 8 }}>{formError}</p>}
           <button className="btn" onClick={generateCitation}>Generate citation</button>
         </div>

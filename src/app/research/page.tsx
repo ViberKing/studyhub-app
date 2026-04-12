@@ -6,15 +6,8 @@ import { createClient } from "@/lib/supabase";
 import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
 
-interface Source { id: number; title: string; author: string; results: Record<string, string>; }
+interface Source { id: number; title: string; author: string; results: Record<string, string>; processing: Record<string, boolean>; }
 interface Project { id: number; module: string; brief: string; sources: Source[]; created_at: string; }
-
-const placeholders: Record<string, string> = {
-  hard: "AI processing not available offline. Connect Claude API to generate a detailed summary.",
-  soft: "AI processing not available offline. Connect Claude API for a 3-4 sentence overview.",
-  cards: "AI processing not available offline. Connect Claude API to auto-generate flashcards.",
-  pages: "AI processing not available offline. Connect Claude API to identify key pages.",
-};
 
 function ResearchInner() {
   const searchParams = useSearchParams();
@@ -49,7 +42,7 @@ function ResearchInner() {
       if (proj) setProjects(proj);
       // Load unsaved sources
       const { data: src } = await supabase.from("research_sources").select("*").eq("user_id", session.user.id).eq("is_unsaved", true);
-      if (src) setSources(src.map(s => ({ id: s.id, title: s.title, author: s.author, results: { hard: s.result_hard || "", soft: s.result_soft || "", cards: s.result_cards || "", pages: s.result_pages || "" } })));
+      if (src) setSources(src.map(s => ({ id: s.id, title: s.title, author: s.author, results: { hard: s.result_hard || "", soft: s.result_soft || "", cards: s.result_cards || "", pages: s.result_pages || "" }, processing: {} })));
       setLoading(false);
     }
     load();
@@ -72,7 +65,7 @@ function ResearchInner() {
     const title = prompt("Source title:");
     if (!title) return;
     const author = prompt("Author(s):") || "";
-    const newSource = { id: Date.now(), title, author, results: {} };
+    const newSource: Source = { id: Date.now(), title, author, results: {}, processing: {} };
     setSources([...sources, newSource]);
     if (!isDemo) {
       supabase.auth.getSession().then(({ data: { session } }) => {
@@ -81,9 +74,50 @@ function ResearchInner() {
     }
   }
 
-  function processSource(id: number, kind: string) {
+  async function processSource(id: number, kind: string) {
     if (!gate("research")) return;
-    setSources(sources.map(s => s.id === id ? { ...s, results: { ...s.results, [kind]: placeholders[kind] } } : s));
+
+    // Set processing state
+    setSources(prev => prev.map(s => s.id === id ? { ...s, processing: { ...s.processing, [kind]: true } } : s));
+
+    try {
+      const source = sources.find(s => s.id === id);
+      if (!source) return;
+
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind,
+          title: source.title,
+          author: source.author,
+          brief: resBrief || resModule || "General research",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSources(prev => prev.map(s => s.id === id ? {
+          ...s,
+          results: { ...s.results, [kind]: `Error: ${data.error || "Failed to generate. Try again."}` },
+          processing: { ...s.processing, [kind]: false },
+        } : s));
+        return;
+      }
+
+      setSources(prev => prev.map(s => s.id === id ? {
+        ...s,
+        results: { ...s.results, [kind]: data.result },
+        processing: { ...s.processing, [kind]: false },
+      } : s));
+    } catch {
+      setSources(prev => prev.map(s => s.id === id ? {
+        ...s,
+        results: { ...s.results, [kind]: "Error: Something went wrong. Please try again." },
+        processing: { ...s.processing, [kind]: false },
+      } : s));
+    }
   }
 
   function delSource(id: number) {
@@ -175,14 +209,22 @@ function ResearchInner() {
                 <div><b>{s.title}</b><br /><small>{s.author}</small></div>
                 <button className="btn btn-danger btn-sm" onClick={() => delSource(s.id)}>Remove</button>
               </div>
-              <div className="row mt">
-                <button className="btn btn-sm" onClick={() => processSource(s.id, "hard")}>Hard summary</button>
-                <button className="btn btn-ghost btn-sm" onClick={() => processSource(s.id, "soft")}>Soft summary</button>
-                <button className="btn btn-ghost btn-sm" onClick={() => processSource(s.id, "cards")}>Flashcards</button>
-                <button className="btn btn-ghost btn-sm" onClick={() => processSource(s.id, "pages")}>Key pages</button>
+              <div className="row mt" style={{ flexWrap: "wrap" }}>
+                <button className="btn btn-sm" onClick={() => processSource(s.id, "hard")} disabled={!!s.processing?.hard}>
+                  {s.processing?.hard ? "Generating..." : "Hard summary"}
+                </button>
+                <button className="btn btn-ghost btn-sm" onClick={() => processSource(s.id, "soft")} disabled={!!s.processing?.soft}>
+                  {s.processing?.soft ? "Generating..." : "Soft summary"}
+                </button>
+                <button className="btn btn-ghost btn-sm" onClick={() => processSource(s.id, "cards")} disabled={!!s.processing?.cards}>
+                  {s.processing?.cards ? "Generating..." : "Flashcards"}
+                </button>
+                <button className="btn btn-ghost btn-sm" onClick={() => processSource(s.id, "pages")} disabled={!!s.processing?.pages}>
+                  {s.processing?.pages ? "Generating..." : "Key pages"}
+                </button>
               </div>
               {Object.entries(s.results).filter(([, v]) => v).map(([k, v]) => (
-                <div key={k} className={`summary-box ${sumClasses[k]}`}><b>{sumLabels[k]}:</b><br />{v}</div>
+                <div key={k} className={`summary-box ${sumClasses[k]}`}><b>{sumLabels[k]}:</b><br /><span style={{ whiteSpace: "pre-wrap" }}>{v}</span></div>
               ))}
             </div>
           )) : <div className="empty">No sources yet. Add one above.</div>}

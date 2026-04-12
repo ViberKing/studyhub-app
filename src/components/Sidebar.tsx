@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useAppContext } from "./AppShell";
+import ShareModal from "./ShareModal";
 
 /* ── Core pages (always visible) ── */
 const mainNav = [
@@ -60,13 +62,17 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { profile } = useAppContext();
   const isDemo = searchParams.get("demo") === "true";
   const demoSuffix = isDemo ? "?demo=true" : "";
+  const isAdmin = !!profile?.is_admin;
+  const isReferralPartner = !!profile?.is_referral_partner;
   const currentPage = pathname.split("/").pop() || "dashboard";
 
   // Auto-expand "More" if user is on one of those pages
   const isOnMorePage = moreNav.some(n => n.page === currentPage);
   const [showMore, setShowMore] = useState(isOnMorePage);
+  const [showShare, setShowShare] = useState(false);
 
   const nav = (item: NavEntry) => router.push(`/${item.page}${demoSuffix}`);
 
@@ -115,11 +121,43 @@ export default function Sidebar() {
         <NavItem key={item.page} item={item} active={currentPage === item.page} onClick={() => nav(item)} />
       ))}
 
-      {/* Bottom — settings & pricing */}
+      {/* Bottom — invite, settings, pricing, admin */}
       <div className="sidebar-spacer" />
+
+      {/* Invite friends */}
+      <div
+        className="nav-item share-nav-item"
+        role="button"
+        tabIndex={0}
+        onClick={() => setShowShare(true)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setShowShare(true); } }}
+      >
+        <span className="ico">
+          <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </span>
+        <span>Invite friends</span>
+      </div>
+
+      {isReferralPartner && (
+        <NavItem
+          item={{ page: "referrals", label: "Referrals", icon: <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> }}
+          active={currentPage === "referrals"}
+          onClick={() => router.push("/referrals")}
+        />
+      )}
+
       {bottomNav.map(item => (
         <NavItem key={item.page} item={item} active={currentPage === item.page} onClick={() => nav(item)} />
       ))}
+      {isAdmin && (
+        <NavItem
+          item={{ page: "admin", label: "Admin", icon: <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }}
+          active={currentPage === "admin"}
+          onClick={() => router.push("/admin")}
+        />
+      )}
+
+      <ShareModal open={showShare} onClose={() => setShowShare(false)} />
     </aside>
   );
 }

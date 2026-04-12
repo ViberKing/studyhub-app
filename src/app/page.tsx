@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const features = [
   { icon: "📅", title: "Smart Calendar", desc: "Track deadlines, exams & study sessions in one beautiful view" },
@@ -20,7 +20,7 @@ const stats = [
   { value: "∞", label: "Potential" },
 ];
 
-export default function LoginPage() {
+function LoginPageInner() {
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,7 +41,16 @@ export default function LoginPage() {
   const [forgotSuccess, setForgotSuccess] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+
+  // Capture referral slug from URL (?ref=slug)
+  const refSlug = searchParams.get("ref") || "";
+
+  useEffect(() => {
+    // Store referral slug in sessionStorage so it persists through signup
+    if (refSlug) sessionStorage.setItem("ref_slug", refSlug);
+  }, [refSlug]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -76,10 +85,36 @@ export default function LoginPage() {
     if (signupPassword.length < 6) { setError("Password must be at least 6 characters."); return; }
     if (signupPassword !== signupConfirm) { setError("Passwords don't match."); return; }
     setLoading(true);
-    const { error: err } = await supabase.auth.signUp({ email: signupEmail, password: signupPassword, options: { data: { name: signupName } } });
+    const { data: signUpData, error: err } = await supabase.auth.signUp({ email: signupEmail, password: signupPassword, options: { data: { name: signupName } } });
     setLoading(false);
     if (err) { setError(err.message); return; }
-    router.replace("/dashboard");
+
+    // Track referral if user came via a referral link
+    const storedRef = sessionStorage.getItem("ref_slug") || refSlug;
+    if (storedRef && signUpData?.user?.id) {
+      try {
+        // Look up referral partner by slug
+        const { data: partner } = await supabase
+          .from("referral_partners")
+          .select("user_id")
+          .eq("referral_slug", storedRef)
+          .single();
+
+        if (partner) {
+          // Set referred_by on the new user's profile
+          await supabase.from("profiles").update({ referred_by: partner.user_id }).eq("id", signUpData.user.id);
+          // Create referral record
+          await supabase.from("referrals").insert({
+            referrer_id: partner.user_id,
+            referee_id: signUpData.user.id,
+            status: "pending",
+          });
+        }
+        sessionStorage.removeItem("ref_slug");
+      } catch { /* silently fail — referral tracking is not critical */ }
+    }
+
+    router.replace("/pricing");
   }
 
   async function handleForgotPassword() {
@@ -104,6 +139,13 @@ export default function LoginPage() {
 
   return (
     <div className="onboard-wrap">
+      {/* Referral banner */}
+      {refSlug && (
+        <div className="referral-banner">
+          <span>You&apos;ve been referred by a friend — welcome to Study-HQ!</span>
+        </div>
+      )}
+
       {/* Left: Feature Showcase */}
       <div className="onboard-left">
         <div className="onboard-left-content">
@@ -245,7 +287,7 @@ export default function LoginPage() {
               </button>
 
               <p className="onboard-footer-text">
-                7-day free trial &middot; No credit card required &middot; Cancel anytime
+                7-day free trial &middot; Cancel anytime &middot; Student-friendly pricing
               </p>
             </>
           )}
@@ -253,4 +295,8 @@ export default function LoginPage() {
       </div>
     </div>
   );
+}
+
+export default function LoginPage() {
+  return <Suspense><LoginPageInner /></Suspense>;
 }
