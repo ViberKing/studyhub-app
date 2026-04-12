@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, createContext, useContext, useCallback } from "react";
+import { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAppContext } from "./AppShell";
 
@@ -105,6 +105,36 @@ export function GateProvider({ children }: { children: React.ReactNode }) {
   const closeGate = useCallback(() => {
     setGateState(s => ({ ...s, open: false }));
   }, []);
+
+  /* ─── Global click interceptor for demo mode ─── */
+  useEffect(() => {
+    if (!isDemo) return;
+
+    function handleClick(e: MouseEvent) {
+      const target = (e.target as HTMLElement).closest("a");
+      if (!target) return;
+      const href = target.getAttribute("href");
+      if (!href) return;
+
+      // Allow internal Next.js links (no protocol or starts with /)
+      if (href.startsWith("/") || href.startsWith("#")) return;
+      // Allow mailto: links (sharing is fine)
+      if (href.startsWith("mailto:")) return;
+
+      // Block all external links in demo mode
+      e.preventDefault();
+      e.stopPropagation();
+      setGateState({
+        open: true,
+        mode: "demo",
+        featureLabel: "this feature",
+        requiredTier: "",
+      });
+    }
+
+    document.addEventListener("click", handleClick, true);
+    return () => document.removeEventListener("click", handleClick, true);
+  }, [isDemo]);
 
   return (
     <GateContext.Provider value={{ gate, gateState, closeGate }}>
