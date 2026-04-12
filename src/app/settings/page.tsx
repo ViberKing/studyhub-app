@@ -25,6 +25,7 @@ function SettingsInner() {
   const [plan, setPlan] = useState("trial");
   const [billing, setBilling] = useState("monthly");
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [newPwd, setNewPwd] = useState("");
   const [msg, setMsg] = useState("");
   const [pwdMsg, setPwdMsg] = useState("");
@@ -45,7 +46,7 @@ function SettingsInner() {
       if (!session) { router.replace("/"); return; }
       setEmail(session.user.email || "");
       const { data } = await supabase.from("profiles")
-        .select("name, plan, billing, trial_ends_at, university, course, year_of_study, age, avatar_url")
+        .select("name, plan, billing, trial_ends_at, university, course, year_of_study, age, avatar_url, is_admin")
         .eq("id", session.user.id).single();
       if (data) {
         setName(data.name);
@@ -57,6 +58,7 @@ function SettingsInner() {
         setYearOfStudy(data.year_of_study || "");
         setAge(data.age ? String(data.age) : "");
         setAvatarUrl(data.avatar_url || null);
+        setIsAdmin(!!data.is_admin);
       }
       setLoading(false);
     }
@@ -294,11 +296,15 @@ function SettingsInner() {
             </div>
           ) : plan === "gifted" ? (
             <div className="plan-status-card">
-              <div className="row" style={{ gap: 8, alignItems: "center", marginBottom: 14 }}>
+              <div className="row" style={{ gap: 8, alignItems: "center", marginBottom: 8 }}>
                 <span className="tier-pill tier-pro">Pro</span>
                 <span className="badge badge-green">Gifted</span>
+                {isAdmin && <span className="badge badge-blue" style={{ background: "#3b82f620", color: "#3b82f6", border: "1px solid #3b82f640" }}>Admin</span>}
               </div>
-              <p style={{ fontSize: 13, color: "var(--text-muted)" }}>You have full Pro access — no billing required. Enjoy Study-HQ!</p>
+              <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 6 }}>You have full Pro access — no billing required.</p>
+              {isAdmin && (
+                <p style={{ fontSize: 13, color: "var(--text-muted)" }}>As an admin, you can manage users and view platform data from the <a onClick={() => router.push("/admin")} style={{ color: "var(--red)", cursor: "pointer", fontWeight: 600 }}>Admin Portal</a>.</p>
+              )}
             </div>
           ) : (
             <div className="plan-status-card">
@@ -307,6 +313,7 @@ function SettingsInner() {
                   <div className="row" style={{ gap: 8, alignItems: "center" }}>
                     <span className={`tier-pill tier-${plan}`}>{planLabel}</span>
                     <span className="badge badge-green">Active</span>
+                    {isAdmin && <span className="badge badge-blue" style={{ background: "#3b82f620", color: "#3b82f6", border: "1px solid #3b82f640" }}>Admin</span>}
                   </div>
                   <div style={{ marginTop: 6, fontSize: 13, color: "var(--text-muted)" }}>&pound;{(prices[plan] || 0).toFixed(2)}/month &middot; billed {billing}</div>
                 </div>
