@@ -72,6 +72,68 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      case "invoice.payment_succeeded": {
+        // Track referral commissions on successful payments
+        const paidInvoice = event.data.object as Stripe.Invoice;
+        const paidCustomerId = paidInvoice.customer as string;
+        const amountPaid = (paidInvoice.amount_paid || 0) / 100; // convert from pence to pounds
+
+        if (amountPaid > 0) {
+          // Find the user who paid
+          const { data: payer } = await supabase
+            .from("profiles")
+            .select("id, referred_by")
+            .eq("stripe_customer_id", paidCustomerId)
+            .single();
+
+          if (payer?.referred_by) {
+            // Find the referral record
+            const { data: referral } = await supabase
+              .from("referrals")
+              .select("id, status")
+              .eq("referrer_id", payer.referred_by)
+              .eq("referee_id", payer.id)
+              .single();
+
+            if (referral) {
+              // Get partner's commission rate
+              const { data: partner } = await supabase
+                .from("referral_partners")
+                .select("commission_rate, total_earned")
+                .eq("user_id", payer.referred_by)
+                .single();
+
+              const rate = partner?.commission_rate || 0.50;
+              const commission = amountPaid * rate;
+
+              // Log the commission
+              await supabase.from("referral_commissions").insert({
+                referral_id: referral.id,
+                referrer_id: payer.referred_by,
+                amount: commission,
+                payment_amount: amountPaid,
+                stripe_invoice_id: paidInvoice.id,
+              });
+
+              // Update total earned
+              await supabase
+                .from("referral_partners")
+                .update({ total_earned: (partner?.total_earned || 0) + commission })
+                .eq("user_id", payer.referred_by);
+
+              // Mark referral as active if still pending
+              if (referral.status === "pending") {
+                await supabase
+                  .from("referrals")
+                  .update({ status: "active" })
+                  .eq("id", referral.id);
+              }
+            }
+          }
+        }
+        break;
+      }
+
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;

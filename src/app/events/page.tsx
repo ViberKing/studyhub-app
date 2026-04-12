@@ -23,7 +23,7 @@ const uniEvents: Record<string, EventItem[]> = {
     { name: "Music Society Concert", venue: "Younger Hall", date: "Monthly", price: "\u00A33\u2013\u00A310", category: "arts", url: "https://www.yourunion.net/activities/music/", color: "#10b981" },
     { name: "Sports Ball", venue: "Kinkell Byre", date: "March", price: "\u00A330\u2013\u00A345", category: "sports", url: "https://www.yourunion.net/events/", color: "#ef4444" },
     { name: "Ceilidh Night", venue: "Lower College Hall", date: "Bi-monthly", price: "\u00A35", category: "society", url: "https://www.yourunion.net/events/", color: "#6366f1" },
-    { name: "Comedy Night", venue: "The Byre Theatre", date: "Monthly", price: "\u00A37\u2013\u00A312", category: "arts", url: "https://byretheatre.com/whats-on/", color: "#ec4899" },
+    { name: "Comedy Night", venue: "The Byre Theatre", date: "Monthly", price: "\u00A37\u2013\u00A312", category: "arts", url: "https://byretheatre.com/upcoming", color: "#ec4899" },
     { name: "Pub Quiz", venue: "The Rule", date: "Every Wednesday", price: "Free", category: "nightlife", url: "https://fixr.co/venue/the-rule-st-andrews-844855", color: "#14b8a6" },
     { name: "Charity Run 5K", venue: "West Sands Beach", date: "April", price: "\u00A310", category: "sports", url: "https://www.eventbrite.com/d/united-kingdom--st-andrews/charity-run/", color: "#f97316" },
   ],
@@ -246,30 +246,6 @@ function EventsInner() {
               </div>
             </a>
           )}
-          <a
-            href={`https://www.studentbeans.com/student-discount/uk`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "flex", alignItems: "center", gap: 14, padding: "20px 24px",
-              background: "var(--surface)", border: "1px solid var(--border)",
-              borderRadius: "var(--radius-lg)", textDecoration: "none", color: "var(--text)",
-              boxShadow: "var(--shadow-xs)", transition: "box-shadow .15s, transform .15s",
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "var(--shadow)"; (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-1px)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "var(--shadow-xs)"; (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"; }}
-          >
-            <div style={{
-              width: 44, height: 44, borderRadius: 12,
-              background: "linear-gradient(135deg, #00dc6e, #00b85c)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#fff", fontWeight: 700, fontSize: 14, flexShrink: 0,
-            }}>SB</div>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 15 }}>Student Beans Events</div>
-              <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Student events & experiences</div>
-            </div>
-          </a>
         </div>
       </div>
     </AppShell>

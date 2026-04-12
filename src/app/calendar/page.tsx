@@ -207,7 +207,7 @@ function CalendarInner() {
       setLoading(false);
       return;
     }
-    if (!userId) return;
+    if (!userId) { setLoading(false); return; }
 
     const rangeStart = subDays(startOfMonth(date), 7).toISOString();
     const rangeEnd = addDays(endOfMonth(date), 7).toISOString();
@@ -316,7 +316,6 @@ function CalendarInner() {
   /* ── Save event ── */
   const handleSave = useCallback(async (data: { title: string; type: EventType; start: Date; end: Date; allDay: boolean; module: string }) => {
     if (!gate("core")) return;
-
     if (!userId) return;
 
     if (modalEvent) {

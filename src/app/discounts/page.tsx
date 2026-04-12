@@ -13,13 +13,13 @@ const discounts = [
   { brand: "Microsoft 365", offer: "Free with .ac.uk email", desc: "Word, Excel, PowerPoint, and 1TB OneDrive \u2014 completely free.", category: "tech", url: "https://www.microsoft.com/en-gb/education/products/office", color: "#0078D4" },
   { brand: "GitHub Student Pack", offer: "Free developer tools", desc: "Copilot, domains, cloud credits, and 100+ tools \u2014 all free.", category: "tech", url: "https://education.github.com/pack", color: "#24292e" },
   { brand: "PureGym", offer: "Student memberships from \u00A318/mo", desc: "Discounted gym membership for students at most locations.", category: "health", url: "https://www.puregym.com/students/", color: "#FFD100" },
-  { brand: "McDonald's", offer: "Deals via Student Beans", desc: "Exclusive meal deals and freebies through the Student Beans app.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/mcdonalds", color: "#FFC72C" },
-  { brand: "Domino's", offer: "35% off online orders", desc: "Student discount codes available via Student Beans.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/dominos", color: "#006491" },
-  { brand: "Deliveroo", offer: "25% off first order", desc: "Student deals available via Deliveroo Plus student plan.", category: "food", url: "https://deliveroo.co.uk/student", color: "#00CCBC" },
-  { brand: "Nando's", offer: "20% off with Student Beans", desc: "Verify via Student Beans for 20% off your order.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/nandos", color: "#C8102E" },
+  { brand: "McDonald's", offer: "Deals via Student Beans", desc: "Exclusive meal deals and freebies through the Student Beans app.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/mcdonald-s", color: "#FFC72C" },
+  { brand: "Domino's", offer: "35% off online orders", desc: "Student discount codes available via Student Beans.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/domino-s-pizza", color: "#006491" },
+  { brand: "Deliveroo", offer: "25% off first order", desc: "Student deals available via Deliveroo Plus student plan.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/deliveroo", color: "#00CCBC" },
+  { brand: "Nando's", offer: "20% off with Student Beans", desc: "Verify via Student Beans for 20% off your order.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/nando-s", color: "#C8102E" },
   { brand: "Dr. Martens", offer: "10% off", desc: "Student discount through Student Beans verification.", category: "fashion", url: "https://www.studentbeans.com/student-discount/uk/dr-martens", color: "#FFE800" },
   { brand: "Three Mobile", offer: "Discounted SIM-only plans", desc: "Student-exclusive phone plans \u2014 verify via UniDays.", category: "tech", url: "https://www.myunidays.com/GB/en-GB/partners/three/access/online", color: "#FF5A00" },
-  { brand: "NOW", offer: "Student plans from \u00A35.99/mo", desc: "Cinema, Entertainment, or Sports passes at student prices.", category: "streaming", url: "https://www.myunidays.com/GB/en-GB/partners/now/access/online", color: "#16D6C0" },
+  { brand: "NOW", offer: "Student plans from \u00A35.99/mo", desc: "Cinema, Entertainment, or Sports passes at student prices.", category: "streaming", url: "https://www.studentbeans.com/student-discount/uk/now-tv", color: "#16D6C0" },
 ];
 
 const platforms = [
