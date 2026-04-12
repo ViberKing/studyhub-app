@@ -48,27 +48,76 @@ function PricingInner() {
     setLoading(false);
   }
 
+  /* If user has Pro or Gifted, show a simple confirmation instead of pricing */
+  if (userPlan === "pro" || isGifted) {
+    return (
+      <AppShell>
+        <div className="page active">
+          <div style={{
+            maxWidth: 520, margin: "60px auto", textAlign: "center", padding: "48px 32px",
+            background: "var(--surface)", borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
+            boxShadow: "var(--shadow)",
+          }}>
+            <div style={{
+              width: 72, height: 72, borderRadius: 20, margin: "0 auto 24px",
+              background: "linear-gradient(135deg, var(--red), #f97316)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <svg width="36" height="36" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <h1 style={{ fontSize: 28, marginBottom: 8, letterSpacing: "-0.02em" }}>You&apos;re on the Pro plan</h1>
+            <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.6, marginBottom: 28 }}>
+              {isGifted
+                ? "You have full Pro access — no subscription or billing required. Enjoy every feature Study-HQ has to offer."
+                : "You have access to every feature Study-HQ has to offer. Thank you for your support!"}
+            </p>
+
+            <div style={{
+              display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 28,
+              textAlign: "left", padding: "20px 24px",
+              background: "var(--bg)", borderRadius: "var(--radius)", border: "1px solid var(--border)",
+            }}>
+              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Plan</div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>Pro {isGifted && <span style={{ color: "var(--emerald)", fontWeight: 600 }}>(Gifted)</span>}</div>
+              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Status</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--emerald)" }}>Active</div>
+              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Billing</div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>{isGifted ? "None — free access" : `£15.99/month`}</div>
+              {profile?.is_admin && <>
+                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Role</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#3b82f6" }}>Admin</div>
+              </>}
+            </div>
+
+            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+              <button className="btn btn-grad" onClick={() => router.push("/dashboard")}>
+                Go to Dashboard
+              </button>
+              {profile?.is_admin && (
+                <button className="btn btn-ghost" onClick={() => router.push("/admin")}>
+                  Open Admin Portal
+                </button>
+              )}
+              <button className="btn btn-ghost" onClick={() => router.push("/settings")}>
+                Account Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <div className="page active">
         <h1 className="page-title">Choose your plan</h1>
         <p className="page-sub">Start with a 7-day free trial. Cancel anytime.</p>
 
-        {/* Current plan banner for gifted/paid users */}
-        {isGifted && (
-          <div style={{
-            padding: "16px 24px", marginBottom: 24, borderRadius: "var(--radius-lg)",
-            background: "linear-gradient(135deg, #10b98115, #10b98108)",
-            border: "1px solid #10b98130", display: "flex", alignItems: "center", gap: 12,
-          }}>
-            <span className="tier-pill tier-pro">Pro</span>
-            <span style={{ fontSize: 14, color: "var(--text)" }}>
-              You have <strong>full Pro access</strong> — no subscription needed.
-              {profile?.is_admin && <> You&apos;re also an <strong>admin</strong>. <a onClick={() => router.push("/admin")} style={{ color: "var(--red)", cursor: "pointer", fontWeight: 600 }}>Open Admin Portal</a></>}
-            </span>
-          </div>
-        )}
-        {!isGifted && userLevel > 0 && (
+        {/* Current plan banner for paid users */}
+        {userLevel > 0 && (
           <div style={{
             padding: "16px 24px", marginBottom: 24, borderRadius: "var(--radius-lg)",
             background: "var(--surface)", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 12,
@@ -78,12 +127,10 @@ function PricingInner() {
           </div>
         )}
 
-        {!isGifted && (
-          <div className="billing-toggle">
-            <button className={billing === "monthly" ? "active" : ""} onClick={() => setBilling("monthly")}>Monthly</button>
-            <button className={billing === "annual" ? "active" : ""} onClick={() => setBilling("annual")}>Annual <span className="save-tag">Save up to £33</span></button>
-          </div>
-        )}
+        <div className="billing-toggle">
+          <button className={billing === "monthly" ? "active" : ""} onClick={() => setBilling("monthly")}>Monthly</button>
+          <button className={billing === "annual" ? "active" : ""} onClick={() => setBilling("annual")}>Annual <span className="save-tag">Save up to £33</span></button>
+        </div>
 
         {checkoutError && <p style={{ color: "var(--red)", fontSize: 13, textAlign: "center", marginBottom: 12 }}>{checkoutError}</p>}
 
@@ -97,9 +144,7 @@ function PricingInner() {
               <li>All core study tools</li><li>Assignments tracker</li><li>Pomodoro study timer</li>
               <li>Flashcard decks</li><li>Grade calculator</li><li>Citation generator</li><li>Up to 5 modules</li>
             </ul>
-            {isGifted ? (
-              <div className="btn btn-block btn-ghost" style={{ opacity: 0.5, cursor: "default", textAlign: "center" }}>Included in your plan</div>
-            ) : userPlan === "essential" ? (
+            {userPlan === "essential" ? (
               <div className="btn btn-block btn-grad" style={{ opacity: 0.7, cursor: "default", textAlign: "center" }}>Current plan</div>
             ) : userLevel > 1 ? (
               <div className="btn btn-block btn-ghost" style={{ opacity: 0.5, cursor: "default", textAlign: "center" }}>Included</div>
@@ -118,9 +163,7 @@ function PricingInner() {
               <li>Everything in Essential</li><li>AI Research Assistant</li><li>Essay structure builder</li>
               <li>Unlimited modules</li><li>Advanced analytics</li><li>PDF source uploads</li><li>Priority support</li>
             </ul>
-            {isGifted ? (
-              <div className="btn btn-block btn-ghost" style={{ opacity: 0.5, cursor: "default", textAlign: "center" }}>Included in your plan</div>
-            ) : userPlan === "plus" ? (
+            {userPlan === "plus" ? (
               <div className="btn btn-block btn-grad" style={{ opacity: 0.7, cursor: "default", textAlign: "center" }}>Current plan</div>
             ) : userLevel > 2 ? (
               <div className="btn btn-block btn-ghost" style={{ opacity: 0.5, cursor: "default", textAlign: "center" }}>Included</div>
@@ -129,7 +172,7 @@ function PricingInner() {
             )}
           </div>
 
-          <div className={`tier${userPlan === "pro" || isGifted ? " current" : ""}`}>
+          <div className="tier">
             <h3>Pro</h3>
             <p className="tier-desc">For dissertation season</p>
             <div className="price">£{p.pro}</div>
@@ -138,13 +181,7 @@ function PricingInner() {
               <li>Everything in Plus</li><li>Study group collaboration</li><li>Export all your data</li>
               <li>1-on-1 onboarding session</li><li>Early access to new features</li><li>Dedicated success manager</li>
             </ul>
-            {isGifted ? (
-              <div className="btn btn-block btn-grad" style={{ opacity: 0.7, cursor: "default", textAlign: "center" }}>Your plan</div>
-            ) : userPlan === "pro" ? (
-              <div className="btn btn-block btn-grad" style={{ opacity: 0.7, cursor: "default", textAlign: "center" }}>Current plan</div>
-            ) : (
-              <button className="btn btn-block btn-ghost" onClick={() => startTrial("Pro")} disabled={loading}>{loading ? "Loading..." : "Start free trial"}</button>
-            )}
+            <button className="btn btn-block btn-ghost" onClick={() => startTrial("Pro")} disabled={loading}>{loading ? "Loading..." : "Start free trial"}</button>
           </div>
         </div>
 
