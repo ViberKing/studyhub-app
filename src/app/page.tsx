@@ -289,6 +289,12 @@ function LoginPageInner() {
               <p className="onboard-footer-text">
                 7-day free trial &middot; Cancel anytime &middot; Student-friendly pricing
               </p>
+              <p style={{ textAlign: "center", fontSize: 11, color: "var(--text-subtle)", marginTop: 12 }}>
+                By signing up, you agree to our{" "}
+                <a href="/legal/terms" style={{ color: "var(--text-muted)", textDecoration: "underline" }}>Terms</a>
+                {" and "}
+                <a href="/legal/privacy" style={{ color: "var(--text-muted)", textDecoration: "underline" }}>Privacy Policy</a>.
+              </p>
             </>
           )}
         </div>

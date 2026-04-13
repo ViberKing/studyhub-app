@@ -25,6 +25,7 @@ function SettingsInner() {
   const [plan, setPlan] = useState("trial");
   const [billing, setBilling] = useState("monthly");
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
+  const [stripeCustomerId, setStripeCustomerId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [newPwd, setNewPwd] = useState("");
   const [msg, setMsg] = useState("");
@@ -46,7 +47,7 @@ function SettingsInner() {
       if (!session) { router.replace("/"); return; }
       setEmail(session.user.email || "");
       const { data } = await supabase.from("profiles")
-        .select("name, plan, billing, trial_ends_at, university, course, year_of_study, age, avatar_url, is_admin")
+        .select("name, plan, billing, trial_ends_at, university, course, year_of_study, age, avatar_url, is_admin, stripe_customer_id")
         .eq("id", session.user.id).single();
       if (data) {
         setName(data.name);
@@ -58,6 +59,7 @@ function SettingsInner() {
         setYearOfStudy(data.year_of_study || "");
         setAge(data.age ? String(data.age) : "");
         setAvatarUrl(data.avatar_url || null);
+        setStripeCustomerId(data.stripe_customer_id || null);
         setIsAdmin(!!data.is_admin);
       }
       setLoading(false);
@@ -320,7 +322,19 @@ function SettingsInner() {
               </div>
               <div className="row">
                 <button className="btn btn-ghost" onClick={() => router.push("/pricing")}>Change plan</button>
-                <button className="btn btn-danger" disabled title="Subscription management coming soon" style={{ opacity: 0.5, cursor: "not-allowed" }}>Cancel subscription</button>
+                {stripeCustomerId && (
+                  <button className="btn btn-ghost" onClick={async () => {
+                    try {
+                      const res = await fetch("/api/billing", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ customerId: stripeCustomerId }),
+                      });
+                      const data = await res.json();
+                      if (data.url) window.location.href = data.url;
+                    } catch {}
+                  }}>Manage billing</button>
+                )}
               </div>
             </div>
           )}
