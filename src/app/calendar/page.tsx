@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState, useCallback, useMemo } from "react";
+import { Suspense, useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Calendar, dateFnsLocalizer, type View, type SlotInfo } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, addHours, addDays, startOfMonth, endOfMonth, subDays } from "date-fns";
@@ -17,7 +17,7 @@ const locales = { "en-US": enUS };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
 
 /* ── Types ── */
-type EventType = "assignment" | "exam" | "study" | "social" | "custom";
+type EventType = "assignment" | "exam" | "study" | "social" | "custom" | "lecture";
 
 interface CalEvent {
   id: string;
@@ -36,7 +36,64 @@ const TYPE_COLORS: Record<EventType, string> = {
   study: "#E11D48",
   social: "#10b981",
   custom: "#8b5cf6",
+  lecture: "#0ea5e9",
 };
+
+/* ── ICS Parser ── */
+function parseICS(text: string): { title: string; start: Date; end: Date; allDay: boolean; location?: string }[] {
+  const events: { title: string; start: Date; end: Date; allDay: boolean; location?: string }[] = [];
+  const blocks = text.split("BEGIN:VEVENT");
+
+  for (let i = 1; i < blocks.length; i++) {
+    const block = blocks[i].split("END:VEVENT")[0];
+    const lines: string[] = [];
+    // Unfold lines (lines starting with space/tab are continuations)
+    for (const raw of block.split(/\r?\n/)) {
+      if (raw.startsWith(" ") || raw.startsWith("\t")) {
+        if (lines.length) lines[lines.length - 1] += raw.slice(1);
+      } else {
+        lines.push(raw);
+      }
+    }
+
+    let summary = "";
+    let dtstart = "";
+    let dtend = "";
+    let location = "";
+
+    for (const line of lines) {
+      if (line.startsWith("SUMMARY")) summary = line.split(/:(.+)/)[1] || "";
+      else if (line.startsWith("DTSTART")) dtstart = line.split(/:(.+)/)[1] || "";
+      else if (line.startsWith("DTEND")) dtend = line.split(/:(.+)/)[1] || "";
+      else if (line.startsWith("LOCATION")) location = line.split(/:(.+)/)[1] || "";
+    }
+
+    if (!summary || !dtstart) continue;
+
+    const parseDate = (s: string): Date => {
+      // Handle YYYYMMDD (all-day) and YYYYMMDDTHHMMSS and YYYYMMDDTHHMMSSZ
+      const clean = s.replace("Z", "");
+      if (clean.length === 8) {
+        return new Date(+clean.slice(0,4), +clean.slice(4,6)-1, +clean.slice(6,8));
+      }
+      return new Date(
+        +clean.slice(0,4), +clean.slice(4,6)-1, +clean.slice(6,8),
+        +clean.slice(9,11), +clean.slice(11,13), +clean.slice(13,15) || 0
+      );
+    };
+
+    const start = parseDate(dtstart);
+    const end = dtend ? parseDate(dtend) : new Date(start.getTime() + 3600000);
+    const allDay = dtstart.length <= 8 || (!dtstart.includes("T"));
+
+    const titleParts = [summary.trim()];
+    if (location.trim()) titleParts.push(`@ ${location.trim()}`);
+
+    events.push({ title: titleParts.join(" "), start, end, allDay, location: location.trim() });
+  }
+
+  return events;
+}
 
 /* ── Demo data ── */
 function buildDemoEvents(): CalEvent[] {
@@ -118,6 +175,7 @@ function EventModal({
             <div className="field" style={{ marginBottom: 0 }}>
             <select value={type} onChange={(e) => setType(e.target.value as EventType)}>
               <option value="custom">Custom</option>
+              <option value="lecture">Lecture</option>
               <option value="exam">Exam</option>
               <option value="study">Study</option>
               <option value="social">Social</option>
@@ -201,6 +259,55 @@ function CalendarInner() {
   // Modal state
   const [modalSlot, setModalSlot] = useState<{ start: Date; end: Date } | null>(null);
   const [modalEvent, setModalEvent] = useState<CalEvent | null>(null);
+
+  // Timetable upload state
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [parsedEvents, setParsedEvents] = useState<{ title: string; start: Date; end: Date; allDay: boolean; location?: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadDone, setUploadDone] = useState(false);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      if (!text) return;
+      const events = parseICS(text);
+      setParsedEvents(events);
+      setShowUploadModal(true);
+      setUploadDone(false);
+    };
+    reader.readAsText(file);
+    // Reset input so same file can be re-selected
+    e.target.value = "";
+  }, []);
+
+  const handleImport = useCallback(async () => {
+    if (!userId || parsedEvents.length === 0) return;
+    if (!gate("core")) return;
+    setUploading(true);
+
+    const rows = parsedEvents.map(ev => ({
+      user_id: userId,
+      title: ev.title,
+      event_type: "lecture" as const,
+      start_at: ev.start.toISOString(),
+      end_at: ev.end.toISOString(),
+      all_day: ev.allDay,
+    }));
+
+    // Insert in batches of 50
+    for (let i = 0; i < rows.length; i += 50) {
+      await supabase.from("calendar_events").insert(rows.slice(i, i + 50));
+    }
+
+    setUploading(false);
+    setUploadDone(true);
+    loadEvents();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, parsedEvents]);
 
   const loadEvents = useCallback(async () => {
     if (isDemo) {
@@ -391,15 +498,36 @@ function CalendarInner() {
               "Switch between month, week, and day views to see your schedule at different levels of detail.",
             ]}
           />
-          <button
-            className="btn btn-grad"
-            onClick={() => {
-              setModalEvent(null);
-              setModalSlot({ start: new Date(), end: addHours(new Date(), 1) });
-            }}
-          >
-            + New event
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              className="btn btn-ghost"
+              onClick={() => fileInputRef.current?.click()}
+              title="Upload university timetable (.ics file)"
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginRight: 6 }}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              Upload timetable
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".ics,.ical,.ifb,.icalendar"
+              style={{ display: "none" }}
+              onChange={handleFileSelect}
+            />
+            <button
+              className="btn btn-grad"
+              onClick={() => {
+                setModalEvent(null);
+                setModalSlot({ start: new Date(), end: addHours(new Date(), 1) });
+              }}
+            >
+              + New event
+            </button>
+          </div>
         </div>
 
         {legend}
@@ -438,6 +566,86 @@ function CalendarInner() {
             onSave={handleSave}
             onDelete={modalEvent ? handleDelete : undefined}
           />
+        )}
+
+        {/* Timetable upload preview modal */}
+        {showUploadModal && (
+          <div className="modal-bg open" onClick={() => { setShowUploadModal(false); setParsedEvents([]); }}>
+            <div className="modal" style={{ maxWidth: 560, width: "100%" }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <h3 style={{ margin: 0 }}>
+                  {uploadDone ? "Timetable imported!" : "Preview timetable"}
+                </h3>
+                <button
+                  onClick={() => { setShowUploadModal(false); setParsedEvents([]); setUploadDone(false); }}
+                  style={{ background: "none", border: "none", fontSize: 22, color: "var(--text-muted)", cursor: "pointer" }}
+                >
+                  &times;
+                </button>
+              </div>
+
+              {uploadDone ? (
+                <div style={{ textAlign: "center", padding: "20px 0" }}>
+                  <div style={{ fontSize: 48, marginBottom: 12 }}>&#10003;</div>
+                  <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>
+                    {parsedEvents.length} events added to your calendar
+                  </p>
+                  <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 20 }}>
+                    Your lectures and classes are now showing on your calendar. You can edit or delete them like any other event.
+                  </p>
+                  <button className="btn btn-grad" onClick={() => { setShowUploadModal(false); setParsedEvents([]); setUploadDone(false); }} style={{ width: "100%" }}>
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}>
+                    Found <strong>{parsedEvents.length}</strong> events in your timetable file. Check the preview below, then click Import to add them all.
+                  </p>
+
+                  {parsedEvents.length === 0 ? (
+                    <div style={{ padding: 24, textAlign: "center", color: "var(--text-muted)", fontSize: 14 }}>
+                      No events found in this file. Make sure it&apos;s a valid .ics timetable file from your university.
+                    </div>
+                  ) : (
+                    <div style={{ maxHeight: 340, overflowY: "auto", marginBottom: 16, border: "1px solid var(--border)", borderRadius: "var(--radius)" }}>
+                      {parsedEvents.slice(0, 50).map((ev, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            padding: "10px 14px",
+                            borderBottom: i < Math.min(parsedEvents.length, 50) - 1 ? "1px solid var(--border)" : "none",
+                            fontSize: 13,
+                          }}
+                        >
+                          <div style={{ fontWeight: 600, marginBottom: 2 }}>{ev.title}</div>
+                          <div style={{ color: "var(--text-muted)", fontSize: 12 }}>
+                            {ev.allDay
+                              ? format(ev.start, "EEE d MMM yyyy")
+                              : `${format(ev.start, "EEE d MMM yyyy, HH:mm")} – ${format(ev.end, "HH:mm")}`}
+                          </div>
+                        </div>
+                      ))}
+                      {parsedEvents.length > 50 && (
+                        <div style={{ padding: "10px 14px", fontSize: 12, color: "var(--text-subtle)", textAlign: "center" }}>
+                          + {parsedEvents.length - 50} more events
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                    <button className="btn btn-ghost" onClick={() => { setShowUploadModal(false); setParsedEvents([]); }}>
+                      Cancel
+                    </button>
+                    <button className="btn btn-grad" onClick={handleImport} disabled={uploading || parsedEvents.length === 0}>
+                      {uploading ? "Importing..." : `Import ${parsedEvents.length} events`}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </AppShell>
