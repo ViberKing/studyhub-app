@@ -4584,6 +4584,222 @@ textarea:focus-visible {
   text-decoration: underline;
 }
 
+/* ============================================================
+   ONBOARDING MODAL
+   ============================================================ */
+.ob-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: ob-fadeIn 0.2s ease;
+}
+@keyframes ob-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.ob-modal {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+  animation: ob-slideUp 0.25s ease;
+}
+@keyframes ob-slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ob-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 24px 0;
+}
+.ob-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+.ob-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.ob-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--text-subtle);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+.ob-close:hover { color: var(--text); }
+.ob-progress {
+  padding: 16px 24px;
+}
+.ob-progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.ob-progress-pct {
+  color: var(--red);
+  font-weight: 700;
+}
+.ob-progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--bg);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.ob-progress-fill {
+  height: 100%;
+  background: var(--grad);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+.ob-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ob-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  transition: background 0.1s, opacity 0.15s;
+}
+.ob-row:hover { background: var(--bg); }
+.ob-row.done { opacity: 0.5; }
+.ob-tick {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+.ob-tick:hover { border-color: var(--red); }
+.ob-tick.checked {
+  background: var(--grad);
+  border-color: transparent;
+  color: #fff;
+}
+.ob-row-icon { font-size: 16px; flex-shrink: 0; }
+.ob-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ob-row-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.ob-row-title.done {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.ob-row-desc {
+  font-size: 12px;
+  color: var(--text-subtle);
+  line-height: 1.4;
+}
+.ob-row-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--red);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ob-row-link:hover { text-decoration: underline; }
+.ob-footer-done {
+  padding: 16px 24px 24px;
+  text-align: center;
+}
+.ob-footer-done p {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--emerald);
+  margin-bottom: 12px;
+}
+.ob-dismiss {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  transition: background 0.1s;
+}
+.ob-dismiss:hover { background: var(--bg); }
+
+/* Floating reopen button */
+.ob-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+.ob-fab:hover {
+  border-color: var(--red);
+  color: var(--red);
+  box-shadow: 0 4px 24px rgba(225,29,72,0.15);
+}
+.ob-fab-badge {
+  background: var(--grad);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
 /* Admin responsive */
 @media (max-width: 768px) {
   .admin-sidebar {

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { GateProvider } from "./GateModal";
+import OnboardingModal from "./OnboardingModal";
 
 interface Profile {
   name: string;
@@ -190,6 +191,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
               {children}
             </main>
           </div>
+          {!isDemo && <OnboardingModal />}
         </div>
       </GateProvider>
     </AppContext.Provider>
