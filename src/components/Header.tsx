@@ -43,7 +43,9 @@ export default function Header({ userName, isDemo, avatarUrl }: { userName: stri
         <div className="header-user">
           <div className="user-chip">
             {avatarUrl ? (
-              <img src={avatarUrl} alt={userName} className="avatar avatar-img" />
+              <div className="avatar">
+                <img src={avatarUrl} alt={userName} className="avatar-img" />
+              </div>
             ) : (
               <div className="avatar">{initial}</div>
             )}

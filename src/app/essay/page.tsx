@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
+import PageGuide from "@/components/PageGuide";
 
 /* ── PEEA guidance per section ── */
 interface ParagraphGuide {
@@ -518,6 +519,16 @@ function EssayInner() {
       <div className="page active">
         <h1 className="page-title">Essay structure builder</h1>
         <p className="page-sub">Plan your essay section by section with PEEA paragraph guidance.</p>
+        <PageGuide
+          id="essay"
+          title="How to use the Essay Builder"
+          steps={[
+            "Start by entering your essay title and selecting a template or building from scratch.",
+            "Add sections (intro, body paragraphs, conclusion) — each paragraph follows the PEEA structure (Point, Evidence, Explanation, Analysis).",
+            "Fill in each PEEA field to build a well-structured argument paragraph by paragraph.",
+            "When complete, you'll have a full essay plan with clear structure that you can use as a writing guide.",
+          ]}
+        />
 
         {/* Setup */}
         <div className="card mb">

@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import AppShell, { useAppContext } from "@/components/AppShell";
 import UniSelector from "@/components/UniSelector";
 import { getUniversity, type University } from "@/lib/universities";
+import PageGuide from "@/components/PageGuide";
 
 /* ── Per-university curated events ── */
 interface EventItem {
@@ -20,7 +21,7 @@ const uniEvents: Record<string, EventItem[]> = {
   "st-andrews": [
     { name: "Friday Night at 601", venue: "Club 601, Students' Association", date: "Every Friday", price: "\u00A35\u2013\u00A38", category: "nightlife", url: "https://fixr.co/venue/club-601-st-andrews-students-association-6365", color: "#6c5ce7" },
     { name: "Raisin Weekend", venue: "Students' Association", date: "November", price: "Varies", category: "society", url: "https://www.yourunion.net/events/", color: "#f59e0b" },
-    { name: "Music Society Concert", venue: "Younger Hall", date: "Monthly", price: "\u00A33\u2013\u00A310", category: "arts", url: "https://www.yourunion.net/activities/music/", color: "#10b981" },
+    { name: "Music Society Concert", venue: "Younger Hall", date: "Monthly", price: "\u00A33\u2013\u00A310", category: "arts", url: "https://www.yourunion.net/events/", color: "#10b981" },
     { name: "Sports Ball", venue: "Kinkell Byre", date: "March", price: "\u00A330\u2013\u00A345", category: "sports", url: "https://www.yourunion.net/events/", color: "#ef4444" },
     { name: "Ceilidh Night", venue: "Lower College Hall", date: "Bi-monthly", price: "\u00A35", category: "society", url: "https://www.yourunion.net/events/", color: "#6366f1" },
     { name: "Comedy Night", venue: "The Byre Theatre", date: "Monthly", price: "\u00A37\u2013\u00A312", category: "arts", url: "https://byretheatre.com/upcoming", color: "#ec4899" },
@@ -37,6 +38,24 @@ const uniEvents: Record<string, EventItem[]> = {
     { name: "QMU Night Out", venue: "QMU, University of Glasgow", date: "Every Friday", price: "\u00A34\u2013\u00A38", category: "nightlife", url: "https://fixr.co/venue/queen-margaret-union-glasgow-698877", color: "#6c5ce7" },
     { name: "Kelvingrove Nights", venue: "Kelvingrove Museum", date: "Monthly", price: "Free", category: "arts", url: "https://www.glasgowlife.org.uk/museums/venues/kelvingrove-art-gallery-and-museum", color: "#f59e0b" },
     { name: "GUU Debates", venue: "Glasgow University Union", date: "Weekly", price: "Free", category: "society", url: "https://www.guu.co.uk/", color: "#10b981" },
+  ],
+  "exeter": [
+    { name: "TP Wednesday", venue: "Timepiece Nightclub", date: "Every Wednesday", price: "\u00A33\u2013\u00A310", category: "nightlife", url: "https://fixr.co/organiser/timepiece", color: "#6c5ce7" },
+    { name: "Cheesy Tuesdays", venue: "Unit 1", date: "Every Tuesday", price: "\u00A33\u2013\u00A36", category: "nightlife", url: "https://fixr.co/venue/unit-1-exeter-exeter-17652", color: "#a855f7" },
+    { name: "Guild Events", venue: "Exeter Students' Guild", date: "Weekly", price: "Free\u2013\u00A35", category: "society", url: "https://www.exeterguild.com/events/", color: "#f59e0b" },
+    { name: "Comedy Night", venue: "Exeter Phoenix, Gandy Street", date: "Monthly", price: "\u00A35\u2013\u00A312", category: "arts", url: "https://exeterphoenix.org.uk/events/", color: "#ec4899" },
+    { name: "BUCS Sport", venue: "Sports Park", date: "Weekly (term-time)", price: "Free", category: "sports", url: "https://sport.exeter.ac.uk/studentsport/bucssport/", color: "#ef4444" },
+    { name: "Exeter Nightlife", venue: "Various venues, Exeter", date: "Weekly", price: "\u00A35\u2013\u00A310", category: "nightlife", url: "https://www.skiddle.com/whats-on/Exeter/", color: "#14b8a6" },
+    { name: "Society Fair", venue: "Exeter Students' Guild", date: "Termly", price: "Free", category: "society", url: "https://www.exeterguild.com/societies/", color: "#10b981" },
+  ],
+  "warwick": [
+    { name: "Pop!", venue: "Copper Rooms, Warwick SU", date: "Every Wednesday", price: "\u00A33\u2013\u00A38", category: "nightlife", url: "https://www.warwicksu.com/venues-events/events/", color: "#6c5ce7" },
+    { name: "Warwick Arts Centre", venue: "Warwick Arts Centre", date: "Weekly", price: "\u00A35\u2013\u00A320", category: "arts", url: "https://www.warwickartscentre.co.uk/whats-on", color: "#ec4899" },
+    { name: "Society Events", venue: "Warwick SU", date: "Termly", price: "Free\u2013\u00A35", category: "society", url: "https://www.warwicksu.com/societies/", color: "#f59e0b" },
+    { name: "Kasbah Club Night", venue: "Kasbah, Coventry", date: "Every Friday & Saturday", price: "\u00A34\u2013\u00A310", category: "nightlife", url: "https://www.kasbahnightclub.com/", color: "#14b8a6" },
+    { name: "Warwick Sport", venue: "Sports & Wellness Hub", date: "Daily", price: "Free\u2013\u00A310", category: "sports", url: "https://warwick.ac.uk/services/sport/", color: "#ef4444" },
+    { name: "Coventry Events", venue: "Various venues, Coventry", date: "Weekly", price: "Varies", category: "nightlife", url: "https://www.skiddle.com/whats-on/Coventry/", color: "#10b981" },
+    { name: "Comedy & Theatre", venue: "Warwick Arts Centre", date: "Monthly", price: "\u00A38\u2013\u00A315", category: "arts", url: "https://www.warwickartscentre.co.uk/whats-on", color: "#f97316" },
   ],
   // Default events shown for universities without specific curated events
   _default: [],
@@ -69,6 +88,17 @@ function EventsInner() {
             <p>Discover what&apos;s happening around town — from club nights to society events.</p>
           </div>
         </div>
+
+        <PageGuide
+          id="events"
+          title="How to use Events"
+          steps={[
+            "Browse events happening near your university — from society nights to gig listings.",
+            "Filter by category (music, sports, socials, etc.) to find what interests you.",
+            "Click an event for details including date, venue, and ticket links.",
+            "Events are pulled for your selected university city — change uni to see different locations.",
+          ]}
+        />
 
         {/* University selector */}
         <div style={{ marginBottom: 20 }}>

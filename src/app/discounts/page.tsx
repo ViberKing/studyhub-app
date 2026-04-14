@@ -2,30 +2,31 @@
 
 import { Suspense, useState } from "react";
 import AppShell from "@/components/AppShell";
+import PageGuide from "@/components/PageGuide";
 
 const discounts = [
-  { brand: "Amazon Prime", offer: "6 months free then 50% off", desc: "Prime Student gives you free delivery, Prime Video, and more.", category: "tech", url: "https://www.amazon.co.uk/studentoffer", color: "#f59e0b" },
+  { brand: "Amazon Prime", offer: "6 months free then 50% off", desc: "Prime Student gives you free delivery, Prime Video, and more.", category: "tech", url: "https://www.amazon.co.uk/gp/student/signup", color: "#f59e0b" },
   { brand: "Spotify", offer: "Free for 1 month, then \u00A35.99/mo", desc: "Spotify Premium Student includes Hulu and SHOWTIME.", category: "streaming", url: "https://www.spotify.com/uk/student/", color: "#1DB954" },
-  { brand: "Apple Music", offer: "Free for 1 month, then \u00A35.99/mo", desc: "Apple Music student plan with Apple TV+ included.", category: "streaming", url: "https://music.apple.com/subscribe/student", color: "#fc3c44" },
+  { brand: "Apple Music", offer: "Free for 1 month, then \u00A35.99/mo", desc: "Apple Music student plan with Apple TV+ included.", category: "streaming", url: "https://www.apple.com/uk/apple-music/", color: "#fc3c44" },
   { brand: "ASOS", offer: "10% off everything", desc: "Verify via UniDays or Student Beans to unlock.", category: "fashion", url: "https://www.asos.com/student-discount/", color: "#2d2d2d" },
   { brand: "Nike", offer: "10% student discount", desc: "Verify through UniDays for 10% off online orders.", category: "fashion", url: "https://www.nike.com/gb/student-discount", color: "#111" },
-  { brand: "16-25 Railcard", offer: "\u2153 off rail fares", desc: "Save a third on train tickets across Great Britain. \u00A330/year.", category: "transport", url: "https://www.16-25railcard.co.uk/", color: "#822380" },
+  { brand: "16-25 Railcard", offer: "\u2153 off rail fares", desc: "Save a third on train tickets across Great Britain. \u00A335/year or \u00A380 for 3 years.", category: "transport", url: "https://www.16-25railcard.co.uk/", color: "#822380" },
   { brand: "Microsoft 365", offer: "Free with .ac.uk email", desc: "Word, Excel, PowerPoint, and 1TB OneDrive \u2014 completely free.", category: "tech", url: "https://www.microsoft.com/en-gb/education/products/office", color: "#0078D4" },
   { brand: "GitHub Student Pack", offer: "Free developer tools", desc: "Copilot, domains, cloud credits, and 100+ tools \u2014 all free.", category: "tech", url: "https://education.github.com/pack", color: "#24292e" },
-  { brand: "PureGym", offer: "Student memberships from \u00A318/mo", desc: "Discounted gym membership for students at most locations.", category: "health", url: "https://www.puregym.com/students/", color: "#FFD100" },
-  { brand: "McDonald's", offer: "Deals via Student Beans", desc: "Exclusive meal deals and freebies through the Student Beans app.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/mcdonald-s", color: "#FFC72C" },
-  { brand: "Domino's", offer: "35% off online orders", desc: "Student discount codes available via Student Beans.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/domino-s-pizza", color: "#006491" },
-  { brand: "Deliveroo", offer: "25% off first order", desc: "Student deals available via Deliveroo Plus student plan.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/deliveroo", color: "#00CCBC" },
-  { brand: "Nando's", offer: "20% off with Student Beans", desc: "Verify via Student Beans for 20% off your order.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/nando-s", color: "#C8102E" },
+  { brand: "PureGym", offer: "Up to 30% off first 6 months + £0 joining fee", desc: "Student membership with 24/7 access — verify through UniDays.", category: "health", url: "https://www.puregym.com/students/", color: "#FFD100" },
+  { brand: "McDonald's", offer: "Bonus rewards points for students", desc: "Sign up for MyMcDonald's Rewards — bonus points and exclusive offers for students.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/mcdonald-s", color: "#FFC72C" },
+  { brand: "Domino's", offer: "Buy one get one free", desc: "BOGOF on small, medium, and large pizzas — verify via Student Beans.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/domino-s-pizza", color: "#006491" },
+  { brand: "Deliveroo", offer: "50% off first order + free delivery", desc: "50% off your first order (£15 min spend) plus free delivery all year with Deliveroo Plus Silver.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/deliveroo", color: "#00CCBC" },
+  { brand: "Nando's", offer: "Student discount + free food rewards", desc: "Get 5% off gift cards via Student Beans, plus earn free food with your Nando's card.", category: "food", url: "https://www.studentbeans.com/student-discount/uk/nando-s", color: "#C8102E" },
   { brand: "Dr. Martens", offer: "10% off", desc: "Student discount through Student Beans verification.", category: "fashion", url: "https://www.studentbeans.com/student-discount/uk/dr-martens", color: "#FFE800" },
-  { brand: "Three Mobile", offer: "Discounted SIM-only plans", desc: "Student-exclusive phone plans \u2014 verify via UniDays.", category: "tech", url: "https://www.myunidays.com/GB/en-GB/partners/three/access/online", color: "#FF5A00" },
-  { brand: "NOW", offer: "Student plans from \u00A35.99/mo", desc: "Cinema, Entertainment, or Sports passes at student prices.", category: "streaming", url: "https://www.studentbeans.com/student-discount/uk/now-tv", color: "#16D6C0" },
+  { brand: "Three Mobile", offer: "20% off SIM contracts & handsets", desc: "20% off SIM contracts, 20% off handset airtime, and half price broadband for 12 months.", category: "tech", url: "https://www.studentbeans.com/student-discount/uk/three", color: "#FF5A00" },
+  { brand: "NOW", offer: "Free 7-day Hayu trial + student deals", desc: "Stream movies, TV shows, and live sport — student discounts via Student Beans.", category: "streaming", url: "https://www.studentbeans.com/student-discount/uk/now-tv", color: "#16D6C0" },
 ];
 
 const platforms = [
-  { name: "UniDays", desc: "The #1 student discount platform. Verify with your university email to unlock hundreds of deals.", url: "https://www.myunidays.com/", color: "#6c5ce7" },
-  { name: "Student Beans", desc: "Another major platform with exclusive deals on food, fashion, tech, and more.", url: "https://www.studentbeans.com/", color: "#00dc6e" },
-  { name: "TOTUM", desc: "The official NUS student card. \u00A314.99/year for in-store and online discounts nationwide.", url: "https://www.totum.com/", color: "#e91e63" },
+  { name: "UniDays", desc: "The #1 student discount platform. Verify with your university email to unlock hundreds of deals.", url: "https://www.myunidays.com/GB/en-GB", color: "#6c5ce7" },
+  { name: "Student Beans", desc: "Another major platform with exclusive deals on food, fashion, tech, and more.", url: "https://www.studentbeans.com/uk", color: "#00dc6e" },
+  { name: "TOTUM", desc: "The UK's #1 student discount card. In-store and online discounts at hundreds of brands nationwide.", url: "https://www.totum.com/", color: "#e91e63" },
 ];
 
 const categories = ["all", "food", "tech", "fashion", "streaming", "transport", "health", "other"] as const;
@@ -47,19 +48,16 @@ function DiscountsInner() {
           </div>
         </div>
 
-        {/* Affiliate disclosure */}
-        <div style={{
-          padding: "12px 20px",
-          background: "var(--amber-soft)",
-          border: "1px solid #f59e0b33",
-          borderRadius: "var(--radius)",
-          fontSize: 13,
-          color: "var(--text-muted)",
-          marginBottom: 24,
-          lineHeight: 1.5,
-        }}>
-          Some links may be affiliate links. We may earn a small commission at no extra cost to you.
-        </div>
+        <PageGuide
+          id="discounts"
+          title="How to use Student Discounts"
+          steps={[
+            "Browse the best student deals — all verified and free to use.",
+            "Filter by category (food, tech, fashion, streaming, etc.) to find relevant offers.",
+            "Click 'Get Deal' to go straight to the offer page — most require UniDays or Student Beans verification.",
+            "Sign up to the platforms at the bottom (UniDays, Student Beans, TOTUM) to unlock even more deals.",
+          ]}
+        />
 
         {/* Category filter */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>

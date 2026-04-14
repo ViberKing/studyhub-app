@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
 import { useGate } from "@/components/GateModal";
+import PageGuide from "@/components/PageGuide";
 
 interface Citation { id: number; text: string; }
 
@@ -116,6 +117,16 @@ function CitationsInner() {
       <div className="page active">
         <h1 className="page-title">Citation generator</h1>
         <p className="page-sub">APA, MLA and Harvard formats. Books, journals, websites, films, reports and more.</p>
+        <PageGuide
+          id="citations"
+          title="How to use the Citation Generator"
+          steps={[
+            "Choose your citation style (Harvard, APA, or MLA) and source type (book, journal, website, etc.).",
+            "Fill in the fields — author, title, year, publisher, URL — whatever applies.",
+            "Hit Generate to get a perfectly formatted citation you can copy straight into your essay.",
+            "Your saved citations build into a bibliography you can export at any time.",
+          ]}
+        />
         <div className="card mb">
           <div className="grid grid-2">
             <div className="field"><label>Format</label>

@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
+import PageGuide from "@/components/PageGuide";
 
 interface Source { id: number; title: string; author: string; results: Record<string, string>; processing: Record<string, boolean>; }
 interface Project { id: number; module: string; brief: string; sources: Source[]; created_at: string; }
@@ -183,6 +184,16 @@ function ResearchInner() {
       <div className="page active">
         <h1 className="page-title">Research assistant</h1>
         <p className="page-sub">Organise sources, summarise readings, and generate study materials — ethically.</p>
+        <PageGuide
+          id="research"
+          title="How to use the Research Assistant"
+          steps={[
+            "Paste a topic or question into the research box and hit Go — the AI finds relevant sources and summaries.",
+            "Review the results, save useful sources, and generate flashcards or notes from them.",
+            "Use it for understanding topics faster — not for copying. The integrity banner is a reminder to use it ethically.",
+            "A completed research session gives you organised sources, key points, and ready-made study materials.",
+          ]}
+        />
         <div className="integrity-banner">
           <div style={{ fontSize: 18 }}>⚠</div>
           <div><b>This tool helps you understand sources, not replace reading them.</b> All summaries are study aids — your essays must be your own original writing.</div>

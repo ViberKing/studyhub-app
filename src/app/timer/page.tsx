@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
 import { useGate } from "@/components/GateModal";
+import PageGuide from "@/components/PageGuide";
 
 interface Session { id: number; minutes: number; module: string; notes: string; recorded_at: string; }
 
@@ -102,6 +103,16 @@ function TimerInner() {
       <div className="page active">
         <h1 className="page-title">Study timer</h1>
         <p className="page-sub">Pomodoro-style focus sessions.</p>
+        <PageGuide
+          id="timer"
+          title="How to use the Study Timer"
+          steps={[
+            "Set your focus and break durations, then hit Start to begin a Pomodoro session.",
+            "The timer counts down your focus block, then prompts a break automatically.",
+            "Each completed session is logged — you can see your history below the timer.",
+            "Over time, your session log builds up and feeds into your dashboard stats and streaks.",
+          ]}
+        />
         <div className="timer-card mb">
           <div className="timer-display">{display}</div>
           <div className="timer-row">

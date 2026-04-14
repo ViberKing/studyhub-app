@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
+import PageGuide from "@/components/PageGuide";
 
 // Demo data matching prototype
 const demoData = {
@@ -133,6 +134,17 @@ function DashboardInner() {
             </div>
           </div>
         </div>
+
+        <PageGuide
+          id="dashboard"
+          title="How to use your Dashboard"
+          steps={[
+            "This is your home base — it shows a snapshot of your week at a glance.",
+            "The stat cards show assignments due, study time, sessions, and streaks.",
+            "Quick links at the bottom take you straight to other tools.",
+            "When it's fully set up, you'll see real stats from your assignments, timer sessions, and flashcards.",
+          ]}
+        />
 
         {/* Bento stats */}
         <div className="bento">
