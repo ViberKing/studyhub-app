@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
 import { useGate } from "@/components/GateModal";
+import PageGuide from "@/components/PageGuide";
 
 interface Note { id: number; title: string; content: string; module: string; created_at: string; }
 
@@ -66,6 +67,16 @@ function NotesInner() {
       <div className="page active">
         <h1 className="page-title">Notes</h1>
         <p className="page-sub">Quick study notes per module.</p>
+        <PageGuide
+          id="notes"
+          title="How to use Notes"
+          steps={[
+            "Create a new note by typing a title and hitting Add — notes are saved automatically.",
+            "Click any note to expand and edit it. Use it for lecture notes, revision points, or quick thoughts.",
+            "Tag notes by module to keep them organised.",
+            "When fully used, you'll have a library of colour-coded notes grouped by module.",
+          ]}
+        />
         <div className="card mb">
           <div className="field"><label>Title</label><input value={nTitle} onChange={e => setNTitle(e.target.value)} placeholder="Note title" /></div>
           <div className="field"><label>Module</label><input value={nModule} onChange={e => setNModule(e.target.value)} placeholder="Module code" /></div>

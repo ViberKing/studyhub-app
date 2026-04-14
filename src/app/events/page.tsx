@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import AppShell, { useAppContext } from "@/components/AppShell";
 import UniSelector from "@/components/UniSelector";
 import { getUniversity, type University } from "@/lib/universities";
+import PageGuide from "@/components/PageGuide";
 
 /* ── Per-university curated events ── */
 interface EventItem {
@@ -87,6 +88,17 @@ function EventsInner() {
             <p>Discover what&apos;s happening around town — from club nights to society events.</p>
           </div>
         </div>
+
+        <PageGuide
+          id="events"
+          title="How to use Events"
+          steps={[
+            "Browse events happening near your university — from society nights to gig listings.",
+            "Filter by category (music, sports, socials, etc.) to find what interests you.",
+            "Click an event for details including date, venue, and ticket links.",
+            "Events are pulled for your selected university city — change uni to see different locations.",
+          ]}
+        />
 
         {/* University selector */}
         <div style={{ marginBottom: 20 }}>

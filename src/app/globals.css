@@ -4384,6 +4384,71 @@ textarea:focus-visible {
   border-color: var(--red);
 }
 
+/* ============================================================
+   PAGE GUIDE
+   ============================================================ */
+.page-guide {
+  background: var(--indigo-soft);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+.page-guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.page-guide-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--indigo);
+}
+.page-guide-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+.page-guide-steps {
+  padding-left: 20px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.page-guide-steps li {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.page-guide-show {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--text-subtle);
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: all .15s;
+}
+.page-guide-show:hover {
+  border-color: var(--indigo);
+  color: var(--indigo);
+  background: var(--indigo-soft);
+}
+
 /* Admin responsive */
 @media (max-width: 768px) {
   .admin-sidebar {

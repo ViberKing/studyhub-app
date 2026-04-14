@@ -10,6 +10,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import AppShell, { useAppContext } from "@/components/AppShell";
 import { useGate } from "@/components/GateModal";
 import { createClient } from "@/lib/supabase";
+import PageGuide from "@/components/PageGuide";
 
 /* ── date-fns localizer ── */
 const locales = { "en-US": enUS };
@@ -380,6 +381,16 @@ function CalendarInner() {
               Assignments, study sessions, and your events in one view.
             </p>
           </div>
+          <PageGuide
+            id="calendar"
+            title="How to use the Calendar"
+            steps={[
+              "Your assignments and study sessions appear automatically — no need to add them twice.",
+              "Click any date to add a custom event (e.g. society meetup, deadline reminder).",
+              "Click an existing event to edit or delete it.",
+              "Switch between month, week, and day views to see your schedule at different levels of detail.",
+            ]}
+          />
           <button
             className="btn btn-grad"
             onClick={() => {

@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import AppShell from "@/components/AppShell";
+import PageGuide from "@/components/PageGuide";
 
 const discounts = [
   { brand: "Amazon Prime", offer: "6 months free then 50% off", desc: "Prime Student gives you free delivery, Prime Video, and more.", category: "tech", url: "https://www.amazon.co.uk/gp/student/signup", color: "#f59e0b" },
@@ -47,19 +48,16 @@ function DiscountsInner() {
           </div>
         </div>
 
-        {/* Affiliate disclosure */}
-        <div style={{
-          padding: "12px 20px",
-          background: "var(--amber-soft)",
-          border: "1px solid #f59e0b33",
-          borderRadius: "var(--radius)",
-          fontSize: 13,
-          color: "var(--text-muted)",
-          marginBottom: 24,
-          lineHeight: 1.5,
-        }}>
-          Some links may be affiliate links. We may earn a small commission at no extra cost to you.
-        </div>
+        <PageGuide
+          id="discounts"
+          title="How to use Student Discounts"
+          steps={[
+            "Browse the best student deals — all verified and free to use.",
+            "Filter by category (food, tech, fashion, streaming, etc.) to find relevant offers.",
+            "Click 'Get Deal' to go straight to the offer page — most require UniDays or Student Beans verification.",
+            "Sign up to the platforms at the bottom (UniDays, Student Beans, TOTUM) to unlock even more deals.",
+          ]}
+        />
 
         {/* Category filter */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>

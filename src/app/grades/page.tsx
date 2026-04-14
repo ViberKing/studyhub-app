@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell, { useAppContext } from "@/components/AppShell";
 import UniSelector from "@/components/UniSelector";
+import PageGuide from "@/components/PageGuide";
 import { getUniversity, getGradingConfig, type University } from "@/lib/universities";
 import { useGate } from "@/components/GateModal";
 
@@ -101,6 +102,16 @@ function GradesInner() {
       <div className="page active">
         <h1 className="page-title">Grade calculator</h1>
         <p className="page-sub">{uni?.name || "University"} &mdash; {gradingConfig.scaleLabel}.</p>
+        <PageGuide
+          id="grades"
+          title="How to use the Grade Calculator"
+          steps={[
+            "Add your modules and enter the weighting for each assignment (e.g. 40% coursework, 60% exam).",
+            "Enter your marks as you get them back — the calculator shows your module and overall average in real time.",
+            "The grading scale matches your university automatically.",
+            "When complete, you'll see your predicted degree classification based on all your entered grades.",
+          ]}
+        />
 
         {/* University selector */}
         <div style={{ marginBottom: 20 }}>

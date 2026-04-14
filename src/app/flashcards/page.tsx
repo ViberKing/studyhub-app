@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
+import PageGuide from "@/components/PageGuide";
 
 /* ─── types ─── */
 interface Deck {
@@ -480,6 +481,17 @@ function FlashcardsInner() {
     return (
       <>
         <h2 className="font-serif" style={{ fontSize: 32, marginBottom: 20 }}>Flashcards</h2>
+
+        <PageGuide
+          id="flashcards"
+          title="How to use Flashcards"
+          steps={[
+            "Create a deck by giving it a name and adding cards with a front (question) and back (answer).",
+            "Open a deck to study with 5 modes: Classic flip, Learn (spaced repetition), Match (drag pairs), Test (written answers), and Review.",
+            "Each mode tracks your progress differently — use Learn mode for long-term retention.",
+            "A well-built deck has 10–30 cards per topic. The more you review, the better your stats get.",
+          ]}
+        />
 
         {/* New deck form */}
         <div className="card" style={{ marginBottom: 24 }}>

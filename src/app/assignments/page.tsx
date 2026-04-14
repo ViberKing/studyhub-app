@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
 import { useGate } from "@/components/GateModal";
+import PageGuide from "@/components/PageGuide";
 
 interface Assignment { id: number; title: string; module: string; due: string; type: string; priority: string; weight: number; status: string; done: boolean; }
 
@@ -85,6 +86,16 @@ function AssignmentsInner() {
       <div className="page active">
         <h1 className="page-title">Assignments</h1>
         <p className="page-sub">Track everything you have to hand in.</p>
+        <PageGuide
+          id="assignments"
+          title="How to use Assignments"
+          steps={[
+            "Add an assignment by filling in the title, module, due date, and weighting.",
+            "Each card shows the status, due date, and grade weighting at a glance.",
+            "Mark assignments as complete or delete them once submitted.",
+            "A completed page will show all your modules' assignments with clear due dates and progress.",
+          ]}
+        />
         <div className="card mb">
           <h3>Add assignment</h3>
           <div className="grid grid-2">
