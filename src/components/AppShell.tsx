@@ -36,7 +36,7 @@ let cachedProfile: Profile | null = null;
 let cachedUserId: string | null = null;
 
 /* Pages that are always accessible regardless of plan */
-const FREE_PAGES = ["/settings", "/pricing", "/referrals"];
+const FREE_PAGES = ["/settings", "/pricing", "/referrals", "/get-started"];
 
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(cachedProfile);

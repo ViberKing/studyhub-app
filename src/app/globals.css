@@ -4449,6 +4449,141 @@ textarea:focus-visible {
   background: var(--indigo-soft);
 }
 
+/* ============================================================
+   GET STARTED / ONBOARDING CHECKLIST
+   ============================================================ */
+.gs-progress-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.gs-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.gs-progress-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.gs-progress-pct {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--red);
+}
+.gs-progress-track {
+  width: 100%;
+  height: 10px;
+  background: var(--bg);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.gs-progress-fill {
+  height: 100%;
+  background: var(--grad);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+.gs-complete-msg {
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.gs-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.gs-item {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.15s, opacity 0.15s;
+}
+.gs-item.done {
+  opacity: 0.6;
+  border-color: var(--border);
+}
+.gs-item:not(.done):hover {
+  border-color: var(--border-strong);
+}
+.gs-check {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 2px;
+}
+.gs-check:hover {
+  border-color: var(--red);
+}
+.gs-check.checked {
+  background: var(--grad);
+  border-color: transparent;
+}
+.gs-check-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.gs-item-body {
+  flex: 1;
+  min-width: 0;
+}
+.gs-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.gs-item-icon {
+  font-size: 18px;
+}
+.gs-item-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.gs-item-title.done {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.gs-item-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.gs-item-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+  text-decoration: none;
+  transition: gap 0.15s;
+}
+.gs-item-link:hover {
+  gap: 8px;
+  text-decoration: underline;
+}
+
 /* Admin responsive */
 @media (max-width: 768px) {
   .admin-sidebar {
