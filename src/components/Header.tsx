@@ -10,7 +10,7 @@ const pageTitles: Record<string, string> = {
   grades: "Grades", citations: "Citations", notes: "Notes",
   modules: "Modules", analytics: "Analytics", pricing: "Pricing",
   settings: "Settings", feed: "Uni feed", groups: "Groups", messages: "Messages",
-  events: "Events", discounts: "Discounts", "get-started": "Get Started",
+  events: "Events", discounts: "Discounts", "get-started": "Get Started", "ai-tutor": "AI Tutor",
 };
 
 export default function Header({ userName, isDemo, avatarUrl }: { userName: string; isDemo: boolean; avatarUrl?: string | null }) {
