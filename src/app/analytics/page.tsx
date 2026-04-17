@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import AppShell from "@/components/AppShell";
+import AnimatedNumber from "@/components/AnimatedNumber";
 
 function AnalyticsInner() {
   const searchParams = useSearchParams();
@@ -78,16 +79,24 @@ function AnalyticsInner() {
         <h1 className="page-title">Analytics</h1>
         <p className="page-sub">Insights from your study sessions.</p>
         <div className="grid grid-4 mb">
-          <div className="stat-card"><div className="lbl">Total study hours</div><div className="val">{(totalMin / 60).toFixed(1)}</div></div>
-          <div className="stat-card"><div className="lbl">Total sessions</div><div className="val">{sessions.length}</div></div>
-          <div className="stat-card"><div className="lbl">Assignments done</div><div className="val">{doneCount}</div></div>
-          <div className="stat-card"><div className="lbl">Avg session (min)</div><div className="val">{avgMin}</div></div>
+          <div className="stat-card"><div className="lbl">Total study hours</div><div className="val"><AnimatedNumber value={totalMin / 60} decimals={1} delay={100} /></div></div>
+          <div className="stat-card"><div className="lbl">Total sessions</div><div className="val"><AnimatedNumber value={sessions.length} delay={200} /></div></div>
+          <div className="stat-card"><div className="lbl">Assignments done</div><div className="val"><AnimatedNumber value={doneCount} delay={300} /></div></div>
+          <div className="stat-card"><div className="lbl">Avg session (min)</div><div className="val"><AnimatedNumber value={avgMin} delay={400} /></div></div>
         </div>
         <div className="card mb">
           <h3>Study minutes — last 7 days</h3>
           <div className="chart-bars">
             {days.map((d, i) => (
-              <div key={i} className="bar" style={{ height: `${(d.min / maxMin) * 100}%` }} title={`${d.min} min`}>
+              <div
+                key={i}
+                className="bar bar-animated"
+                style={{
+                  height: `${(d.min / maxMin) * 100}%`,
+                  animationDelay: `${600 + i * 80}ms`,
+                }}
+                title={`${d.min} min`}
+              >
                 <span>{d.label}</span>
               </div>
             ))}
@@ -95,10 +104,18 @@ function AnalyticsInner() {
         </div>
         <div className="card mb">
           <h3>Minutes per module</h3>
-          {Object.keys(byMod).length ? Object.entries(byMod).map(([mod, min]) => (
+          {Object.keys(byMod).length ? Object.entries(byMod).map(([mod, min], i) => (
             <div key={mod} style={{ marginBottom: 12 }}>
-              <div className="row between"><small>{mod}</small><small>{min} min</small></div>
-              <div className="progress-bar"><div className="progress-fill" style={{ width: `${(min / maxMod) * 100}%` }} /></div>
+              <div className="row between"><small>{mod}</small><small><AnimatedNumber value={min} delay={900 + i * 100} suffix=" min" /></small></div>
+              <div className="progress-bar">
+                <div
+                  className="progress-fill progress-fill-animated"
+                  style={{
+                    width: `${(min / maxMod) * 100}%`,
+                    animationDelay: `${900 + i * 100}ms`,
+                  }}
+                />
+              </div>
             </div>
           )) : <div className="empty">No session data yet.</div>}
         </div>

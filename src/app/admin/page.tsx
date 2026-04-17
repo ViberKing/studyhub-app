@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import AnimatedNumber from "@/components/AnimatedNumber";
 
 /* ── types ── */
 interface UserRow {
@@ -68,8 +69,17 @@ function MiniBarChart({ data, color, label }: { data: { label: string; value: nu
       <div className="admin-chart-bars">
         {data.map((d, i) => (
           <div key={i} className="admin-chart-bar-col">
-            <div className="admin-chart-bar-value">{d.value}</div>
-            <div className="admin-chart-bar" style={{ height: `${Math.max((d.value / max) * 120, 4)}px`, background: color }} />
+            <div className="admin-chart-bar-value">
+              <AnimatedNumber value={d.value} delay={200 + i * 60} duration={900} />
+            </div>
+            <div
+              className="admin-chart-bar bar-animated"
+              style={{
+                height: `${Math.max((d.value / max) * 120, 4)}px`,
+                background: color,
+                animationDelay: `${200 + i * 60}ms`,
+              }}
+            />
             <div className="admin-chart-bar-label">{d.label}</div>
           </div>
         ))}
@@ -79,11 +89,15 @@ function MiniBarChart({ data, color, label }: { data: { label: string; value: nu
 }
 
 /* ── Metric card ── */
-function MetricCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color?: string }) {
+function MetricCard({ label, value, sub, color, delay = 0 }: { label: string; value: string | number; sub?: string; color?: string; delay?: number }) {
+  // Animate only if value is a plain number (not formatted with currency/percent)
+  const isPlainNumber = typeof value === "number";
   return (
     <div className="admin-stat-card">
       <div className="admin-stat-label">{label}</div>
-      <div className="admin-stat-value" style={color ? { color } : {}}>{value}</div>
+      <div className="admin-stat-value" style={color ? { color } : {}}>
+        {isPlainNumber ? <AnimatedNumber value={value as number} delay={delay} /> : value}
+      </div>
       {sub && <div className="admin-stat-sub">{sub}</div>}
     </div>
   );
