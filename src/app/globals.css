@@ -4801,6 +4801,76 @@ textarea:focus-visible {
 }
 
 /* ============================================================
+   PAGE TRANSITIONS (smooth fade + slide on route change)
+   ============================================================ */
+.page-transition {
+  animation: page-enter 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger children for a more polished entrance */
+.page-transition .hero,
+.page-transition .page-guide,
+.page-transition .page-title,
+.page-transition .page-sub,
+.page-transition .bento,
+.page-transition .card,
+.page-transition .section-title {
+  animation: child-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.page-transition .hero { animation-delay: 0.04s; }
+.page-transition .page-title { animation-delay: 0.04s; }
+.page-transition .page-sub { animation-delay: 0.07s; }
+.page-transition .page-guide { animation-delay: 0.1s; }
+.page-transition .bento { animation-delay: 0.12s; }
+.page-transition .card { animation-delay: 0.14s; }
+.page-transition .section-title { animation-delay: 0.18s; }
+@keyframes child-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smoother sidebar nav interactions */
+.nav-item, .nav-item .ico, .nav-item::before {
+  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Cards lift on hover for tactile feel */
+.card {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s, border-color 0.2s;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition,
+  .page-transition .hero,
+  .page-transition .page-guide,
+  .page-transition .page-title,
+  .page-transition .page-sub,
+  .page-transition .bento,
+  .page-transition .card,
+  .page-transition .section-title {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
    SIDEBAR BADGES / AI INDICATORS
    ============================================================ */
 .nav-item .nav-label {
