@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { GateProvider } from "./GateModal";
 import OnboardingModal from "./OnboardingModal";
+import PageTransition from "./PageTransition";
 
 interface Profile {
   name: string;
@@ -188,7 +189,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
           <div className="main-col">
             <Header userName={profile?.name || "User"} isDemo={isDemo} avatarUrl={profile?.avatar_url || null} />
             <main className="main">
-              {children}
+              <PageTransition>{children}</PageTransition>
             </main>
           </div>
           {!isDemo && <OnboardingModal />}
