@@ -217,7 +217,35 @@ function AITutorInner() {
           ]}
         />
 
-        {/* Chat container */}
+        {/* Demo lockout */}
+        {isDemo ? (
+          <div className="ai-tutor-demo-lock">
+            <div className="ai-tutor-demo-icon">
+              <svg width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <h2>AI Tutor is a live-account feature</h2>
+            <p>
+              The AI Tutor uses real Claude-powered AI to give you personalised explanations, quizzes, and feedback.
+              Sign up for a free 7-day trial to start chatting with your tutor.
+            </p>
+            <div className="ai-tutor-demo-prompts">
+              {SUGGESTED_PROMPTS.slice(0, 4).map((p, i) => (
+                <div key={i} className="ai-tutor-prompt-pill ai-tutor-prompt-pill-locked">
+                  <span className="ai-tutor-prompt-label">{p.label}</span>
+                  <span className="ai-tutor-prompt-text">{p.text.replace(/\[.*?\]/g, "...")}</span>
+                </div>
+              ))}
+            </div>
+            <a href="/" className="btn btn-grad btn-lg" style={{ marginTop: 24, textDecoration: "none", display: "inline-block" }}>
+              Start 7-day free trial
+            </a>
+          </div>
+        ) : (
+
+        /* Chat container */
         <div className="ai-tutor-container">
           {/* Sidebar: conversation list */}
           <div className="ai-tutor-sidebar">
@@ -364,6 +392,7 @@ function AITutorInner() {
             </form>
           </div>
         </div>
+        )}
 
         {/* Context editor modal */}
         {showContextEditor && (
