@@ -4801,6 +4801,62 @@ textarea:focus-visible {
 }
 
 /* ============================================================
+   ANALYTICS BAR / PROGRESS FILL ANIMATIONS
+   ============================================================ */
+
+/* Chart bars grow from bottom */
+.bar-animated {
+  transform-origin: bottom center;
+  animation: bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes bar-grow {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+/* Progress fills slide in from left */
+.progress-fill-animated {
+  animation: fill-grow 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: left center;
+}
+@keyframes fill-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Stat card subtle pop on mount */
+.stat-card, .admin-stat-card {
+  animation: stat-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes stat-pop {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* Stagger stat cards when they're siblings in a grid */
+.grid > .stat-card:nth-child(1), .admin-stat-grid > .admin-stat-card:nth-child(1) { animation-delay: 0ms; }
+.grid > .stat-card:nth-child(2), .admin-stat-grid > .admin-stat-card:nth-child(2) { animation-delay: 80ms; }
+.grid > .stat-card:nth-child(3), .admin-stat-grid > .admin-stat-card:nth-child(3) { animation-delay: 160ms; }
+.grid > .stat-card:nth-child(4), .admin-stat-grid > .admin-stat-card:nth-child(4) { animation-delay: 240ms; }
+.grid > .stat-card:nth-child(5), .admin-stat-grid > .admin-stat-card:nth-child(5) { animation-delay: 320ms; }
+.grid > .stat-card:nth-child(6), .admin-stat-grid > .admin-stat-card:nth-child(6) { animation-delay: 400ms; }
+
+/* Admin score fill — smooth transition when rendered */
+.admin-score-fill {
+  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Existing chart-bars: smooth width transition on mount */
+.chart-bars .bar {
+  transition: height 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-animated, .progress-fill-animated, .stat-card, .admin-stat-card {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
    PAGE TRANSITIONS (smooth fade + slide on route change)
    ============================================================ */
 .page-transition {

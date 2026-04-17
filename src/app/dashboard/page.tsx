@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase";
 import { useGate } from "@/components/GateModal";
 import AppShell from "@/components/AppShell";
 import PageGuide from "@/components/PageGuide";
+import AnimatedNumber from "@/components/AnimatedNumber";
 
 // Demo data matching prototype
 const demoData = {
@@ -151,25 +152,25 @@ function DashboardInner() {
           <div className="bento-stat">
             <div className="icon i-rose">●</div>
             <div className="lbl">Assignments due</div>
-            <div className="val">{dueThisWeek}</div>
+            <div className="val"><AnimatedNumber value={dueThisWeek} delay={100} /></div>
             <div className="sub">in next 7 days</div>
           </div>
           <div className="bento-stat">
             <div className="icon i-sky">◷</div>
             <div className="lbl">Study minutes today</div>
-            <div className="val">{todayMin}</div>
+            <div className="val"><AnimatedNumber value={todayMin} delay={200} /></div>
             <div className="sub">logged sessions</div>
           </div>
           <div className="bento-stat">
             <div className="icon i-violet">★</div>
             <div className="lbl">Research projects</div>
-            <div className="val">{projectCount}</div>
+            <div className="val"><AnimatedNumber value={projectCount} delay={300} /></div>
             <div className="sub">total saved</div>
           </div>
           <div className="bento-stat">
             <div className="icon i-amber">▤</div>
             <div className="lbl">Flashcard decks</div>
-            <div className="val">{deckCount}</div>
+            <div className="val"><AnimatedNumber value={deckCount} delay={400} /></div>
             <div className="sub">total decks</div>
           </div>
         </div>
