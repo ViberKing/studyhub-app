@@ -88,6 +88,9 @@ export function GateProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
 
+    // Admins bypass all feature gates
+    if (profile?.is_admin) return true;
+
     // Live user — check tier
     const plan = profile?.plan || "trial";
     const userLevel = TIER_LEVEL[plan] ?? 0;
