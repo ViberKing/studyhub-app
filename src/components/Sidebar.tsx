@@ -43,7 +43,7 @@ const bottomNav = [
 
 type NavEntry = { page: string; label: string; icon: React.ReactNode; badge?: string; ai?: boolean };
 
-function NavItem({ item, active, onClick }: { item: NavEntry; active: boolean; onClick: () => void }) {
+function NavItem({ item, active, onClick, onPrefetch }: { item: NavEntry; active: boolean; onClick: () => void; onPrefetch?: () => void }) {
   return (
     <div
       className={`nav-item${active ? " active" : ""}${item.ai ? " ai-nav" : ""}`}
@@ -51,6 +51,8 @@ function NavItem({ item, active, onClick }: { item: NavEntry; active: boolean; o
       tabIndex={0}
       aria-current={active ? "page" : undefined}
       onClick={onClick}
+      onMouseEnter={onPrefetch}
+      onFocus={onPrefetch}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
     >
       <span className="ico">{item.icon}</span>
@@ -84,6 +86,7 @@ export default function Sidebar() {
   const [showShare, setShowShare] = useState(false);
 
   const nav = (item: NavEntry) => router.push(`/${item.page}${demoSuffix}`);
+  const prefetch = (item: NavEntry) => router.prefetch(`/${item.page}${demoSuffix}`);
 
   return (
     <aside className="sidebar">
@@ -99,7 +102,7 @@ export default function Sidebar() {
 
       {/* Core tools — always visible */}
       {mainNav.map(item => (
-        <NavItem key={item.page} item={item} active={currentPage === item.page} onClick={() => nav(item)} />
+        <NavItem key={item.page} item={item} active={currentPage === item.page} onClick={() => nav(item)} onPrefetch={() => prefetch(item)} />
       ))}
 
       {/* Expandable "More tools" section */}
@@ -122,13 +125,13 @@ export default function Sidebar() {
         </span>
       </div>
       {showMore && moreNav.map(item => (
-        <NavItem key={item.page} item={item} active={currentPage === item.page} onClick={() => nav(item)} />
+        <NavItem key={item.page} item={item} active={currentPage === item.page} onClick={() => nav(item)} onPrefetch={() => prefetch(item)} />
       ))}
 
       {/* Discover & Community */}
       <div className="sidebar-section">Discover</div>
       {discoverNav.map(item => (
-        <NavItem key={item.page} item={item} active={currentPage === item.page} onClick={() => nav(item)} />
+        <NavItem key={item.page} item={item} active={currentPage === item.page} onClick={() => nav(item)} onPrefetch={() => prefetch(item)} />
       ))}
 
       {/* Bottom — invite, settings, pricing, admin */}
@@ -157,7 +160,7 @@ export default function Sidebar() {
       )}
 
       {bottomNav.map(item => (
-        <NavItem key={item.page} item={item} active={currentPage === item.page} onClick={() => nav(item)} />
+        <NavItem key={item.page} item={item} active={currentPage === item.page} onClick={() => nav(item)} onPrefetch={() => prefetch(item)} />
       ))}
       {isAdmin && (
         <NavItem
