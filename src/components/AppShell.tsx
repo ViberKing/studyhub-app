@@ -203,8 +203,11 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
                   </div>
                   <h2>{paywallReason === "trial" ? "Choose your plan to get started" : paywallReason === "cancelled" ? "Your subscription has been cancelled" : "Your free trial has ended"}</h2>
                   <p>{paywallReason === "trial" ? "Select a plan to start your 7-day free trial and unlock all Study-HQ features." : "Choose a plan to continue using Study-HQ and access all your study tools."}</p>
-                  <button className="btn btn-grad btn-lg" onClick={() => router.push("/pricing")} style={{ width: "100%", marginBottom: 12 }}>
+                  <button className="btn btn-grad btn-lg" onClick={() => router.push("/pricing")} style={{ width: "100%", marginBottom: 10 }}>
                     {paywallReason === "trial" ? "Choose a plan" : "View plans"}
+                  </button>
+                  <button className="btn btn-ghost" onClick={() => router.push("/dashboard?demo=true")} style={{ width: "100%", marginBottom: 10 }}>
+                    Try the demo first
                   </button>
                   <button className="btn btn-ghost" onClick={() => router.push("/settings")} style={{ width: "100%" }}>
                     Go to settings
@@ -238,8 +241,11 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
                       </div>
                       <h2>Upgrade to {planGateTier} to unlock this</h2>
                       <p>This feature is available on the {planGateTier} plan. Upgrade to unlock it alongside everything else on that tier.</p>
-                      <button className="btn btn-grad btn-lg" onClick={() => router.push("/pricing")} style={{ width: "100%", marginBottom: 12 }}>
+                      <button className="btn btn-grad btn-lg" onClick={() => router.push("/pricing")} style={{ width: "100%", marginBottom: 10 }}>
                         View {planGateTier} plan
+                      </button>
+                      <button className="btn btn-ghost" onClick={() => router.push("/dashboard?demo=true")} style={{ width: "100%", marginBottom: 10 }}>
+                        Try the demo first
                       </button>
                       <button className="btn btn-ghost" onClick={() => router.push("/dashboard")} style={{ width: "100%" }}>
                         Back to dashboard
