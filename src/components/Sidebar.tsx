@@ -104,7 +104,7 @@ export default function Sidebar() {
 
       {/* Expandable "More tools" section */}
       <div
-        className={`nav-item nav-toggle${showMore ? " open" : ""}`}
+        className={`nav-item nav-toggle more-tools-highlight${showMore ? " open" : ""}`}
         role="button"
         tabIndex={0}
         onClick={() => setShowMore(!showMore)}
@@ -113,7 +113,8 @@ export default function Sidebar() {
         <span className="ico">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
         </span>
-        <span>More tools</span>
+        <span className="nav-label">More tools</span>
+        <span className="more-tools-count">{moreNav.length}</span>
         <span className="nav-chevron">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9" />

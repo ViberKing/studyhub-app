@@ -4974,6 +4974,41 @@ textarea:focus-visible {
   font-weight: 600;
 }
 
+/* "More tools" highlight — make it pop so users know there's more inside */
+.more-tools-highlight:not(.open) {
+  background: linear-gradient(90deg, rgba(225, 29, 72, 0.06), transparent);
+  border: 1px dashed rgba(225, 29, 72, 0.25);
+  color: var(--red);
+  font-weight: 600;
+}
+.more-tools-highlight:not(.open):hover {
+  background: linear-gradient(90deg, rgba(225, 29, 72, 0.1), rgba(225, 29, 72, 0.02));
+  border-color: rgba(225, 29, 72, 0.5);
+}
+.more-tools-highlight:not(.open) .ico {
+  background: var(--rose-50);
+  color: var(--red);
+}
+.more-tools-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--grad);
+  color: #fff;
+  margin-left: auto;
+  margin-right: 4px;
+}
+.more-tools-highlight.open .more-tools-count {
+  background: var(--bg);
+  color: var(--text-muted);
+}
+
 /* ============================================================
    AI TUTOR PAGE
    ============================================================ */

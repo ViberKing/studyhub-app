@@ -122,16 +122,29 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     });
   }, [isDemo, isPostCheckout]);
 
-  // Paywall check — block access if trial expired or cancelled
+  // Paywall check — STRICT WHITELIST
+  // Only users with an active paid plan (essential, plus, pro, gifted) can access non-free pages.
+  // Everyone else — trial, cancelled, null, unknown — is paywalled straight to /pricing.
   useEffect(() => {
-    if (!profile || isDemo) { setShowPaywall(false); setPlanGateTier(null); return; }
+    if (isDemo) { setShowPaywall(false); setPlanGateTier(null); return; }
+
     const isFreePage = FREE_PAGES.includes(pathname);
     if (isFreePage) { setShowPaywall(false); setPlanGateTier(null); return; }
 
-    const { plan, trial_ends_at } = profile;
+    // No profile loaded yet or profile missing → paywall (safer default)
+    if (!profile) {
+      setPaywallReason("trial");
+      setShowPaywall(true);
+      setPlanGateTier(null);
+      return;
+    }
 
-    // Active paid plans and gifted — check if they have the required tier for THIS page
-    if (["essential", "plus", "pro", "gifted"].includes(plan)) {
+    const plan = profile.plan || "trial";
+
+    // ONLY these plans can access the app
+    const PAID_PLANS = ["essential", "plus", "pro", "gifted"];
+
+    if (PAID_PLANS.includes(plan)) {
       setShowPaywall(false);
       // Check per-page tier requirement
       const requiredTier = PAGE_MIN_TIER[pathname];
@@ -146,23 +159,20 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Trial users must choose a plan via Stripe first
-    if (plan === "trial") {
-      setPaywallReason("trial");
-      setShowPaywall(true);
-      return;
-    }
-
-    // Cancelled — always paywalled
+    // Cancelled — separate message
     if (plan === "cancelled") {
       setPaywallReason("cancelled");
       setShowPaywall(true);
       return;
     }
 
-    setPaywallReason("expired");
+    // Everything else (trial, null, anything unexpected) → trial paywall
+    setPaywallReason("trial");
     setShowPaywall(true);
   }, [profile, pathname, isDemo]);
+
+  // Is the user on an actively paid plan? (for OnboardingModal visibility)
+  const isPaidUser = !!profile && ["essential", "plus", "pro", "gifted"].includes(profile.plan || "");
 
   if (loading) return null;
 
@@ -256,7 +266,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
               <PageTransition>{children}</PageTransition>
             </main>
           </div>
-          {!isDemo && <OnboardingModal />}
+          {!isDemo && isPaidUser && <OnboardingModal />}
         </div>
       </GateProvider>
     </AppContext.Provider>

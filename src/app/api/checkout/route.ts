@@ -34,8 +34,16 @@ export async function POST(req: NextRequest) {
       payment_method_types: ["card"],
       customer_email: email,
       line_items: [{ price: priceId, quantity: 1 }],
+      // REQUIRE payment details upfront, even for the 7-day free trial
+      payment_method_collection: "always",
       subscription_data: {
         trial_period_days: 7,
+        // If payment fails after trial ends, cancel the subscription automatically
+        trial_settings: {
+          end_behavior: {
+            missing_payment_method: "cancel",
+          },
+        },
         metadata: { userId, tier },
       },
       metadata: { userId, tier, billing },
