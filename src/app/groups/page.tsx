@@ -50,8 +50,18 @@ function GroupsInner() {
     setUserId(session.user.id);
     const { data: profile } = await supabase.from("profiles").select("name").eq("id", session.user.id).single();
     if (profile) setUserName(profile.name);
-    const { data } = await supabase.from("groups").select("*").order("created_at", { ascending: false });
-    if (data) setGroups(data);
+    const { data } = await supabase
+      .from("groups")
+      .select("*, group_members(count)")
+      .order("created_at", { ascending: false });
+    if (data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mapped = (data as any[]).map(g => ({
+        ...g,
+        member_count: g.group_members?.[0]?.count || 0,
+      }));
+      setGroups(mapped);
+    }
     setLoading(false);
   }, [isDemo]);
 
@@ -131,12 +141,48 @@ function GroupsInner() {
   async function createGroup() {
     if (!gate("groups")) return;
     if (!gName.trim()) return;
-    const { data } = await supabase.from("groups").insert({ name: gName.trim(), description: gDesc.trim(), is_private: gPrivate, created_by: userId }).select().single();
-    if (data) {
-      await supabase.from("group_members").insert({ group_id: data.id, user_id: userId, role: "owner" });
+
+    // Demo mode — add locally so users see it work
+    if (isDemo) {
+      const newGroup: Group = {
+        id: Date.now(),
+        name: gName.trim(),
+        description: gDesc.trim(),
+        is_private: gPrivate,
+        created_by: userId || "demo-self",
+        member_count: 1,
+      };
+      setGroups(prev => [newGroup, ...prev]);
+      setGName(""); setGDesc(""); setGPrivate(false); setShowCreate(false);
+      // Auto-open the new group
+      setActiveGroup(newGroup);
+      setMembers([{ id: 1, user_id: userId || "demo-self", role: "owner", profiles: { name: userName } }]);
+      setMessages([]);
+      setIsMember(true);
+      return;
     }
+
+    if (!userId) return;
+    const { data, error } = await supabase
+      .from("groups")
+      .insert({ name: gName.trim(), description: gDesc.trim(), is_private: gPrivate, created_by: userId })
+      .select()
+      .single();
+    if (error || !data) {
+      alert("Couldn't create group: " + (error?.message || "unknown error"));
+      return;
+    }
+    // Add the creator as owner
+    await supabase.from("group_members").insert({ group_id: data.id, user_id: userId, role: "owner" });
+
     setGName(""); setGDesc(""); setGPrivate(false); setShowCreate(false);
-    fetchGroups();
+    // Refresh list AND open the new group straight away
+    await fetchGroups();
+    const newGroup: Group = { ...data, member_count: 1 };
+    setActiveGroup(newGroup);
+    setMembers([{ id: 1, user_id: userId, role: "owner", profiles: { name: userName } }]);
+    setMessages([]);
+    setIsMember(true);
   }
 
   if (loading) return null;

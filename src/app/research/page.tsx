@@ -132,11 +132,50 @@ function ResearchInner() {
     if (!gate("research")) return;
     if (!resModule.trim() || !resBrief.trim()) { setBriefError("Enter module and brief first."); return; }
     setBriefError("");
-    setProjects([{ id: Date.now(), module: resModule, brief: resBrief, sources: [...sources], created_at: new Date().toISOString() }, ...projects]);
+    const newProject: Project = {
+      id: Date.now(),
+      module: resModule,
+      brief: resBrief,
+      sources: [...sources],
+      created_at: new Date().toISOString(),
+    };
+    setProjects([newProject, ...projects]);
+
+    // Persist to Supabase for live users
+    if (!isDemo) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase.from("research_projects").insert({
+          user_id: session.user.id,
+          module: newProject.module,
+          brief: newProject.brief,
+          sources: newProject.sources,
+        });
+      }
+    }
+
     setSources([]);
     setResModule(""); setResBrief("");
     setSavedMsg("Project saved!");
     setTimeout(() => setSavedMsg(""), 3000);
+  }
+
+  function openProject(p: Project) {
+    setResModule(p.module);
+    setResBrief(p.brief);
+    setSources(p.sources);
+    // Scroll to top so user can see their project loaded
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setSavedMsg(`Loaded "${p.module}" project`);
+    setTimeout(() => setSavedMsg(""), 3000);
+  }
+
+  async function deleteProject(id: number) {
+    if (!confirm("Delete this research project?")) return;
+    setProjects(prev => prev.filter(p => p.id !== id));
+    if (!isDemo) {
+      await supabase.from("research_projects").delete().eq("id", id);
+    }
   }
 
   if (loading) return null;
@@ -146,11 +185,10 @@ function ResearchInner() {
 
   return (
     <AppShell>
-      {/* Integrity modal */}
+      {/* Integrity modal — required, no close button */}
       {showModal && (
         <div className="modal-bg open" style={{ display: "flex" }}>
           <div className="modal">
-            <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Close">×</button>
             <h2>Academic integrity agreement</h2>
             <p className="modal-sub">Please read carefully before using the Research Assistant.</p>
             <h3 style={{ fontSize: 13, fontWeight: 600, marginTop: 14, fontFamily: "-apple-system,system-ui,sans-serif" }}>Permitted uses</h3>
@@ -201,7 +239,21 @@ function ResearchInner() {
         <div className="card mb">
           <h3>Step 1 — Essay brief</h3>
           <div className="field"><label>Module / subject</label><input value={resModule} onChange={e => setResModule(e.target.value)} placeholder="e.g. International Relations" /></div>
-          <div className="field" style={{ marginBottom: 0 }}><label>Essay question / brief</label><textarea value={resBrief} onChange={e => setResBrief(e.target.value)} placeholder="Paste your essay question here..." maxLength={5000} /></div>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label>Essay question / brief</label>
+            <textarea
+              value={resBrief}
+              onChange={e => {
+                setResBrief(e.target.value);
+                // Auto-grow: reset to auto to shrink, then set to scrollHeight
+                e.target.style.height = "auto";
+                e.target.style.height = Math.min(e.target.scrollHeight, 600) + "px";
+              }}
+              placeholder="Paste your essay question here..."
+              maxLength={5000}
+              style={{ minHeight: 120, resize: "vertical", overflow: "hidden" }}
+            />
+          </div>
         </div>
         <div className="card mb">
           <h3>Step 2 — Add sources</h3>
@@ -245,10 +297,18 @@ function ResearchInner() {
         {savedMsg && <span style={{ marginLeft: 12, fontSize: 13, color: "var(--emerald)", fontWeight: 500 }}>{savedMsg}</span>}
         <h3 className="section-title">Saved projects</h3>
         {projects.length ? projects.map(p => (
-          <div key={p.id} className="card mb">
-            <b>{p.module}</b><br />
-            <small>{p.brief.slice(0, 120)}{p.brief.length > 120 ? "..." : ""}</small><br />
-            <small>{p.sources.length} sources · {new Date(p.created_at).toLocaleDateString()}</small>
+          <div key={p.id} className="card mb" style={{ cursor: "pointer" }} onClick={() => openProject(p)}>
+            <div className="row between" style={{ alignItems: "flex-start" }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <b>{p.module}</b><br />
+                <small>{p.brief.slice(0, 160)}{p.brief.length > 160 ? "..." : ""}</small><br />
+                <small>{(p.sources || []).length} source{(p.sources || []).length !== 1 ? "s" : ""} · {new Date(p.created_at).toLocaleDateString()}</small>
+              </div>
+              <div className="row" style={{ gap: 6, flexShrink: 0 }}>
+                <button className="btn btn-sm btn-grad" onClick={(e) => { e.stopPropagation(); openProject(p); }}>Open</button>
+                <button className="btn btn-danger btn-sm" onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}>Delete</button>
+              </div>
+            </div>
           </div>
         )) : <div className="empty">No saved projects yet.</div>}
       </div>
