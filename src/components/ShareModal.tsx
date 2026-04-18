@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 const SHARE_URL = "https://study-hq.co.uk";
 const SHARE_TEXT = "Check out Study-HQ — the all-in-one study platform for uni students. Flashcards, timers, essay tools, grade calculators and more!";
@@ -26,7 +27,10 @@ export default function ShareModal({ open, onClose }: ShareModalProps) {
     return () => { document.removeEventListener("keydown", handleKey); document.removeEventListener("mousedown", handleClick); };
   }, [open, onClose]);
 
-  if (!open) return null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!open || !mounted) return null;
 
   async function copyLink() {
     try {
@@ -59,7 +63,7 @@ export default function ShareModal({ open, onClose }: ShareModalProps) {
   const emailUrl = `mailto:?subject=${encodeURIComponent("Check out Study-HQ!")}&body=${encodeURIComponent(`${SHARE_TEXT}\n\n${SHARE_URL}`)}`;
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
 
-  return (
+  return createPortal(
     <div className="share-overlay">
       <div className="share-modal" ref={modalRef}>
         {/* Close button */}
@@ -149,6 +153,7 @@ export default function ShareModal({ open, onClose }: ShareModalProps) {
           study-hq.co.uk
         </p>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
