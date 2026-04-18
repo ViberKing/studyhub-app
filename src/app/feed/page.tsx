@@ -68,8 +68,13 @@ function FeedInner() {
     // Get user name
     const { data: profile } = await supabase.from("profiles").select("name").eq("id", session.user.id).single();
     if (profile) setUserName(profile.name);
-    // Fetch posts with author names
-    const { data: postsData } = await supabase.from("feed_posts").select("id, content, created_at, user_id, profiles(name)").order("created_at", { ascending: false }).limit(50);
+    // Fetch posts for this user's university (shows "Uni feed" — not global)
+    const { data: postsData } = await supabase
+      .from("feed_posts")
+      .select("id, content, created_at, user_id, profiles(name)")
+      .eq("university", userUni)
+      .order("created_at", { ascending: false })
+      .limit(50);
     if (postsData) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const postsWithReplies = await Promise.all((postsData as any[]).map(async (p) => {
@@ -80,7 +85,7 @@ function FeedInner() {
       setPosts(postsWithReplies);
     }
     setLoading(false);
-  }, [isDemo]);
+  }, [isDemo, userUni]);
 
   useEffect(() => { fetchPosts(); }, [fetchPosts]);
 
@@ -97,8 +102,27 @@ function FeedInner() {
   async function submitPost() {
     if (!gate("community")) return;
     if (!newPost.trim()) return;
+
+    // Demo mode — add locally so users see the flow work
+    if (isDemo) {
+      const fresh: Post & { replies: Reply[] } = {
+        id: Date.now(),
+        content: newPost.trim(),
+        created_at: new Date().toISOString(),
+        user_id: "demo-self",
+        profiles: { name: userName },
+        replies: [],
+      };
+      setPosts(prev => [fresh, ...prev]);
+      setNewPost("");
+      return;
+    }
+
     if (!userId) return;
-    await supabase.from("feed_posts").insert({ user_id: userId, content: newPost.trim(), university: userUni });
+    const { error } = await supabase
+      .from("feed_posts")
+      .insert({ user_id: userId, content: newPost.trim(), university: userUni });
+    if (error) { alert("Couldn't post: " + error.message); return; }
     setNewPost("");
     fetchPosts();
   }
@@ -106,7 +130,24 @@ function FeedInner() {
   async function submitReply(postId: number) {
     if (!gate("community")) return;
     if (!replyText.trim()) return;
-    await supabase.from("feed_replies").insert({ post_id: postId, user_id: userId, content: replyText.trim() });
+
+    // Demo mode — add locally
+    if (isDemo) {
+      const fresh: Reply = {
+        id: Date.now(),
+        content: replyText.trim(),
+        created_at: new Date().toISOString(),
+        user_id: "demo-self",
+        profiles: { name: userName },
+      };
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, replies: [...p.replies, fresh] } : p));
+      setReplyText(""); setReplyTo(null);
+      return;
+    }
+
+    if (!userId) return;
+    const { error } = await supabase.from("feed_replies").insert({ post_id: postId, user_id: userId, content: replyText.trim() });
+    if (error) { alert("Couldn't reply: " + error.message); return; }
     setReplyText(""); setReplyTo(null);
     fetchPosts();
   }
@@ -114,6 +155,7 @@ function FeedInner() {
   async function deletePost(postId: number) {
     if (!gate("community")) return;
     if (!confirm("Delete this post?")) return;
+    if (isDemo) { setPosts(prev => prev.filter(p => p.id !== postId)); return; }
     await supabase.from("feed_posts").delete().eq("id", postId);
     fetchPosts();
   }

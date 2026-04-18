@@ -40,12 +40,29 @@ let cachedUserId: string | null = null;
 /* Pages that are always accessible regardless of plan */
 const FREE_PAGES = ["/settings", "/pricing", "/referrals", "/get-started"];
 
+/* Plan hierarchy (matches GateModal) */
+const PLAN_LEVEL: Record<string, number> = {
+  trial: 0, essential: 1, plus: 2, pro: 3, gifted: 3,
+};
+
+/* Pages that require a specific plan level to access */
+const PAGE_MIN_TIER: Record<string, number> = {
+  "/research": 2,      // Plus+
+  "/essay": 2,         // Plus+
+  "/ai-tutor": 2,      // Plus+
+  "/analytics": 2,     // Plus+
+  "/groups": 3,        // Pro
+};
+
+const TIER_NAMES: Record<number, string> = { 1: "Essential", 2: "Plus", 3: "Pro" };
+
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(cachedProfile);
   const [userId, setUserId] = useState<string | null>(cachedUserId);
   const [loading, setLoading] = useState(!cachedProfile);
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallReason, setPaywallReason] = useState<"trial" | "expired" | "cancelled">("trial");
+  const [planGateTier, setPlanGateTier] = useState<string | null>(null); // If set, current page requires this tier
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -107,15 +124,25 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
 
   // Paywall check — block access if trial expired or cancelled
   useEffect(() => {
-    if (!profile || isDemo) { setShowPaywall(false); return; }
+    if (!profile || isDemo) { setShowPaywall(false); setPlanGateTier(null); return; }
     const isFreePage = FREE_PAGES.includes(pathname);
-    if (isFreePage) { setShowPaywall(false); return; }
+    if (isFreePage) { setShowPaywall(false); setPlanGateTier(null); return; }
 
     const { plan, trial_ends_at } = profile;
 
-    // Active paid plans and gifted — always allowed
+    // Active paid plans and gifted — check if they have the required tier for THIS page
     if (["essential", "plus", "pro", "gifted"].includes(plan)) {
       setShowPaywall(false);
+      // Check per-page tier requirement
+      const requiredTier = PAGE_MIN_TIER[pathname];
+      if (requiredTier) {
+        const userLevel = PLAN_LEVEL[plan] ?? 0;
+        if (userLevel < requiredTier) {
+          setPlanGateTier(TIER_NAMES[requiredTier] || "Plus");
+          return;
+        }
+      }
+      setPlanGateTier(null);
       return;
     }
 
@@ -178,6 +205,43 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
           </main>
         </div>
       </div>
+    );
+  }
+
+  // Plan-level gate — user has a paid plan but it's not high enough for this page
+  if (planGateTier) {
+    return (
+      <AppContext.Provider value={{ profile, userId, isDemo }}>
+        <GateProvider>
+          <div className={`app active${isDemo ? " demo-mode" : ""}`}>
+            <Sidebar />
+            <div className="main-col">
+              <Header userName={profile?.name || "User"} isDemo={isDemo} avatarUrl={profile?.avatar_url || null} />
+              <main className="main">
+                <div className="page active">
+                  <div className="paywall-overlay">
+                    <div className="paywall-card">
+                      <div className="paywall-icon">
+                        <svg width="48" height="48" fill="none" stroke="var(--red)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                        </svg>
+                      </div>
+                      <h2>Upgrade to {planGateTier} to unlock this</h2>
+                      <p>This feature is available on the {planGateTier} plan. Upgrade to unlock it alongside everything else on that tier.</p>
+                      <button className="btn btn-grad btn-lg" onClick={() => router.push("/pricing")} style={{ width: "100%", marginBottom: 12 }}>
+                        View {planGateTier} plan
+                      </button>
+                      <button className="btn btn-ghost" onClick={() => router.push("/dashboard")} style={{ width: "100%" }}>
+                        Back to dashboard
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </main>
+            </div>
+          </div>
+        </GateProvider>
+      </AppContext.Provider>
     );
   }
 

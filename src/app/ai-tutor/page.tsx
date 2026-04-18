@@ -105,8 +105,8 @@ function AITutorInner() {
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || sending) return;
 
-    // Gate AI usage (Plus+ feature, same as research)
-    if (!gate("research")) return;
+    // Gate AI usage (Plus+)
+    if (!gate("tutor")) return;
 
     setError(null);
     setSending(true);

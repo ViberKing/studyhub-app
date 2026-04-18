@@ -14,6 +14,7 @@ export type Feature =
   | "core"        // assignments, flashcards, timer, grades, citations, calendar, notes
   | "research"    // AI research assistant
   | "essay"       // Essay builder
+  | "tutor"       // AI Tutor
   | "analytics"   // Advanced analytics
   | "modules+"    // Unlimited modules (essential = 5 max)
   | "groups"      // Study group collaboration
@@ -25,6 +26,7 @@ const FEATURE_TIER: Record<Feature, number> = {
   "community": 1,   // Essential+
   "research": 2,    // Plus+
   "essay": 2,       // Plus+
+  "tutor": 2,       // Plus+
   "analytics": 2,   // Plus+
   "modules+": 2,    // Plus+
   "groups": 3,      // Pro only
@@ -35,6 +37,7 @@ const FEATURE_LABELS: Record<Feature, string> = {
   "core": "this feature",
   "research": "the AI Research Assistant",
   "essay": "the Essay Builder",
+  "tutor": "the AI Tutor",
   "analytics": "Advanced Analytics",
   "modules+": "unlimited modules",
   "groups": "Study Groups",

@@ -53,9 +53,39 @@ function AssignmentsInner() {
     setError("");
     if (!gate("core")) return;
     if (!aTitle.trim() || !aDue) { setError("Title and due date required."); return; }
+
+    // Demo mode — update local state only
+    if (isDemo) {
+      const fresh: Assignment = {
+        id: Date.now(),
+        title: aTitle.trim(),
+        module: aModule.trim(),
+        due: aDue,
+        type: aType,
+        priority: aPriority,
+        weight: parseFloat(aWeight) || 0,
+        status: "Not Started",
+        done: false,
+      };
+      setAssignments(prev => [...prev, fresh]);
+      setATitle(""); setAModule(""); setADue(""); setAWeight("");
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    await supabase.from("assignments").insert({ user_id: session.user.id, title: aTitle.trim(), module: aModule.trim(), due: aDue, type: aType, priority: aPriority, weight: parseFloat(aWeight) || 0 });
+    const { error: err } = await supabase.from("assignments").insert({
+      user_id: session.user.id,
+      title: aTitle.trim(),
+      module: aModule.trim(),
+      due: aDue,
+      type: aType,
+      priority: aPriority,
+      weight: parseFloat(aWeight) || 0,
+      status: "Not Started",
+      done: false,
+    });
+    if (err) { setError(err.message); return; }
     setATitle(""); setAModule(""); setADue(""); setAWeight("");
     fetchAssignments();
   }
@@ -63,14 +93,28 @@ function AssignmentsInner() {
   async function updateStatus(id: number, status: string) {
     if (!gate("core")) return;
     const done = status === "Completed";
-    await supabase.from("assignments").update({ status, done }).eq("id", id);
+
+    if (isDemo) {
+      setAssignments(prev => prev.map(a => a.id === id ? { ...a, status, done } : a));
+      return;
+    }
+
+    const { error: err } = await supabase.from("assignments").update({ status, done }).eq("id", id);
+    if (err) { alert("Couldn't update: " + err.message); return; }
     fetchAssignments();
   }
 
   async function delAssignment(id: number) {
     if (!gate("core")) return;
     if (!confirm("Delete this assignment?")) return;
-    await supabase.from("assignments").delete().eq("id", id);
+
+    if (isDemo) {
+      setAssignments(prev => prev.filter(a => a.id !== id));
+      return;
+    }
+
+    const { error: err } = await supabase.from("assignments").delete().eq("id", id);
+    if (err) { alert("Couldn't delete: " + err.message); return; }
     fetchAssignments();
   }
 

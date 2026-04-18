@@ -58,7 +58,8 @@ function TimerInner() {
           clearInterval(intervalRef.current!);
           intervalRef.current = null;
           setRunning(false);
-          logSession();
+          // Log full session
+          logSession(total / 60);
           setSessionComplete(true);
           setTimeout(() => setSessionComplete(false), 5000);
           return total;
@@ -73,18 +74,52 @@ function TimerInner() {
     setRunning(false);
   }
 
+  async function stop() {
+    // Stop the timer AND log whatever time has elapsed (even if partial)
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+    setRunning(false);
+    const elapsedSec = total - remaining;
+    const elapsedMin = Math.round(elapsedSec / 60);
+    if (elapsedMin >= 1) {
+      await logSession(elapsedMin);
+      setSessionComplete(true);
+      setTimeout(() => setSessionComplete(false), 5000);
+    }
+    setRemaining(total);
+  }
+
   function reset() {
     pause();
     setRemaining(total);
   }
 
-  async function logSession() {
-    if (!gate("core")) return;
-    if (total <= 0) return;
-    const min = total / 60;
+  async function logSession(minutes: number) {
+    if (minutes <= 0) return;
+    const moduleVal = tModule.trim() || "General";
+    const notesVal = tNotes.trim();
+
+    // Demo mode — add locally
+    if (isDemo) {
+      const fresh: Session = {
+        id: Date.now(),
+        minutes,
+        module: moduleVal,
+        notes: notesVal,
+        recorded_at: new Date().toISOString(),
+      };
+      setSessions(prev => [fresh, ...prev]);
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    await supabase.from("study_sessions").insert({ user_id: session.user.id, minutes: min, module: tModule.trim() || "General", notes: tNotes.trim() });
+    const { error } = await supabase.from("study_sessions").insert({
+      user_id: session.user.id,
+      minutes,
+      module: moduleVal,
+      notes: notesVal,
+    });
+    if (error) { alert("Couldn't log session: " + error.message); return; }
     fetchSessions();
   }
 
@@ -121,8 +156,9 @@ function TimerInner() {
             <button className="btn-ghost btn btn-sm" onClick={() => setPreset(90)}>90 min</button>
           </div>
           <div className="timer-row">
-            <button className="btn" onClick={start}>Start</button>
-            <button className="btn-ghost btn" onClick={pause}>Pause</button>
+            <button className="btn" onClick={start} disabled={running}>Start</button>
+            <button className="btn-ghost btn" onClick={pause} disabled={!running}>Pause</button>
+            <button className="btn btn-grad" onClick={stop} disabled={total === remaining}>Stop &amp; log</button>
             <button className="btn-ghost btn" onClick={reset}>Reset</button>
           </div>
         </div>

@@ -7,7 +7,7 @@ import PageGuide from "@/components/PageGuide";
 const discounts = [
   { brand: "Amazon Prime", offer: "6 months free then 50% off", desc: "Prime Student gives you free delivery, Prime Video, and more.", category: "tech", url: "https://www.amazon.co.uk/gp/student/signup", color: "#f59e0b" },
   { brand: "Spotify", offer: "Free for 1 month, then \u00A35.99/mo", desc: "Spotify Premium Student includes Hulu and SHOWTIME.", category: "streaming", url: "https://www.spotify.com/uk/student/", color: "#1DB954" },
-  { brand: "Apple Music", offer: "Free for 1 month, then \u00A35.99/mo", desc: "Apple Music student plan with Apple TV+ included.", category: "streaming", url: "https://www.apple.com/uk/apple-music/", color: "#fc3c44" },
+  { brand: "Apple Music", offer: "Free for 1 month, then \u00A35.99/mo", desc: "Apple Music student plan with Apple TV+ included.", category: "streaming", url: "https://www.apple.com/uk/apple-music/student/", color: "#fc3c44" },
   { brand: "ASOS", offer: "10% off everything", desc: "Verify via UniDays or Student Beans to unlock.", category: "fashion", url: "https://www.asos.com/student-discount/", color: "#2d2d2d" },
   { brand: "Nike", offer: "10% student discount", desc: "Verify through UniDays for 10% off online orders.", category: "fashion", url: "https://www.nike.com/gb/student-discount", color: "#111" },
   { brand: "16-25 Railcard", offer: "\u2153 off rail fares", desc: "Save a third on train tickets across Great Britain. \u00A335/year or \u00A380 for 3 years.", category: "transport", url: "https://www.16-25railcard.co.uk/", color: "#822380" },

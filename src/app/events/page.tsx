@@ -11,7 +11,6 @@ interface EventItem {
   name: string;
   venue: string;
   date: string;
-  price: string;
   category: string;
   url: string;
   color: string;
@@ -19,43 +18,32 @@ interface EventItem {
 
 const uniEvents: Record<string, EventItem[]> = {
   "st-andrews": [
-    { name: "Friday Night at 601", venue: "Club 601, Students' Association", date: "Every Friday", price: "\u00A35\u2013\u00A38", category: "nightlife", url: "https://fixr.co/venue/club-601-st-andrews-students-association-6365", color: "#6c5ce7" },
-    { name: "Raisin Weekend", venue: "Students' Association", date: "November", price: "Varies", category: "society", url: "https://www.yourunion.net/events/", color: "#f59e0b" },
-    { name: "Music Society Concert", venue: "Younger Hall", date: "Monthly", price: "\u00A33\u2013\u00A310", category: "arts", url: "https://www.yourunion.net/events/", color: "#10b981" },
-    { name: "Sports Ball", venue: "Kinkell Byre", date: "March", price: "\u00A330\u2013\u00A345", category: "sports", url: "https://www.yourunion.net/events/", color: "#ef4444" },
-    { name: "Ceilidh Night", venue: "Lower College Hall", date: "Bi-monthly", price: "\u00A35", category: "society", url: "https://www.yourunion.net/events/", color: "#6366f1" },
-    { name: "Comedy Night", venue: "The Byre Theatre", date: "Monthly", price: "\u00A37\u2013\u00A312", category: "arts", url: "https://byretheatre.com/upcoming", color: "#ec4899" },
-    { name: "Pub Quiz", venue: "The Rule", date: "Every Wednesday", price: "Free", category: "nightlife", url: "https://fixr.co/venue/the-rule-st-andrews-844855", color: "#14b8a6" },
-    { name: "Charity Run 5K", venue: "West Sands Beach", date: "April", price: "\u00A310", category: "sports", url: "https://www.eventbrite.com/d/united-kingdom--st-andrews/charity-run/", color: "#f97316" },
-  ],
-  "edinburgh": [
-    { name: "Big Cheese", venue: "Potterrow, Edinburgh Uni", date: "Every Friday", price: "\u00A35", category: "nightlife", url: "https://fixr.co/venue/potterrow-edinburgh-698855", color: "#6c5ce7" },
-    { name: "Festival Fringe", venue: "Various venues", date: "August", price: "Varies", category: "arts", url: "https://www.edfringe.com/", color: "#f59e0b" },
-    { name: "Meadows 5K", venue: "The Meadows", date: "Weekly", price: "Free", category: "sports", url: "https://www.parkrun.org.uk/edinburgh/", color: "#10b981" },
-    { name: "Jazz Night", venue: "Teviot Row House", date: "Monthly", price: "\u00A33\u2013\u00A37", category: "arts", url: "https://fixr.co/organiser/edinburgh-university-students-association/events", color: "#ec4899" },
-  ],
-  "glasgow": [
-    { name: "QMU Night Out", venue: "QMU, University of Glasgow", date: "Every Friday", price: "\u00A34\u2013\u00A38", category: "nightlife", url: "https://fixr.co/venue/queen-margaret-union-glasgow-698877", color: "#6c5ce7" },
-    { name: "Kelvingrove Nights", venue: "Kelvingrove Museum", date: "Monthly", price: "Free", category: "arts", url: "https://www.glasgowlife.org.uk/museums/venues/kelvingrove-art-gallery-and-museum", color: "#f59e0b" },
-    { name: "GUU Debates", venue: "Glasgow University Union", date: "Weekly", price: "Free", category: "society", url: "https://www.guu.co.uk/", color: "#10b981" },
+    { name: "Friday Night at 601", venue: "Club 601, Students' Association", date: "Every Friday", category: "nightlife", url: "https://fixr.co/venue/club-601-st-andrews-students-association-6365", color: "#6c5ce7" },
+    { name: "Raisin Weekend", venue: "Students' Association", date: "November", category: "society", url: "https://www.yourunion.net/events/raisin-weekend", color: "#f59e0b" },
+    { name: "Music Society Concert", venue: "Younger Hall", date: "Monthly", category: "arts", url: "https://standrewsmusiccentre.com/whats-on/", color: "#10b981" },
+    { name: "Sports Ball", venue: "Kinkell Byre", date: "March", category: "sports", url: "https://saintsport.com/events/", color: "#ef4444" },
+    { name: "Ceilidh Night", venue: "Lower College Hall", date: "Bi-monthly", category: "society", url: "https://www.yourunion.net/events/ceilidh/", color: "#6366f1" },
+    { name: "Comedy Night", venue: "The Byre Theatre", date: "Monthly", category: "arts", url: "https://byretheatre.com/whats-on/", color: "#ec4899" },
+    { name: "Pub Quiz", venue: "The Rule", date: "Every Wednesday", category: "nightlife", url: "https://fixr.co/venue/the-rule-st-andrews-844855", color: "#14b8a6" },
+    { name: "Charity Run 5K", venue: "West Sands Beach", date: "April", category: "sports", url: "https://www.eventbrite.co.uk/d/united-kingdom--st-andrews/charity-run/", color: "#f97316" },
   ],
   "exeter": [
-    { name: "TP Wednesday", venue: "Timepiece Nightclub", date: "Every Wednesday", price: "\u00A33\u2013\u00A310", category: "nightlife", url: "https://fixr.co/organiser/timepiece", color: "#6c5ce7" },
-    { name: "Cheesy Tuesdays", venue: "Unit 1", date: "Every Tuesday", price: "\u00A33\u2013\u00A36", category: "nightlife", url: "https://fixr.co/venue/unit-1-exeter-exeter-17652", color: "#a855f7" },
-    { name: "Guild Events", venue: "Exeter Students' Guild", date: "Weekly", price: "Free\u2013\u00A35", category: "society", url: "https://www.exeterguild.com/events/", color: "#f59e0b" },
-    { name: "Comedy Night", venue: "Exeter Phoenix, Gandy Street", date: "Monthly", price: "\u00A35\u2013\u00A312", category: "arts", url: "https://exeterphoenix.org.uk/events/", color: "#ec4899" },
-    { name: "BUCS Sport", venue: "Sports Park", date: "Weekly (term-time)", price: "Free", category: "sports", url: "https://sport.exeter.ac.uk/studentsport/bucssport/", color: "#ef4444" },
-    { name: "Exeter Nightlife", venue: "Various venues, Exeter", date: "Weekly", price: "\u00A35\u2013\u00A310", category: "nightlife", url: "https://www.skiddle.com/whats-on/Exeter/", color: "#14b8a6" },
-    { name: "Society Fair", venue: "Exeter Students' Guild", date: "Termly", price: "Free", category: "society", url: "https://www.exeterguild.com/societies/", color: "#10b981" },
+    { name: "TP Wednesday", venue: "Timepiece Nightclub", date: "Every Wednesday", category: "nightlife", url: "https://fixr.co/organiser/timepiece", color: "#6c5ce7" },
+    { name: "Cheesy Tuesdays", venue: "Unit 1", date: "Every Tuesday", category: "nightlife", url: "https://fixr.co/venue/unit-1-exeter-exeter-17652", color: "#a855f7" },
+    { name: "Guild Events", venue: "Exeter Students' Guild", date: "Weekly", category: "society", url: "https://www.exeterguild.com/events/", color: "#f59e0b" },
+    { name: "Comedy Night", venue: "Exeter Phoenix, Gandy Street", date: "Monthly", category: "arts", url: "https://exeterphoenix.org.uk/events/", color: "#ec4899" },
+    { name: "BUCS Sport", venue: "Sports Park", date: "Weekly (term-time)", category: "sports", url: "https://sport.exeter.ac.uk/studentsport/bucssport/", color: "#ef4444" },
+    { name: "Exeter Nightlife", venue: "Various venues, Exeter", date: "Weekly", category: "nightlife", url: "https://www.skiddle.com/whats-on/Exeter/", color: "#14b8a6" },
+    { name: "Society Fair", venue: "Exeter Students' Guild", date: "Termly", category: "society", url: "https://www.exeterguild.com/societies/", color: "#10b981" },
   ],
   "warwick": [
-    { name: "Pop!", venue: "Copper Rooms, Warwick SU", date: "Every Wednesday", price: "\u00A33\u2013\u00A38", category: "nightlife", url: "https://www.warwicksu.com/venues-events/events/", color: "#6c5ce7" },
-    { name: "Warwick Arts Centre", venue: "Warwick Arts Centre", date: "Weekly", price: "\u00A35\u2013\u00A320", category: "arts", url: "https://www.warwickartscentre.co.uk/whats-on", color: "#ec4899" },
-    { name: "Society Events", venue: "Warwick SU", date: "Termly", price: "Free\u2013\u00A35", category: "society", url: "https://www.warwicksu.com/societies/", color: "#f59e0b" },
-    { name: "Kasbah Club Night", venue: "Kasbah, Coventry", date: "Every Friday & Saturday", price: "\u00A34\u2013\u00A310", category: "nightlife", url: "https://www.kasbahnightclub.com/", color: "#14b8a6" },
-    { name: "Warwick Sport", venue: "Sports & Wellness Hub", date: "Daily", price: "Free\u2013\u00A310", category: "sports", url: "https://warwick.ac.uk/services/sport/", color: "#ef4444" },
-    { name: "Coventry Events", venue: "Various venues, Coventry", date: "Weekly", price: "Varies", category: "nightlife", url: "https://www.skiddle.com/whats-on/Coventry/", color: "#10b981" },
-    { name: "Comedy & Theatre", venue: "Warwick Arts Centre", date: "Monthly", price: "\u00A38\u2013\u00A315", category: "arts", url: "https://www.warwickartscentre.co.uk/whats-on", color: "#f97316" },
+    { name: "Pop!", venue: "Copper Rooms, Warwick SU", date: "Every Wednesday", category: "nightlife", url: "https://www.warwicksu.com/venues-events/events/", color: "#6c5ce7" },
+    { name: "Warwick Arts Centre", venue: "Warwick Arts Centre", date: "Weekly", category: "arts", url: "https://www.warwickartscentre.co.uk/whats-on", color: "#ec4899" },
+    { name: "Society Events", venue: "Warwick SU", date: "Termly", category: "society", url: "https://www.warwicksu.com/societies/", color: "#f59e0b" },
+    { name: "Kasbah Club Night", venue: "Kasbah, Coventry", date: "Every Friday & Saturday", category: "nightlife", url: "https://www.kasbahnightclub.com/", color: "#14b8a6" },
+    { name: "Warwick Sport", venue: "Sports & Wellness Hub", date: "Daily", category: "sports", url: "https://warwick.ac.uk/services/sport/", color: "#ef4444" },
+    { name: "Coventry Events", venue: "Various venues, Coventry", date: "Weekly", category: "nightlife", url: "https://www.skiddle.com/whats-on/Coventry/", color: "#10b981" },
+    { name: "Comedy & Theatre", venue: "Warwick Arts Centre", date: "Monthly", category: "arts", url: "https://www.warwickartscentre.co.uk/whats-on", color: "#f97316" },
   ],
   // Default events shown for universities without specific curated events
   _default: [],
@@ -180,16 +168,8 @@ function EventsInner() {
                     <div style={{ padding: "16px 20px 20px" }}>
                       <h4 style={{ fontSize: 16, marginBottom: 4, letterSpacing: "-0.01em" }}>{event.name}</h4>
                       <div style={{ color: "var(--text-muted)", fontSize: 13, marginBottom: 8 }}>{event.venue}</div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                      <div style={{ marginBottom: 14 }}>
                         <span style={{ fontSize: 12, color: "var(--text-subtle)" }}>{event.date}</span>
-                        <span style={{
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: event.color,
-                          background: `${event.color}15`,
-                          padding: "3px 10px",
-                          borderRadius: 12,
-                        }}>{event.price}</span>
                       </div>
                       <div
                         className="btn btn-grad"

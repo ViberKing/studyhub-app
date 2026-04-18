@@ -72,17 +72,40 @@ function SettingsInner() {
     setMsg("");
     if (!name.trim()) { setMsg("Name is required."); return; }
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from("profiles").update({
+    if (!session) { setMsg("Not signed in."); return; }
+
+    const { error } = await supabase.from("profiles").update({
       name: name.trim(),
       university,
       course: course.trim(),
       year_of_study: yearOfStudy,
       age: age ? parseInt(age) : null,
     }).eq("id", session.user.id);
-    // Clear cached profile so it reloads with new data
+
+    if (error) {
+      setMsg("Save failed: " + error.message);
+      return;
+    }
+
+    // Clear cached profile so header/sidebar reflect the change
     clearProfileCache();
+
+    // Re-read the profile so the form shows the persisted values (not just local state)
+    const { data: refreshed } = await supabase
+      .from("profiles")
+      .select("name, university, course, year_of_study, age, avatar_url")
+      .eq("id", session.user.id)
+      .single();
+    if (refreshed) {
+      setName(refreshed.name || "");
+      setUniversity(refreshed.university || "st-andrews");
+      setCourse(refreshed.course || "");
+      setYearOfStudy(refreshed.year_of_study || "");
+      setAge(refreshed.age ? String(refreshed.age) : "");
+    }
+
     setMsg("Profile updated.");
+    setTimeout(() => setMsg(""), 3000);
   }
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
