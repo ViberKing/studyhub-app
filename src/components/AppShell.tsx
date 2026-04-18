@@ -125,11 +125,19 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
   // Paywall check — STRICT WHITELIST
   // Only users with an active paid plan (essential, plus, pro, gifted) can access non-free pages.
   // Everyone else — trial, cancelled, null, unknown — is paywalled straight to /pricing.
+  // ADMINS always bypass the paywall (and all tier gates).
   useEffect(() => {
     if (isDemo) { setShowPaywall(false); setPlanGateTier(null); return; }
 
     const isFreePage = FREE_PAGES.includes(pathname);
     if (isFreePage) { setShowPaywall(false); setPlanGateTier(null); return; }
+
+    // Admins bypass all gating — full access regardless of plan
+    if (profile?.is_admin) {
+      setShowPaywall(false);
+      setPlanGateTier(null);
+      return;
+    }
 
     // No profile loaded yet or profile missing → paywall (safer default)
     if (!profile) {
