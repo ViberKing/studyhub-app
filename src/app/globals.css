@@ -5335,13 +5335,14 @@ textarea:focus-visible {
 .share-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  z-index: 99999;
+  background: rgba(20, 14, 16, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn 0.15s ease;
   padding: 20px;
 }
 .share-modal {
