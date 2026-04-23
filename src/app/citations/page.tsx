@@ -93,15 +93,22 @@ function CitationsInner() {
 
   async function saveCitation(text: string) {
     if (!gate("core")) return;
+    if (isDemo) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setCitations(prev => [{ id: Date.now(), text, created_at: new Date().toISOString() } as any, ...prev]);
+      return;
+    }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    await supabase.from("citations").insert({ user_id: session.user.id, text });
+    const { error } = await supabase.from("citations").insert({ user_id: session.user.id, text });
+    if (error) { alert("Couldn't save: " + error.message); return; }
     fetchCitations();
   }
 
   async function delCitation(id: number) {
     if (!gate("core")) return;
     if (!confirm("Delete this saved citation?")) return;
+    if (isDemo) { setCitations(prev => prev.filter(c => c.id !== id)); return; }
     await supabase.from("citations").delete().eq("id", id);
     fetchCitations();
   }

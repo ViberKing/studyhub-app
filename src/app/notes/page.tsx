@@ -44,9 +44,29 @@ function NotesInner() {
     if (!gate("core")) return;
     setError("");
     if (!nTitle.trim() || !nContent.trim()) { setError("Title and content required."); return; }
+
+    if (isDemo) {
+      const fresh: Note = {
+        id: Date.now(),
+        title: nTitle.trim(),
+        content: nContent.trim(),
+        module: nModule.trim(),
+        created_at: new Date().toISOString(),
+      };
+      setNotes(prev => [fresh, ...prev]);
+      setNTitle(""); setNModule(""); setNContent("");
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    await supabase.from("notes").insert({ user_id: session.user.id, title: nTitle.trim(), content: nContent.trim(), module: nModule.trim() });
+    const { error: err } = await supabase.from("notes").insert({
+      user_id: session.user.id,
+      title: nTitle.trim(),
+      content: nContent.trim(),
+      module: nModule.trim(),
+    });
+    if (err) { setError(err.message); return; }
     setNTitle(""); setNModule(""); setNContent("");
     fetchNotes();
   }
@@ -54,6 +74,7 @@ function NotesInner() {
   async function delNote(id: number) {
     if (!gate("core")) return;
     if (!confirm("Delete this note?")) return;
+    if (isDemo) { setNotes(prev => prev.filter(n => n.id !== id)); return; }
     await supabase.from("notes").delete().eq("id", id);
     fetchNotes();
   }

@@ -424,21 +424,50 @@ function CalendarInner() {
   /* ── Save event ── */
   const handleSave = useCallback(async (data: { title: string; type: EventType; start: Date; end: Date; allDay: boolean; module: string }) => {
     if (!gate("core")) return;
-    if (!userId) return;
+
+    // Demo mode — update local state only
+    if (isDemo) {
+      if (modalEvent) {
+        setEvents(prev => prev.map(e => e.id === modalEvent.id ? {
+          ...e,
+          title: data.title,
+          type: data.type,
+          start: data.start,
+          end: data.end,
+          allDay: data.allDay,
+          resource: data.module,
+        } : e));
+      } else {
+        setEvents(prev => [...prev, {
+          id: `demo-${Date.now()}`,
+          title: data.title,
+          type: data.type,
+          start: data.start,
+          end: data.end,
+          allDay: data.allDay,
+          editable: true,
+          resource: data.module,
+        }]);
+      }
+      setModalSlot(null);
+      setModalEvent(null);
+      return;
+    }
+
+    if (!userId) { alert("Please sign in to create events."); return; }
 
     if (modalEvent) {
-      // Update existing
       const realId = modalEvent.id.replace("cal-", "");
-      await supabase.from("calendar_events").update({
+      const { error } = await supabase.from("calendar_events").update({
         title: data.title,
         event_type: data.type,
         start_at: data.start.toISOString(),
         end_at: data.end.toISOString(),
         all_day: data.allDay,
       }).eq("id", realId).eq("user_id", userId);
+      if (error) { alert("Couldn't update event: " + error.message); return; }
     } else {
-      // Insert new
-      await supabase.from("calendar_events").insert({
+      const { error } = await supabase.from("calendar_events").insert({
         user_id: userId,
         title: data.title,
         event_type: data.type,
@@ -446,6 +475,7 @@ function CalendarInner() {
         end_at: data.end.toISOString(),
         all_day: data.allDay,
       });
+      if (error) { alert("Couldn't create event: " + error.message); return; }
     }
 
     setModalSlot(null);
@@ -458,9 +488,17 @@ function CalendarInner() {
   const handleDelete = useCallback(async () => {
     if (!gate("core")) return;
     if (!modalEvent) return;
+
+    if (isDemo) {
+      setEvents(prev => prev.filter(e => e.id !== modalEvent.id));
+      setModalEvent(null);
+      return;
+    }
+
     if (!userId) return;
     const realId = modalEvent.id.replace("cal-", "");
-    await supabase.from("calendar_events").delete().eq("id", realId).eq("user_id", userId);
+    const { error } = await supabase.from("calendar_events").delete().eq("id", realId).eq("user_id", userId);
+    if (error) { alert("Couldn't delete event: " + error.message); return; }
     setModalEvent(null);
     loadEvents();
   // eslint-disable-next-line react-hooks/exhaustive-deps
