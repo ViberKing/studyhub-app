@@ -64,9 +64,19 @@ function GradesInner() {
       setError(`Score must be between 0 and ${gradingConfig.maxScore}.`);
       return;
     }
+
+    if (isDemo) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fresh: any = { id: Date.now(), name: gName.trim(), weight: parseFloat(gWeight), score: scoreVal, created_at: new Date().toISOString() };
+      setGrades(prev => [...prev, fresh]);
+      setGName(""); setGWeight(""); setGScore("");
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    await supabase.from("grades").insert({ user_id: session.user.id, name: gName.trim(), weight: parseFloat(gWeight), score: scoreVal });
+    const { error: err } = await supabase.from("grades").insert({ user_id: session.user.id, name: gName.trim(), weight: parseFloat(gWeight), score: scoreVal });
+    if (err) { setError(err.message); return; }
     setGName(""); setGWeight(""); setGScore("");
     fetchGrades();
   }
@@ -74,6 +84,7 @@ function GradesInner() {
   async function delGrade(id: number) {
     if (!gate("core")) return;
     if (!confirm("Delete this grade component?")) return;
+    if (isDemo) { setGrades(prev => prev.filter(g => g.id !== id)); return; }
     await supabase.from("grades").delete().eq("id", id);
     fetchGrades();
   }

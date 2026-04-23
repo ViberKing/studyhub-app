@@ -214,7 +214,17 @@ function FlashcardsInner() {
   const createDeck = async () => {
     if (!gate("core")) return;
     if (!newDeckName.trim()) return;
-    const { data } = await supabase.from("decks").insert({ user_id: userId, name: newDeckName, module: newDeckModule }).select().single();
+
+    if (isDemo) {
+      const fresh = { id: Date.now(), user_id: "demo", name: newDeckName, module: newDeckModule, created_at: new Date().toISOString() } as Deck;
+      setDecks((prev) => [...prev, fresh]);
+      setNewDeckName("");
+      setNewDeckModule("");
+      return;
+    }
+
+    const { data, error } = await supabase.from("decks").insert({ user_id: userId, name: newDeckName, module: newDeckModule }).select().single();
+    if (error) { alert("Couldn't create deck: " + error.message); return; }
     if (data) setDecks((prev) => [...prev, data]);
     setNewDeckName("");
     setNewDeckModule("");
@@ -225,6 +235,7 @@ function FlashcardsInner() {
     if (!confirm("Delete this deck and all its cards?")) return;
     setDecks((prev) => prev.filter((d) => d.id !== id));
     setCards((prev) => prev.filter((c) => c.deck_id !== id));
+    if (isDemo) return;
     await supabase.from("cards").delete().eq("deck_id", id);
     await supabase.from("decks").delete().eq("id", id);
   };
@@ -233,7 +244,16 @@ function FlashcardsInner() {
   const addCard = async () => {
     if (!gate("core")) return;
     if (!newTerm.trim() || !newDef.trim() || !openDeckId) return;
-    const { data } = await supabase.from("cards").insert({ deck_id: openDeckId, user_id: userId, term: newTerm, definition: newDef, hint: newHint, starred: false, status: "new" }).select().single();
+
+    if (isDemo) {
+      const fresh = { id: Date.now(), deck_id: openDeckId, user_id: "demo", term: newTerm, definition: newDef, hint: newHint, starred: false, status: "new", created_at: new Date().toISOString() } as Card;
+      setCards((prev) => [...prev, fresh]);
+      setNewTerm(""); setNewDef(""); setNewHint("");
+      return;
+    }
+
+    const { data, error } = await supabase.from("cards").insert({ deck_id: openDeckId, user_id: userId, term: newTerm, definition: newDef, hint: newHint, starred: false, status: "new" }).select().single();
+    if (error) { alert("Couldn't add card: " + error.message); return; }
     if (data) setCards((prev) => [...prev, data]);
     setNewTerm("");
     setNewDef("");
@@ -243,6 +263,7 @@ function FlashcardsInner() {
   const deleteCard = async (id: number) => {
     if (!gate("core")) return;
     setCards((prev) => prev.filter((c) => c.id !== id));
+    if (isDemo) return;
     await supabase.from("cards").delete().eq("id", id);
   };
 
