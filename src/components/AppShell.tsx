@@ -27,18 +27,30 @@ interface Profile {
 interface AppContextType {
   profile: Profile | null;
   userId: string | null;
+  userEmail: string | null;
   isDemo: boolean;
 }
 
-const AppContext = createContext<AppContextType>({ profile: null, userId: null, isDemo: false });
+const AppContext = createContext<AppContextType>({ profile: null, userId: null, userEmail: null, isDemo: false });
 export function useAppContext() { return useContext(AppContext); }
 
 // Simple in-memory cache so profile isn't re-fetched on every nav
 let cachedProfile: Profile | null = null;
 let cachedUserId: string | null = null;
+let cachedEmail: string | null = null;
 
 /* Pages that are always accessible regardless of plan */
 const FREE_PAGES = ["/settings", "/pricing", "/referrals", "/get-started"];
+
+/* VIP emails — always get full Pro-level access regardless of plan or is_admin flag */
+const VIP_EMAILS = [
+  "has27@st-andrews.ac.uk",
+  "kinghay2005@outlook.com",
+  "sebbedding@icloud.com",
+];
+export function isVipEmail(email: string | null | undefined): boolean {
+  return !!email && VIP_EMAILS.includes(email.trim().toLowerCase());
+}
 
 /* Plan hierarchy (matches GateModal) */
 const PLAN_LEVEL: Record<string, number> = {
@@ -59,6 +71,7 @@ const TIER_NAMES: Record<number, string> = { 1: "Essential", 2: "Plus", 3: "Pro"
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(cachedProfile);
   const [userId, setUserId] = useState<string | null>(cachedUserId);
+  const [userEmail, setUserEmail] = useState<string | null>(cachedEmail);
   const [loading, setLoading] = useState(!cachedProfile);
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallReason, setPaywallReason] = useState<"trial" | "expired" | "cancelled">("trial");
@@ -94,7 +107,9 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.replace("/"); return; }
       cachedUserId = session.user.id;
+      cachedEmail = session.user.email || null;
       setUserId(session.user.id);
+      setUserEmail(session.user.email || null);
 
       async function fetchProfile() {
         const { data } = await supabase
@@ -132,8 +147,8 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     const isFreePage = FREE_PAGES.includes(pathname);
     if (isFreePage) { setShowPaywall(false); setPlanGateTier(null); return; }
 
-    // Admins bypass all gating — full access regardless of plan
-    if (profile?.is_admin) {
+    // Admins and VIP emails bypass all gating — full access regardless of plan
+    if (profile?.is_admin || isVipEmail(userEmail)) {
       setShowPaywall(false);
       setPlanGateTier(null);
       return;
@@ -177,7 +192,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     // Everything else (trial, null, anything unexpected) → trial paywall
     setPaywallReason("trial");
     setShowPaywall(true);
-  }, [profile, pathname, isDemo]);
+  }, [profile, pathname, isDemo, userEmail]);
 
   // Is the user on an actively paid plan? (for OnboardingModal visibility)
   const isPaidUser = !!profile && ["essential", "plus", "pro", "gifted"].includes(profile.plan || "");
@@ -232,7 +247,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
   // Plan-level gate — user has a paid plan but it's not high enough for this page
   if (planGateTier) {
     return (
-      <AppContext.Provider value={{ profile, userId, isDemo }}>
+      <AppContext.Provider value={{ profile, userId, userEmail, isDemo }}>
         <GateProvider>
           <div className={`app active${isDemo ? " demo-mode" : ""}`}>
             <Sidebar />
@@ -270,7 +285,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AppContext.Provider value={{ profile, userId, isDemo }}>
+    <AppContext.Provider value={{ profile, userId, userEmail, isDemo }}>
       <GateProvider>
         <div className={`app active${isDemo ? " demo-mode" : ""}`}>
           <Sidebar />
