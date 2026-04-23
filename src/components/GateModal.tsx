@@ -2,7 +2,7 @@
 
 import { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAppContext } from "./AppShell";
+import { useAppContext, isVipEmail } from "./AppShell";
 
 /* ─── Tier hierarchy ─── */
 const TIER_LEVEL: Record<string, number> = {
@@ -71,7 +71,7 @@ export function useGate() { return useContext(GateContext); }
 
 /* ─── Provider ─── */
 export function GateProvider({ children }: { children: React.ReactNode }) {
-  const { isDemo, profile } = useAppContext();
+  const { isDemo, profile, userEmail } = useAppContext();
   const [gateState, setGateState] = useState<GateState>({
     open: false, mode: "demo", featureLabel: "", requiredTier: "",
   });
@@ -88,8 +88,8 @@ export function GateProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
 
-    // Admins bypass all feature gates
-    if (profile?.is_admin) return true;
+    // Admins and VIP emails bypass all feature gates
+    if (profile?.is_admin || isVipEmail(userEmail)) return true;
 
     // Live user — check tier
     const plan = profile?.plan || "trial";
@@ -106,7 +106,7 @@ export function GateProvider({ children }: { children: React.ReactNode }) {
       requiredTier: TIER_NAMES[requiredLevel] || "Plus",
     });
     return false;
-  }, [isDemo, profile]);
+  }, [isDemo, profile, userEmail]);
 
   const closeGate = useCallback(() => {
     setGateState(s => ({ ...s, open: false }));
