@@ -10,17 +10,26 @@ export default function ResetPasswordPage() {
   const [msg, setMsg] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
-  // Supabase sends the user here with a session already set via the URL hash
+  // Two ways to land here:
+  //   1) From the magic-link in the recovery email — Supabase sets a session via URL hash
+  //   2) From the in-app /forgot-password OTP flow — session already established
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        // User arrived via reset link — they can now set a new password
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setHasSession(true);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
+        setHasSession(true);
       }
     });
     return () => subscription.unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleReset() {
@@ -42,11 +51,23 @@ export default function ResetPasswordPage() {
             <h1>Reset password</h1>
             <p>{success ? "Your password has been updated." : "Enter your new password below."}</p>
           </div>
-          {success ? (
+          {!hasSession && !success ? (
+            <>
+              <p className="onboard-msg error">
+                This reset link is invalid or has expired. Use the 6-digit code instead — it&apos;s in the same email.
+              </p>
+              <button type="button" className="onboard-btn-primary" onClick={() => router.replace("/forgot-password")}>
+                Use code instead
+              </button>
+              <button type="button" className="onboard-btn-link" onClick={() => router.push("/")}>
+                Back to sign in
+              </button>
+            </>
+          ) : success ? (
             <>
               <p className="onboard-msg" style={{ color: "var(--emerald)" }}>Password updated! You can now sign in.</p>
-              <button type="button" className="onboard-btn-primary" onClick={() => router.replace("/")}>
-                Back to sign in
+              <button type="button" className="onboard-btn-primary" onClick={() => router.replace("/dashboard")}>
+                Continue to dashboard
               </button>
             </>
           ) : (

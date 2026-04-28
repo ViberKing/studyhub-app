@@ -7,7 +7,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-type BannerMode = "native" | "ios" | "mac-safari" | null;
+type BannerMode = "native" | "ios" | "mac-safari" | "android-other" | "desktop-other" | null;
 
 export default function PWARegister() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -51,7 +51,21 @@ export default function PWARegister() {
     };
 
     window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+
+    // Fallback — if the native prompt hasn't fired after 3s, show generic install instructions
+    // (covers Firefox, older browsers, browsers that haven't met engagement criteria yet)
+    const fallbackTimer = setTimeout(() => {
+      setMode((current) => {
+        if (current) return current; // already set
+        const isAndroid = /Android/.test(ua);
+        return isAndroid ? "android-other" : "desktop-other";
+      });
+    }, 3000);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      clearTimeout(fallbackTimer);
+    };
   }, []);
 
   async function handleInstall() {
@@ -98,6 +112,12 @@ export default function PWARegister() {
         )}
         {mode === "native" && (
           <span>Add to your home screen for the best experience</span>
+        )}
+        {mode === "android-other" && (
+          <span>Tap the menu (⋮) then <strong>&quot;Install app&quot;</strong> or <strong>&quot;Add to home screen&quot;</strong></span>
+        )}
+        {mode === "desktop-other" && (
+          <span>Click the install icon in your browser&apos;s address bar to add Study-HQ</span>
         )}
       </div>
       <div className="pwa-install-actions">
