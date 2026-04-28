@@ -68,14 +68,29 @@ function FeedInner() {
     // Get user name
     const { data: profile } = await supabase.from("profiles").select("name").eq("id", session.user.id).single();
     if (profile) setUserName(profile.name);
-    // Fetch posts for this user's university (shows "Uni feed" — not global)
-    const { data: postsData } = await supabase
+
+    // Try to fetch posts filtered by university first; fall back to all posts if filtering fails
+    // (handles missing/null university column gracefully)
+    let postsData: unknown[] | null = null;
+    const filtered = await supabase
       .from("feed_posts")
-      .select("id, content, created_at, user_id, profiles(name)")
-      .eq("university", userUni)
+      .select("id, content, created_at, user_id, university, profiles(name)")
+      .or(`university.eq.${userUni},university.is.null`)
       .order("created_at", { ascending: false })
       .limit(50);
-    if (postsData) {
+    if (filtered.error) {
+      // Column probably doesn't exist — fetch all posts
+      const all = await supabase
+        .from("feed_posts")
+        .select("id, content, created_at, user_id, profiles(name)")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      postsData = all.data;
+    } else {
+      postsData = filtered.data;
+    }
+
+    if (postsData && postsData.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const postsWithReplies = await Promise.all((postsData as any[]).map(async (p) => {
         const { data: replies } = await supabase.from("feed_replies").select("id, content, created_at, user_id, profiles(name)").eq("post_id", p.id).order("created_at");
@@ -83,6 +98,8 @@ function FeedInner() {
         return { ...p, profiles: profileObj, replies: ((replies || []) as any[]).map((r: any) => ({ ...r, profiles: Array.isArray(r.profiles) ? r.profiles[0] : r.profiles })) } as Post & { replies: Reply[] };
       }));
       setPosts(postsWithReplies);
+    } else {
+      setPosts([]);
     }
     setLoading(false);
   }, [isDemo, userUni]);
@@ -119,9 +136,17 @@ function FeedInner() {
     }
 
     if (!userId) return;
-    const { error } = await supabase
+    // Try with university column first; if it doesn't exist, retry without
+    let { error } = await supabase
       .from("feed_posts")
       .insert({ user_id: userId, content: newPost.trim(), university: userUni });
+    if (error) {
+      // Likely missing `university` column or RLS issue — retry without it
+      const retry = await supabase
+        .from("feed_posts")
+        .insert({ user_id: userId, content: newPost.trim() });
+      error = retry.error;
+    }
     if (error) { alert("Couldn't post: " + error.message); return; }
     setNewPost("");
     fetchPosts();
