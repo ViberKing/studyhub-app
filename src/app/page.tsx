@@ -247,7 +247,7 @@ function LoginPageInner() {
                       <input type="password" placeholder="Enter your password" value={signinPassword} onChange={(e) => setSigninPassword(e.target.value)} />
                     </div>
                     <div style={{ textAlign: "right", marginTop: -4, marginBottom: 4 }}>
-                      <button type="button" className="onboard-btn-link" style={{ marginTop: 0, fontSize: 12 }} onClick={() => setShowForgot(true)}>Forgot password?</button>
+                      <button type="button" className="onboard-btn-link" style={{ marginTop: 0, fontSize: 12 }} onClick={() => router.push("/forgot-password")}>Forgot password?</button>
                     </div>
                     <button type="button" className="onboard-btn-primary" onClick={handleSignIn} disabled={loading}>
                       {loading ? "Signing in..." : "Sign in"}
