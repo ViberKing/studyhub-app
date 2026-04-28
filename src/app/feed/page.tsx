@@ -136,20 +136,54 @@ function FeedInner() {
     }
 
     if (!userId) return;
+
+    const content = newPost.trim();
+
+    // Optimistic update — show post immediately so user sees it work
+    const tempId = -Date.now();
+    const optimistic: Post & { replies: Reply[] } = {
+      id: tempId,
+      content,
+      created_at: new Date().toISOString(),
+      user_id: userId,
+      profiles: { name: userName },
+      replies: [],
+    };
+    setPosts(prev => [optimistic, ...prev]);
+    setNewPost("");
+
     // Try with university column first; if it doesn't exist, retry without
-    let { error } = await supabase
+    let saved = await supabase
       .from("feed_posts")
-      .insert({ user_id: userId, content: newPost.trim(), university: userUni });
-    if (error) {
-      // Likely missing `university` column or RLS issue — retry without it
+      .insert({ user_id: userId, content, university: userUni })
+      .select("id, content, created_at, user_id")
+      .single();
+    if (saved.error) {
       const retry = await supabase
         .from("feed_posts")
-        .insert({ user_id: userId, content: newPost.trim() });
-      error = retry.error;
+        .insert({ user_id: userId, content })
+        .select("id, content, created_at, user_id")
+        .single();
+      saved = retry;
     }
-    if (error) { alert("Couldn't post: " + error.message); return; }
-    setNewPost("");
-    fetchPosts();
+    if (saved.error) {
+      // Insert failed — remove optimistic entry and tell the user
+      setPosts(prev => prev.filter(p => p.id !== tempId));
+      alert("Couldn't post: " + saved.error.message + "\n\nIf this keeps happening, the feed_posts table may need to be created in Supabase. Run MIGRATION_FEED.sql.");
+      return;
+    }
+    // Replace temp post with saved post (using its real id)
+    if (saved.data) {
+      const realPost: Post & { replies: Reply[] } = {
+        id: saved.data.id,
+        content: saved.data.content,
+        created_at: saved.data.created_at,
+        user_id: saved.data.user_id,
+        profiles: { name: userName },
+        replies: [],
+      };
+      setPosts(prev => prev.map(p => p.id === tempId ? realPost : p));
+    }
   }
 
   async function submitReply(postId: number) {
@@ -171,10 +205,39 @@ function FeedInner() {
     }
 
     if (!userId) return;
-    const { error } = await supabase.from("feed_replies").insert({ post_id: postId, user_id: userId, content: replyText.trim() });
-    if (error) { alert("Couldn't reply: " + error.message); return; }
+
+    const content = replyText.trim();
+    const tempId = -Date.now();
+    const optimistic: Reply = {
+      id: tempId,
+      content,
+      created_at: new Date().toISOString(),
+      user_id: userId,
+      profiles: { name: userName },
+    };
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, replies: [...p.replies, optimistic] } : p));
     setReplyText(""); setReplyTo(null);
-    fetchPosts();
+
+    const { data, error } = await supabase
+      .from("feed_replies")
+      .insert({ post_id: postId, user_id: userId, content })
+      .select("id, content, created_at, user_id")
+      .single();
+    if (error) {
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, replies: p.replies.filter(r => r.id !== tempId) } : p));
+      alert("Couldn't reply: " + error.message);
+      return;
+    }
+    if (data) {
+      const real: Reply = {
+        id: data.id,
+        content: data.content,
+        created_at: data.created_at,
+        user_id: data.user_id,
+        profiles: { name: userName },
+      };
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, replies: p.replies.map(r => r.id === tempId ? real : r) } : p));
+    }
   }
 
   async function deletePost(postId: number) {

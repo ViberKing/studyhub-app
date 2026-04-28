@@ -102,37 +102,87 @@ function GroupsInner() {
     const channel = supabase.channel(`group-${activeGroup.id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "group_messages", filter: `group_id=eq.${activeGroup.id}` }, (payload) => {
         const msg = payload.new as Message;
-        // Fetch the sender name
+        // Skip messages sent by this user (already added optimistically)
+        if (msg.user_id === userId) return;
         supabase.from("profiles").select("name").eq("id", msg.user_id).single().then(({ data }) => {
-          setMessages(prev => [...prev, { ...msg, profiles: data || { name: "Unknown" } }]);
+          setMessages(prev => {
+            // Dedupe by id in case it's already there
+            if (prev.some(m => m.id === msg.id)) return prev;
+            return [...prev, { ...msg, profiles: data || { name: "Unknown" } }];
+          });
         });
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [isDemo, activeGroup]);
+  }, [isDemo, activeGroup, userId]);
 
   async function sendMessage() {
     if (!gate("groups")) return;
     if (!newMsg.trim() || !activeGroup) return;
+
+    const content = newMsg.trim();
+
+    // Demo mode — local only
+    if (isDemo) {
+      const fresh: Message = {
+        id: Date.now(),
+        content,
+        created_at: new Date().toISOString(),
+        user_id: userId || "demo-self",
+        profiles: { name: userName },
+      };
+      setMessages(prev => [...prev, fresh]);
+      setNewMsg("");
+      return;
+    }
+
     if (!userId) return;
-    await supabase.from("group_messages").insert({ group_id: activeGroup.id, user_id: userId, content: newMsg.trim() });
+
+    // Optimistic update — show message immediately
+    const tempId = -Date.now();
+    const optimistic: Message = {
+      id: tempId,
+      content,
+      created_at: new Date().toISOString(),
+      user_id: userId,
+      profiles: { name: userName },
+    };
+    setMessages(prev => [...prev, optimistic]);
     setNewMsg("");
+
+    const { data, error } = await supabase
+      .from("group_messages")
+      .insert({ group_id: activeGroup.id, user_id: userId, content })
+      .select("id, content, created_at, user_id")
+      .single();
+
+    if (error) {
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      alert("Couldn't send message: " + error.message);
+      return;
+    }
+    if (data) {
+      setMessages(prev => prev.map(m => m.id === tempId ? { ...data, profiles: { name: userName } } as Message : m));
+    }
   }
 
   async function joinGroup() {
     if (!gate("groups")) return;
     if (!activeGroup) return;
+    if (isDemo) { setIsMember(true); return; }
     if (!userId) return;
-    await supabase.from("group_members").insert({ group_id: activeGroup.id, user_id: userId, role: "member" });
+    const { error } = await supabase.from("group_members").insert({ group_id: activeGroup.id, user_id: userId, role: "member" });
+    if (error) { alert("Couldn't join: " + error.message); return; }
     setIsMember(true);
     openGroup(activeGroup);
   }
 
   async function leaveGroup() {
     if (!activeGroup || !confirm("Leave this group?")) return;
-    if (isDemo) { setIsMember(false); return; }
+    if (isDemo) { setIsMember(false); setActiveGroup(null); return; }
     if (!userId) return;
-    await supabase.from("group_members").delete().eq("group_id", activeGroup.id).eq("user_id", userId);
+    const { error } = await supabase.from("group_members").delete().eq("group_id", activeGroup.id).eq("user_id", userId);
+    if (error) { alert("Couldn't leave: " + error.message); return; }
     setIsMember(false);
     setActiveGroup(null);
     fetchGroups();
